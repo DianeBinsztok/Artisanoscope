@@ -1,0 +1,120 @@
+/*GLOBAL*/
+    /*Colonne de droite:infos pratiques*/
+    .artisan-info-card{
+        background-color:#FFE7C0; 
+        padding:1rem; 
+        text-align: end; 
+        margin-top:-5rem; 
+        position:relative; 
+        z-index:1;
+    }
+    .artisan-info-card-block{
+        border-bottom:1px solid #000000;
+    }
+
+    .artisan-info-title{
+        font-family:'Roboto Condensed'; 
+        font-size:1.1em; 
+        text-transform:uppercase;
+    }
+    /*Atelier(s)*/
+    .artisan-workshops-list{
+        display:flex; 
+        list-style-type:none;
+    }
+
+    .artisan-workshops-card{
+        display:flex; 
+        flex-direction:column; 
+        padding:0.5rem;
+    }
+    .artisan-workshops-card-title{
+        font-family:'Roboto Mono'; 
+        font-size:1em; 
+        color: #639B84;
+    }
+    /*Bouton: "en savoir plus"*/
+    .artisan-workshops-card-btn{
+        color: #639B84; 
+        border:1px solid #639B84;
+        background-color: beige;
+    }
+    .artisan-workshops-card-btn:hover{
+        color: #ffffff; 
+        background-color: #639B84;
+    }
+    /*Partie basse: contact*/
+    .artisan-bottom-contact-section{
+        display:flex; 
+        flex-direction:column;  
+        align-items:center;
+    }
+    .artisan-contact-icons{
+        display:flex; 
+        justify-content:space-between; 
+    }
+    .artisan-contact-icons a{
+        margin:0 1rem 1rem 2rem;
+    }
+
+/*TABLETTES ET MOBILES*/
+@media screen and (max-width: 900px){
+    .artisan-top-section{
+        display:flex; 
+        flex-direction: column;
+        padding:1rem;
+    }
+
+    /*Colonnes gauche et droite*/
+    .artisan-top-section-left-column{
+        width:100%; 
+    }
+    .artisan-top-section-right-column{
+        width:100%;
+    }
+}
+/*TABLETTES*/
+
+/*DESKTOP*/
+@media screen and (min-width: 900px) {
+    .artisan-top-section{
+        display:flex; 
+        padding:2rem;
+    }
+    /*Colonnes gauche et droite*/
+    .artisan-top-section-left-column{
+        width:45%; 
+        padding: 0rem 10rem 0rem 20rem;
+    }
+    .artisan-top-section-right-column{
+        width:50%; padding: 2rem 0rem 0rem 0rem;
+    }
+
+    /*Colonne de gauche: présentation de l'artisan*/
+    .artisan-main-title{
+        font-family:'Roboto Condensed'; 
+        font-size: 4em;
+        font-weight: 300;
+    }
+    .artisan-introduction{
+        font-family:'Roboto Mono';  
+        font-weight:bold; 
+        line-height:2em;
+    }
+    .artisan-presentation{
+        font-family:'Roboto Mono'; 
+        padding-top: 3rem;  
+        line-height: 2em;
+    }
+    /*Colonne de droite:infos pratiques*/
+    .artisan-info-card{
+        padding:2rem; 
+        width:48%; 
+        margin-left:1.5rem; 
+    }
+}
+
+
+
+
+
