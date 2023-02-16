@@ -67,7 +67,10 @@ if ( woocommerce_product_loop() ) {
 			$startTime = get_field("heure_debut");
 			$endTime = get_field("heure_fin");
 			$address = get_field("lieu");
-			$availabilities = wc_get_product(get_post())->get_stock_quantity();
+			$product=wc_get_product(get_post());
+			if($product){
+				$availabilities = $product->get_stock_quantity();
+			}
 
 
 			if(!empty($date) && !empty($startTime) && !empty($endTime) && !empty($address) && !empty($availabilities) && $availabilities > 0){
