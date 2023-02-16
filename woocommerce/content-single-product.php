@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
 
 /*Le produit Woocommerce: l'atelier*/
 global $product;
-
+var_dump($product);
 // Récupérez les valeurs des champs ACF pour ce produit
 function display_acf_fields() {
 	//Infos complémentaires sur l'atelier

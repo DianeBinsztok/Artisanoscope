@@ -89,11 +89,11 @@ the_content();?>
                     <? 
                     if (!empty($stages)) {
                         foreach ($stages as $stage){ 
-                        /*var_dump($stage);*/
                         $product = wc_get_product($stage);
+                        $placesDisponibles= $product->get_stock_quantity();
                     ?>
                             <li>
-                                <?php if(!empty($stage->date) && !empty($stage->heure_debut) && !empty($stage->heure_fin) && (!empty($stage->lieu))/* && !empty($stage->get_stock_quantity())*/){?>
+                                <?php if(!empty($stage->date) && !empty($stage->heure_debut) && !empty($stage->heure_fin) && (!empty($stage->lieu)) && !empty($placesDisponibles) && $placesDisponibles > 0){?>
                                     <div class="artisan-workshops-card">
                                         <a href="/produit/<? echo $product->get_slug();?>">
                                             <? echo $product->get_image(); ?>
