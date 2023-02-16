@@ -70,10 +70,10 @@ if ( woocommerce_product_loop() ) {
 			$product=wc_get_product(get_post());
 			if($product){
 				$availabilities = $product->get_stock_quantity();
+				$price = $product->get_price();
 			}
 
-
-			if(!empty($date) && !empty($startTime) && !empty($endTime) && !empty($address) && !empty($availabilities) && $availabilities > 0){
+			if(!empty($date) && !empty($startTime) && !empty($endTime) && !empty($address) && !empty($price) && !empty($availabilities) && $availabilities > 0){
 				/**
 			 	* Hook: woocommerce_shop_loop.
 			 	*/
