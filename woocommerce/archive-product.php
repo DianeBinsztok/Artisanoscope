@@ -67,11 +67,10 @@ if ( woocommerce_product_loop() ) {
 			$startTime = get_field("heure_debut");
 			$endTime = get_field("heure_fin");
 			$address = get_field("lieu");
-			//$availabilities = $product->get_stock_quantity();
-			// trouver comment requêter le champs 'stock' ($product->get_stock_quantity() ne fonctionne pas)
+			$availabilities = wc_get_product(get_post())->get_stock_quantity();
 
 
-			if(!empty($date) && !empty($startTime) && !empty($endTime) && !empty($address)/* && !empty($availabilities)*/){
+			if(!empty($date) && !empty($startTime) && !empty($endTime) && !empty($address) && !empty($availabilities) && $availabilities > 0){
 				/**
 			 	* Hook: woocommerce_shop_loop.
 			 	*/
