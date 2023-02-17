@@ -90,10 +90,14 @@ the_content();?>
                     if (!empty($stages)) {
                         foreach ($stages as $stage){ 
                         $product = wc_get_product($stage);
-                        $placesDisponibles= $product->get_stock_quantity();
+                        if($product){
+                            $placesDisponibles= $product->get_stock_quantity();
+                            $prix = $product->get_price();
+                        }
+                        
                     ?>
                             <li>
-                                <?php if(!empty($stage->date) && !empty($stage->heure_debut) && !empty($stage->heure_fin) && (!empty($stage->lieu)) && !empty($placesDisponibles) && $placesDisponibles > 0){?>
+                                <?php if(!empty($stage->date) && !empty($stage->heure_debut) && !empty($stage->heure_fin) && (!empty($stage->lieu)) && !empty($placesDisponibles) && !empty($prix) && $placesDisponibles > 0){?>
                                     <div class="artisan-workshops-card">
                                         <a href="/produit/<? echo $product->get_slug();?>">
                                             <? echo $product->get_image(); ?>
