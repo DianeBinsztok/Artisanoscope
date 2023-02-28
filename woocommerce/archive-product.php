@@ -19,30 +19,6 @@ defined( 'ABSPATH' ) || exit;
 
 get_header( 'shop' );
 
-
-function artisanoscope_workshops_filter(){
-	if ( wc_get_loop_prop( 'total' ) ) {
-		$workshop = the_post();
-
-		// La fiche produit ne s'affichera pas dans le catalogue si l'un de ces champs n'est pas renseigné
-		$date = get_field("date");
-		$startTime = get_field("heure_debut");
-		$endTime = get_field("heure_fin");
-		$address = get_field("lieu");
-		$product=wc_get_product(the_post());
-		if($product){
-			$availabilities = $product->get_stock_quantity();
-			$price = $product->get_price();
-		}
-		if(!empty($date) && !empty($startTime) && !empty($endTime) && !empty($address) && !empty($price) && !empty($availabilities) && $availabilities > 0){
-			return $workshop;
-		}
-	}
-}
-//add_filter("woocommerce_shop_loop", "artisanoscope_workshops_filter", 10);
-
-
-
 /**
  * Hook: woocommerce_before_main_content.
  *
@@ -89,25 +65,12 @@ if ( woocommerce_product_loop() ) {
 	if ( wc_get_loop_prop( 'total' ) ) {
 		while ( have_posts() ) {
 			the_post();
-
-			// La fiche produit ne s'affichera pas dans le catalogue si l'un de ces champs n'est pas renseigné
-			$date = get_field("date");
-			$startTime = get_field("heure_debut");
-			$endTime = get_field("heure_fin");
-			$address = get_field("lieu");
-			$product=wc_get_product(get_post());
-			if($product){
-				$availabilities = $product->get_stock_quantity();
-				$price = $product->get_price();
-			}
-
-			if(!empty($date) && !empty($startTime) && !empty($endTime) && !empty($address) && !empty($price) && !empty($availabilities) && $availabilities > 0){
-				/**
-			 	* Hook: woocommerce_shop_loop.
-			 	*/
-				do_action( 'woocommerce_shop_loop' );
-				wc_get_template_part( 'content', 'product' );
-			}
+		
+			/**
+			* Hook: woocommerce_shop_loop.
+			*/
+			do_action( 'woocommerce_shop_loop' );
+			wc_get_template_part( 'content', 'product' );
 		}
 	}
 	
