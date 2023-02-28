@@ -176,40 +176,28 @@ the_content();?>
             if (!empty($stages)) {
                 foreach ($stages as $stage){ 
                 $product = wc_get_product($stage);
-                if($product){
-                    $placesDisponibles= $product->get_stock_quantity();
-                }
             ?>
-                    <li <?php wc_product_class( '', $product ); ?>>
-                        <?php if(!empty($stage->date) && !empty($stage->heure_debut) && !empty($stage->heure_fin) && (!empty($stage->lieu)) && !empty($placesDisponibles) && $placesDisponibles > 0){
-
-                            
-                            /*Gestion des horaires*/
-                            /*Pour l'affichage*/
-                            $startString = substr($stage->heure_debut, 0, -3);
-                            $endString = substr($stage->heure_fin, 0, -3);
-                            /*Pour la durée
-                            $start = new DateTime(date('h:i',strtotime($stage->heure_debut))); 
-                            $end = new DateTime(date('h:i',strtotime($stage->heure_fin)));
-                            $duration = $start->diff($end)->h;*/
-                            ?>
-                            <div class="artisan-workshops-card">
-                                <a href="/produit/<? echo $product->get_slug();?>">
-                                    <? echo $product->get_image(); ?>
-                                    <p class="artisan-workshops-card-info date"><?= date('d/m/Y', strtotime($stage->date));?></p>
-                                    <h3 class="artisan-workshops-card-title"><? echo $product->get_name();?></h3>
-                                    <p class="artisan-workshops-card-info"><?= $startString ?> - <?= $endString?></p>
-                                    <p class="artisan-workshops-card-info price"><? do_action( 'woocommerce_after_shop_loop_item_title' );?></p>
-                                </a>
-                            </div>
-                        <?php }else{?>
-                            <div class="artisan-workshops-card-inactive">
-                                    <? echo $product->get_image(); ?>
-                                    <h3 class="artisan-workshops-card-title"><? echo $product->get_name();?></h3>
-                                    <div class="artisan-workshops-card-text">Il n'y a pas encore de date programmée pour cet atelier. Contactez l'artisan pour en savoir plus</div>
-                            </div>
-                        <?php }?> 
-                    </li>
+                        <?php if($product->is_visible()){
+                            //do_action('artisanoscope_workshop_card_template', $stage);
+                            wc_get_template_part( 'content', 'product');
+                        }else{
+                            if($product){
+                                $placesDisponibles= $product->get_stock_quantity();
+                                $startString = substr($stage->heure_debut, 0, -3);
+                                $endString = substr($stage->heure_fin, 0, -3);
+                                
+                                /*Pour la durée - au besoin
+                                $start = new DateTime(date('h:i',strtotime($stage->heure_debut))); 
+                                $end = new DateTime(date('h:i',strtotime($stage->heure_fin)));
+                                $duration = $start->diff($end)->h;*/
+                            }
+                            echo('<div class="artisan-workshops-card-inactive">
+                                    '.$product->get_image().'
+                                    <h3 class="artisan-workshops-card-title">'.$product->get_name().'</h3>
+                                    <div class="artisan-workshops-card-text">Il n\'y a pas encore de date programmée pour cet atelier. Contactez l\'artisan pour en savoir plus</div>
+                            </div>');
+                        }?> 
+                    
             <?  }
             } else {
                 echo "Je n'organise pas encore d'atelier pour le moment";
