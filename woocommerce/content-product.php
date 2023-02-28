@@ -19,6 +19,12 @@
 defined( 'ABSPATH' ) || exit;
 
 global $product;
+$date = get_field("date");
+$startTime = get_field("heure_debut");
+$endTime = get_field("heure_fin");
+//$price = $product->get_price();
+
+
 
 // Ensure visibility.
 if ( empty( $product ) || ! $product->is_visible() ) {
@@ -27,44 +33,54 @@ if ( empty( $product ) || ! $product->is_visible() ) {
 ?>
 
 <li <?php wc_product_class( '', $product ); ?>>
-<h3 style="font-weight: bold; color:purple;">content-product.php</h3>
-	<?php
-	/**
-	 * Hook: woocommerce_before_shop_loop_item.
-	 *
-	 * @hooked woocommerce_template_loop_product_link_open - 10
-	 */
-	do_action( 'woocommerce_before_shop_loop_item' );
+	<div class="artisan-workshops-card">
+		<?php
+		/**
+		 * Hook: woocommerce_before_shop_loop_item.
+		 *
+		 * @hooked woocommerce_template_loop_product_link_open - 10
+		 */
+		//rend les vignettes ateliers cliquables
+		do_action( 'woocommerce_before_shop_loop_item' );
 
-	/**
-	 * Hook: woocommerce_before_shop_loop_item_title.
-	 *
-	 * @hooked woocommerce_show_product_loop_sale_flash - 10
-	 * @hooked woocommerce_template_loop_product_thumbnail - 10
-	 */
-	do_action( 'woocommerce_before_shop_loop_item_title' );
+		/**
+		 * Hook: woocommerce_before_shop_loop_item_title.
+		 *
+		 * @hooked woocommerce_show_product_loop_sale_flash - 10
+		 * @hooked woocommerce_template_loop_product_thumbnail - 10
+		 */
+		//Affiche les photos-miniatures
+		do_action( 'woocommerce_before_shop_loop_item_title' );
+		echo("<p class='artisan-workshops-card-info date'>".$date."</p>");
+		/**
+		 * Hook: woocommerce_shop_loop_item_title.
+		 *
+		 * @hooked woocommerce_template_loop_product_title - 10
+		 */
+		//Affiche le titre du chaque produit
 
-	/**
-	 * Hook: woocommerce_shop_loop_item_title.
-	 *
-	 * @hooked woocommerce_template_loop_product_title - 10
-	 */
-	do_action( 'woocommerce_shop_loop_item_title' );
+		//do_action( 'woocommerce_shop_loop_item_title' );
+		//essayé d'ajouter mes classes css mais ne marche pas avec le hook => il semble surcharger mes classes
+		echo("<h3 class='artisan-workshops-card-title'>".$product->get_name()."</h3>");
 
-	/**
-	 * Hook: woocommerce_after_shop_loop_item_title.
-	 *
-	 * @hooked woocommerce_template_loop_rating - 5
-	 * @hooked woocommerce_template_loop_price - 10
-	 */
-	do_action( 'woocommerce_after_shop_loop_item_title' );
+		echo("<p class='artisan-workshops-card-info'>".$startTime." - ".$endTime."</p>");
+		/**
+		 * Hook: woocommerce_after_shop_loop_item_title.
+		 *
+		 * @hooked woocommerce_template_loop_rating - 5
+		 * @hooked woocommerce_template_loop_price - 10
+		 */
+		//Affiche le prix
+		do_action( 'woocommerce_after_shop_loop_item_title' );
 
-	/**
-	 * Hook: woocommerce_after_shop_loop_item.
-	 *
-	 * @hooked woocommerce_template_loop_product_link_close - 5
-	 * @hooked woocommerce_template_loop_add_to_cart - 10
-	 */
-	do_action( 'woocommerce_after_shop_loop_item' );
-	?>
+		/**
+		 * Hook: woocommerce_after_shop_loop_item.
+		 *
+		 * @hooked woocommerce_template_loop_product_link_close - 5
+		 * @hooked woocommerce_template_loop_add_to_cart - 10
+		 */
+		//Affiche le bouton d'ajout au panier
+		/*do_action( 'woocommerce_after_shop_loop_item' );*/
+		?>
+	</div>
 </li>

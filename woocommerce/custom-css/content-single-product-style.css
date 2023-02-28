@@ -1,6 +1,21 @@
-/*https://www.alsacreations.com/astuce/lire/1-comment-personnaliser-une-infobulle.html
-https://www.scriptol.fr/css/infobulle.php 
-*/
+/*Désactiver les styles pas défaut WC*/
+
+.product-template-default{
+    font-family: 'Roboto';
+}
+.product-template-default h1, .artisanoscope-single-product-info-artisan-title{
+    font-family: 'Roboto Condensed';
+}
+.product-template-default a{
+    color: black;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-emphasis-color:rgba(0, 0, 0, 0.300);
+    text-underline-offset: 0.2em;
+}
+.product-template-default a:hover{
+    text-decoration: none;
+}
 
 .artisanoscope-single-product-info-acf-fields{
     position: relative;
@@ -16,7 +31,10 @@ https://www.scriptol.fr/css/infobulle.php
 .artisanoscope-single-product-info-artisan-hover{
     display:none;
 }
-
+.artisanoscope-single-product-info-artisan-name{
+    font-size: 2em;
+    color: black;
+}
 .artisanoscope-single-product-info-artisan-link:hover .artisanoscope-single-product-info-artisan-hover{
     display:flex;
     position: absolute;
@@ -25,6 +43,8 @@ https://www.scriptol.fr/css/infobulle.php
     flex-direction:column; 
     align-items:center; 
     background-color:#ffffff; 
+    box-shadow: 5px 5px 10px #00000035;
+    border-radius: 7px;
     padding: 1rem;
 }
 
@@ -32,6 +52,10 @@ https://www.scriptol.fr/css/infobulle.php
     width: 50%; 
     margin-bottom: 1rem;
     border-radius:50%;
+}
+.artisanoscope-single-product-info-artisan-hover-name{
+    font-family: 'Roboto Condensed';
+    font-size:1.5em;
 }
 
 .artisanoscope-single-product-info-acf-field-line{
@@ -57,5 +81,19 @@ https://www.scriptol.fr/css/infobulle.php
 }
 .artisanoscope-single-product-info-availabilities{
     font-weight:bold; 
-    color:green;
+    color: #639B84;
+}
+
+.product-template-default .price{
+    font-size: 2em;
+    font-weight:bold;
+}
+.single_add_to_cart_button{
+    color: white;
+    background-color: #639B84;
+}
+.single_add_to_cart_button:hover{
+    color:  #639B84;
+    background-color:white;
+    border: 1px solid #639B84;
 }

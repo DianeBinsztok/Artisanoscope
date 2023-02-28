@@ -19,6 +19,30 @@ defined( 'ABSPATH' ) || exit;
 
 get_header( 'shop' );
 
+
+function artisanoscope_workshops_filter(){
+	if ( wc_get_loop_prop( 'total' ) ) {
+		$workshop = the_post();
+
+		// La fiche produit ne s'affichera pas dans le catalogue si l'un de ces champs n'est pas renseigné
+		$date = get_field("date");
+		$startTime = get_field("heure_debut");
+		$endTime = get_field("heure_fin");
+		$address = get_field("lieu");
+		$product=wc_get_product(the_post());
+		if($product){
+			$availabilities = $product->get_stock_quantity();
+			$price = $product->get_price();
+		}
+		if(!empty($date) && !empty($startTime) && !empty($endTime) && !empty($address) && !empty($price) && !empty($availabilities) && $availabilities > 0){
+			return $workshop;
+		}
+	}
+}
+//add_filter("woocommerce_shop_loop", "artisanoscope_workshops_filter", 10);
+
+
+
 /**
  * Hook: woocommerce_before_main_content.
  *
@@ -29,7 +53,6 @@ get_header( 'shop' );
 do_action( 'woocommerce_before_main_content' );
 ?>
 <header class="woocommerce-products-header">
-<h2 class="woocommerce-products-header__title page-title" style="font-weigth:bold; color:blue;">archive-product.php</h2>
 	<?php if ( apply_filters( 'woocommerce_show_page_title', true ) ) : ?>
 		<h1 class="woocommerce-products-header__title page-title"><?php woocommerce_page_title(); ?></h1>
 	<?php endif; ?>
@@ -54,14 +77,19 @@ if ( woocommerce_product_loop() ) {
 	 * @hooked woocommerce_result_count - 20
 	 * @hooked woocommerce_catalog_ordering - 30
 	 */
+	// enlever le titre et le nb de résultats
+	remove_action( 'woocommerce_before_shop_loop' , 'woocommerce-products-header__title', 19 );
+	remove_action( 'woocommerce_before_shop_loop' , 'woocommerce_result_count', 20 );
 	do_action( 'woocommerce_before_shop_loop' );
 
-	woocommerce_product_loop_start();
 
+	woocommerce_product_loop_start();
+	do_action( 'woocommerce_shop_loop' );
+	
 	if ( wc_get_loop_prop( 'total' ) ) {
 		while ( have_posts() ) {
-			
 			the_post();
+
 			// La fiche produit ne s'affichera pas dans le catalogue si l'un de ces champs n'est pas renseigné
 			$date = get_field("date");
 			$startTime = get_field("heure_debut");
@@ -82,7 +110,7 @@ if ( woocommerce_product_loop() ) {
 			}
 		}
 	}
-
+	
 	woocommerce_product_loop_end();
 
 	/**

@@ -17,10 +17,11 @@
 
 defined( 'ABSPATH' ) || exit;
 
-/*Le produit Woocommerce: l'atelier*/
 global $product;
+
+/*I - FONCTIONS*/
 // Récupérez les valeurs des champs ACF pour ce produit
-function display_acf_fields() {
+function artisanoscope_display_acf_fields() {
 	//Infos complémentaires sur l'atelier
 	global $product;
 	$availabilities = $product->get_stock_quantity();
@@ -32,7 +33,9 @@ function display_acf_fields() {
 	$addressField = get_field("lieu");
 	$address = "<p class='artisanoscope-single-product-info-acf-fields-address'>".$addressField."</p>";
 	if($addressField=="Le Chalutier, salle 1"||$addressField=="Le Chalutier, salle 2"){
-		$address = "<p class='artisanoscope-single-product-info-acf-fields-address'>".$addressField."<br/>301 Côte Simon<br/>26730 La Baume-d'Hostun</p>";
+		$address = "<p class='artisanoscope-single-product-info-acf-fields-address'>
+		<a href='/ou-nous-trouver/#adresse-chalutier'>".$addressField."</a>
+		<br/>301 Côte Simon<br/>26730 La Baume-d'Hostun</p>";
 	}
 	
 	$minAge= get_field("age_minimum");
@@ -75,35 +78,112 @@ function display_acf_fields() {
 	</svg>';
 	
 	// Afficher les champs ACF:
-	echo "<section class='artisanoscope-single-product-info-acf-fields'>";
+	echo "<section style='margin-bottom:1.5rem;' class='artisanoscope-single-product-info-acf-fields'>";
 
 	// Le champs artisan n'est pas requis. N'afficher cette partie du template que s'il est renseigné
 	if(!empty($artisan)){
-	
 		echo "<a href=".$artisanUrl." class='artisanoscope-single-product-info-artisan-link'>";
 		echo "<div class='artisanoscope-single-product-info-artisan-title artisanoscope-single-product-info-acf-field-line'>";
-		echo "<img class='artisanoscope-single-product-info-acf-fields-img' src=". $artisanPortraitMini->guid." alt=''/> Avec ". $artisanName;
+		echo "<img class='artisanoscope-single-product-info-acf-fields-img' src=". $artisanPortraitMini->guid." alt=''/><h3 class='artisanoscope-single-product-info-artisan-hover-name'>Avec ". $artisanName."</h3>";
 		echo "</div>";
-		echo "<span class='artisanoscope-single-product-info-artisan-hover'><img class='artisanoscope-single-product-info-artisan-hover-img' src=". $artisanPortrait->guid." alt=''/><p>".$artisanIntroduction."</p></span>";
+		echo "<span class='artisanoscope-single-product-info-artisan-hover'><img class='artisanoscope-single-product-info-artisan-hover-img' src=". $artisanPortrait->guid." alt=''/><h3 class='artisanoscope-single-product-info-artisan-hover-name'>".$artisanName."</h3><p class='artisanoscope-single-product-info-artisan-description'>".$artisanIntroduction."</p></span>";
 		echo "</a>";
 	}
-
-
 	echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$dateSVG. "<p>  Le ". $date . "</p></div>";
 	echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$hoursSVG."<p>  De " . $startTime . " à " . $endTime . "</p></div>";
 	echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$addressSVG.$address."</div>";
 	echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$availabilitiesSVG."<p> Il reste <span class='artisanoscope-single-product-info-availabilities'>" . $availabilities . " places </span>disponibles pour cet atelier</p></div>";
+
 	// Le champs Âge minimum n'est pas requis. N'afficher cette partie du template que s'il est renseigné
 	if(!empty($minAge)){
 		echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$minAgeSVG."<p> Âge minimum: ". $minAge . "</p></div>";
 	}
+
 	echo "</section>";
  }
-// La fonction sera appelée pendant l'exécution du hook, en 6 ème étape => juste après l'affichage du titre
- add_action( 'woocommerce_single_product_summary', 'display_acf_fields', 6);
+ // Ajouter les prix des variations dans les champs d'options
+ function artisanoscope_display_price_in_variation_option_name( $term ) {
+	global $wpdb, $product;
+
+	if ( empty( $term ) ) return $term;
+	if ( empty( $product->get_id() ) ) return $term;
+
+	$id = $product->get_id();
+
+	$result = $wpdb->get_col( "SELECT slug FROM {$wpdb->prefix}terms WHERE name = '$term'" );
+
+	$term_slug = ( !empty( $result ) ) ? $result[0] : $term;
+
+	$query = "SELECT postmeta.post_id AS product_id
+				FROM {$wpdb->prefix}postmeta AS postmeta
+					LEFT JOIN {$wpdb->prefix}posts AS products ON ( products.ID = postmeta.post_id )
+				WHERE postmeta.meta_key LIKE 'attribute_%'
+					AND postmeta.meta_value = '$term_slug'
+					AND products.post_parent = $id";
+
+	$variation_id = $wpdb->get_col( $query );
+
+	$parent = wp_get_post_parent_id( $variation_id[0] );
+
+	if ( $parent > 0 ) {
+		 $_product = new WC_Product_Variation( $variation_id[0] );
+		 return $term . ' (' . wp_kses( wc_price( $_product->get_price() ), array() ) . ')';
+	}
+	return $term;
+
+}
+ // Si le produit est variable, effacer les prix en en-tête et les ajouter dans les champs d'options (appelle la fonction suivante)
+ function artisanoscope_display_options_prices_if_variations(){
+	global $product;
+	//Si le produit est variable
+	if($product->get_attributes()){
+		//Si le produit a un attribut "participants" avec  des options
+		if($product->get_attributes()["participants"]["options"]){
+		// retirer la mise en page normale du prix
+			remove_action('woocommerce_single_product_summary','woocommerce_template_single_price');
+			add_filter( 'woocommerce_variation_option_name', 'artisanoscope_display_price_in_variation_option_name' );
+			/*
+				foreach($product->get_attributes()["participants"]["options"] as $option){
+					var_dump(wc_price( $product->get_price()));
+					echo("<p>Prix par ".$option." ".wc_price( $product->get_price() )."</p>");
+				}
+			*/
+		}
+	}
+	
+ }
+// Ajouter une consigne en cas d'achat de ticket pour enfants
+function artisanoscope_display_warning_for_children_ticket(){
+	global $product;
+
+	// Si le produit a des attributs
+	if($product->get_attributes()){
+		// s'il a un attribut "participants" avec une option "enfant"
+		if(in_array("enfant",$product->get_attributes()["participants"]["options"])){
+
+			//1 - Ajouter l'encadré d'avertissement
+			echo("<p class='atelier-option-warning hide' style='color:#BB4461; border:1px solid #BB4461; background-color:#FFECF0; border-radius: 7px; padding:1em;'>Notez que les enfants doivent être accompagnés d'un moins un adulte</p>");
+
+			//2 - Script: détection du choix et affichage de l'encadré
+			wc_enqueue_js( '
+			$( "input.variation_id" ).change( function(){
+				let atelierOptionWarning = document.querySelector(".atelier-option-warning");
+				let userChoice = document.getElementById("participants").value;
+				//console.log(userChoice);
+				if(userChoice == "enfant"){
+					atelierOptionWarning.classList.remove("hide");
+				}else{
+					atelierOptionWarning.classList.add("hide");
+				}
+			 });	
+		');
+		}
+	}
+	
+ }
 
 
-
+ /*II - HOOKS*/
 /**
  * Hook: woocommerce_before_single_product.
  *
@@ -125,6 +205,7 @@ if ( post_password_required() ) {
 	 * @hooked woocommerce_show_product_sale_flash - 10
 	 * @hooked woocommerce_show_product_images - 20
 	 */
+	// Affiche l'image
 	do_action( 'woocommerce_before_single_product_summary' );
 	?>
 	<div class="summary entry-summary">
@@ -142,12 +223,21 @@ if ( post_password_required() ) {
 		 * @hooked WC_Structured_Data::generate_product_data() - 60
 		 */
 
-		do_action( 'woocommerce_single_product_summary');
+		/* III - AJOUT DES FONCTIONS DANS LES HOOKS */ 
 
+		 // Avant d'ajouter un produit au panier
+ 		add_action( 'woocommerce_before_add_to_cart_quantity', 'artisanoscope_display_warning_for_children_ticket' );
+
+		// Afficher les champs ACF
+		add_action( 'woocommerce_single_product_summary', 'artisanoscope_display_acf_fields', 6);
+
+		// Si les prix sont variables: effacer le prix en haut du résumé et les afficher dans les options 
+		add_action('woocommerce_single_product_summary', 'artisanoscope_display_options_prices_if_variations', 9);
+		do_action( 'woocommerce_single_product_summary');
 		
-		//display_acf_fields();
 		?>
 	</div>
+	
 	<?php
 	/**
 	 * Hook: woocommerce_after_single_product_summary.
@@ -159,4 +249,4 @@ if ( post_password_required() ) {
 	do_action( 'woocommerce_after_single_product_summary' );
 	?>
 </div>
-<?php do_action( 'woocommerce_after_single_product' ); ?>
+<?php do_action( 'woocommerce_after_single_product' );?>
