@@ -175,22 +175,31 @@ the_content();?>
             <? 
             if (!empty($stages)) {
                 foreach ($stages as $stage){ 
-                $product = wc_get_product($stage);
-            ?>
-                        <?php if($product->is_visible()){
-                            //do_action('artisanoscope_workshop_card_template', $stage);
-                            wc_get_template_part( 'content', 'product');
+                    $product = wc_get_product($stage);
+                    if($product->is_visible()){
+                            //wc_get_template_part( 'content', 'product');
+
+                            $date=date('d/m/Y', strtotime($stage->date));
+                            $startTime=substr($stage->heure_debut, 0, -3);
+                            $endTime=substr($stage->heure_fin, 0, -3);
+                            $slug = $product->get_slug();
+
+                            /*Pour la durée - au besoin
+                            $start = new DateTime(date('h:i',strtotime($stage->heure_debut))); 
+                            $end = new DateTime(date('h:i',strtotime($stage->heure_fin)));
+                            $duration = $start->diff($end)->h;*/
+
+                            echo("<div class='artisan-workshops-card'>
+                                    <a href='/produit/$slug'>
+                                    ".$product->get_image()."
+                                    <p class='artisan-workshops-card-info date'>$date</p>
+                                    <h3 class='artisan-workshops-card-title'>".$product->get_name()."</h3>
+                                    <p class='artisan-workshops-card-info'>$startTime - $endTime</p>
+                                    <p class='artisan-workshops-card-info price'>");
+                            do_action( 'woocommerce_after_shop_loop_item_title' );        
+                            echo("</p></a></div>");
+
                         }else{
-                            if($product){
-                                $placesDisponibles= $product->get_stock_quantity();
-                                $startString = substr($stage->heure_debut, 0, -3);
-                                $endString = substr($stage->heure_fin, 0, -3);
-                                
-                                /*Pour la durée - au besoin
-                                $start = new DateTime(date('h:i',strtotime($stage->heure_debut))); 
-                                $end = new DateTime(date('h:i',strtotime($stage->heure_fin)));
-                                $duration = $start->diff($end)->h;*/
-                            }
                             echo('<div class="artisan-workshops-card-inactive">
                                     '.$product->get_image().'
                                     <h3 class="artisan-workshops-card-title">'.$product->get_name().'</h3>

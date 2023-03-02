@@ -129,7 +129,7 @@
     list-style-type:none;
 }
 .artisan-workshops-card{
-    width: 100%;
+    max-width: 100%;
     display:flex; 
     flex-direction:column; 
     /*align-items: center;*/
