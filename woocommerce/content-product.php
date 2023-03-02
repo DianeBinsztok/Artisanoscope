@@ -19,12 +19,6 @@
 defined( 'ABSPATH' ) || exit;
 
 global $product;
-$date = get_field("date");
-$startTime = get_field("heure_debut");
-$endTime = get_field("heure_fin");
-//$price = $product->get_price();
-
-
 
 // Ensure visibility.
 if ( empty( $product ) || ! $product->is_visible() ) {
@@ -50,18 +44,14 @@ if ( empty( $product ) || ! $product->is_visible() ) {
 		 * @hooked woocommerce_template_loop_product_thumbnail - 10
 		 */
 		//Affiche les photos-miniatures
-		remove_action('woocommerce_before_shop_loop_item_title', 'woocommerce_show_product_loop_sale_flash');
 		do_action( 'woocommerce_before_shop_loop_item_title' );
-		echo("<p class='artisan-workshops-card-info date'>".$date."</p>");
 		/**
 		 * Hook: woocommerce_shop_loop_item_title.
 		 *
 		 * @hooked woocommerce_template_loop_product_title - 10
 		 */
 		//Affiche le titre du chaque produit
-		//do_action( 'woocommerce_shop_loop_item_title' );
-		echo("<h3 class='artisan-workshops-card-title'>".$product->get_name()."</h3>");
-		echo("<p class='artisan-workshops-card-info'>".$startTime." - ".$endTime."</p>");
+		do_action( 'woocommerce_shop_loop_item_title' );
 		/**
 		 * Hook: woocommerce_after_shop_loop_item_title.
 		 *
@@ -69,7 +59,6 @@ if ( empty( $product ) || ! $product->is_visible() ) {
 		 * @hooked woocommerce_template_loop_price - 10
 		 */
 		//Affiche le prix
-		remove_action('woocommerce_after_shop_loop_item_title', 'woocommerce_template_loop_rating');
 		do_action( 'woocommerce_after_shop_loop_item_title' );
 
 		/**
@@ -78,9 +67,8 @@ if ( empty( $product ) || ! $product->is_visible() ) {
 		 * @hooked woocommerce_template_loop_product_link_close - 5
 		 * @hooked woocommerce_template_loop_add_to_cart - 10
 		 */
+		//woocommerce_template_loop_product_link_close ferme la balise de lien vers la fiche produit
 		//Affiche le bouton d'ajout au panier
-		//woocommerce_template_loop_product_link_close ouvre la balise de lien vers la fiche produit
-		remove_action('woocommerce_after_shop_loop_item', 'woocommerce_template_loop_add_to_cart');
 		do_action( 'woocommerce_after_shop_loop_item' );
 		?>
 	</div>
