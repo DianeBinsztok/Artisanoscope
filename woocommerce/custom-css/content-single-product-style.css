@@ -1,4 +1,4 @@
-/*Désactiver les styles pas défaut WC*/
+/*Désactiver les styles par défaut WC*/
 
 .product-template-default{
     font-family: 'Roboto';
@@ -84,16 +84,22 @@
     color: #639B84;
 }
 
+/*Override des styles Woocommerce*/
 .product-template-default .price{
-    font-size: 2em;
-    font-weight:bold;
+    font-size: 1.4em!important;
+    /*font-weight:bold!important;*/
+    color:  #639B84!important;
 }
 .single_add_to_cart_button{
-    color: white;
-    background-color: #639B84;
+    color: white !important;
+    background-color: #639B84!important;
 }
 .single_add_to_cart_button:hover{
-    color:  #639B84;
-    background-color:white;
-    border: 1px solid #639B84;
+    color:  #639B84!important;
+    background-color:white!important;
+    border: 1px solid #639B84!important;
+}
+
+.atelier-option-warning{
+    color:#9f4a00; border:1px solid #9f4a00; background-color:#FFE7C0; border-radius: 7px; padding:1em;
 }

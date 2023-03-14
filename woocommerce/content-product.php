@@ -34,7 +34,7 @@ if ( empty( $product ) || ! $product->is_visible() ) {
 		 *
 		 * @hooked woocommerce_template_loop_product_link_open - 10
 		 */
-		//woocommerce_template_loop_product_link_open ouvre la balise de lien vers la fiche produit
+		//Ouvre la balise de lien vers la fiche produit avec 'woocommerce_template_loop_product_link_open'
 		do_action( 'woocommerce_before_shop_loop_item' );
 
 		/**
@@ -67,7 +67,7 @@ if ( empty( $product ) || ! $product->is_visible() ) {
 		 * @hooked woocommerce_template_loop_product_link_close - 5
 		 * @hooked woocommerce_template_loop_add_to_cart - 10
 		 */
-		//woocommerce_template_loop_product_link_close ferme la balise de lien vers la fiche produit
+		//Ferme la balise de lien vers la fiche produit avec woocommerce_template_loop_product_link_close 
 		//Affiche le bouton d'ajout au panier
 		do_action( 'woocommerce_after_shop_loop_item' );
 		?>
