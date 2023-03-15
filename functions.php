@@ -23,28 +23,24 @@ require_once( get_stylesheet_directory() . '/functions/content-single-product-fu
 
 
 // TODO: FIX - DASHBOARD WOOCOMMERCE Vérifie si l'intervalle d'horaire est cohérent avant de sauvegarder le produit
-function artisanoscope_check_product_schedule( $product ) {
+function artisanoscope_check_product_schedule( $productID ) {
     // Récupérer les horaires de début et de fin du produit
-    $schedule_start = get_field( 'horaire_debut', $product->get_id() );
-    $schedule_end = get_field( 'horaire_fin', $product->get_id() );
+    $startHour = get_field( 'horaire_debut', $productID);
+    $endHour = get_field( 'horaire_fin', $productID);
+    $product = wc_get_product($productID);
 
-    // Si l'heure de fin précède l'heure de début, afficher un avertissement et empêcher l'enregistrement du produit
-    if ( $schedule_start >= $schedule_end ) {
-        // Afficher un message d'avertissement
-        wc_add_notice( 'L\'horaire de fin doit être postérieur à l\'horaire de début.', 'error','woocommerce'  );
-
-        // Empêcher l'enregistrement du produit
-        $product->set_status( 'draft' );
-
-        // Retourner le produit modifié
-        return $product;
+    // Si l'heure de fin précède l'heure de début, empêcher l'enregistrement du produit et afficher une notification
+    if ( $startHour >= $endHour ) {
+        echo("TU VAS MARCHER BORDEL??????");
+        if($product){
+            $product->set_status( 'draft' );
+        }
     }
-
-    // Si l'intervalle d'horaire est cohérent, retourner le produit
-    return $product;
 }
-add_filter( 'woocommerce_admin_process_product_object', 'artisanoscope_check_product_schedule', 10, 1 );
+add_action( 'woocommerce_process_product_meta', 'artisanoscope_check_product_schedule', 10, 1 );
+
 
 // TODO: ARCHIVE-PRODUCT: filtrage par catégorie
+
 
 // TODO: ARCHIVE-PRODUCT: filtrage par artisan
