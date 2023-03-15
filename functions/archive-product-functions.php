@@ -11,12 +11,16 @@ function artisanoscope_only_display_workshops_with_required_fields($visible, $pr
     $endTime = get_field("heure_fin", $productId);
     $address = get_field("lieu", $productId);
 
+    // Vérifier que les champs obligatoires sont tous renseignés
     if(empty($date) || empty($startTime) || empty($endTime) || empty($address)) {
-      return false; // Si un champ requis est vide, ne pas afficher le produit
+      return false;
     }
-    
-    // Vérifie également la disponibilité et le prix
-    if($product->get_stock_quantity() <= 0 || $product->get_price() <= 0) {
+    // Vérifier que les horaires sont cohérents
+    if($startTime >= $endTime) {
+      return false;
+    }
+    // Vérifier la disponibilité et le prix
+    if($product->get_stock_quantity() < 0 || $product->get_price() <= 0) {
       return false;
     }
     
@@ -44,8 +48,6 @@ function artisanoscope_content_product_display_workshop_date(){
 // 4 - ACTION: Style custom du titre de produit: remplacer les classes Woocommerce par mes classes custom
 function artisanoscope_product_content_custom_class_for_title(){
     global $product;
-    //Enlever le titre avec son style par défaut
-    remove_action('woocommerce_shop_loop_item_title', 'woocommerce_template_loop_product_title');
     //Ajouter mon titre avec la classe custom
     echo("<h3 class='artisan-workshops-card-title'>".$product->get_name()."</h3>");
 }
@@ -73,19 +75,23 @@ add_filter( 'woocommerce_product_query', 'artisanoscope_archive_product_order_by
 
 // ACTIONS
 
-// 3 - Afficher la date d'atelier avant le nom
-//add_action('woocommerce_widget_product_item_start', 'artisanoscope_content_widget_product_display_workshop_date', 20);
-add_action('woocommerce_before_shop_loop_item_title', 'artisanoscope_content_product_display_workshop_date',10);
-// 4 - Ajouter le titre avec la classe et le style custom
-add_action('woocommerce_shop_loop_item_title', 'artisanoscope_product_content_custom_class_for_title',10);
-// 5 - Ajouter les horaires des ateliers
-add_action('woocommerce_shop_loop_item_title', 'artisanoscope_product_content_display_hours',10);
-
+//Enlever le titre avec son style par défaut
+remove_action('woocommerce_shop_loop_item_title', 'woocommerce_template_loop_product_title');
 // Supprimer les notes des ateliers
 remove_action('woocommerce_after_shop_loop_item_title', 'woocommerce_template_loop_rating');
 // Supprimer le bouton d'ajout au panier
 remove_action('woocommerce_after_shop_loop_item', 'woocommerce_template_loop_add_to_cart');
 //Supprimer les mentions de vente flash
 remove_action('woocommerce_before_shop_loop_item_title', 'woocommerce_show_product_loop_sale_flash');
+
+// 3 - Afficher la date d'atelier avant le nom
+add_action('woocommerce_before_shop_loop_item_title', 'artisanoscope_content_product_display_workshop_date',10);
+// 4 - Ajouter le titre avec la classe et le style custom
+add_action('woocommerce_shop_loop_item_title', 'artisanoscope_product_content_custom_class_for_title',10);
+// 5 - Ajouter les horaires des ateliers
+add_action('woocommerce_shop_loop_item_title', 'artisanoscope_product_content_display_hours',10);
+
+
+
 
 

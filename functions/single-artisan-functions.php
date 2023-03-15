@@ -23,7 +23,7 @@ function display_workshops_if_not_empty($workshops){
                 echo('<div class="artisan-workshops-card-inactive">
                         '.$product->get_image().'
                         <h3 class="artisan-workshops-card-title">'.$product->get_name().'</h3>
-                        <div class="artisan-workshops-card-text">Il n\'y a pas encore de date programmée pour cet atelier. Contactez l\'artisan pour en savoir plus</div>
+                        <div class="artisan-workshops-card-text"><p>Il n\'y a pas encore de date programmée pour cet atelier.</p><a href="mailto:communication@lartisanoscope.fr" class="artisan-info-card-shoplink">Contactez-nous pour en savoir plus</a></div>
                     </div>');
             }
         }

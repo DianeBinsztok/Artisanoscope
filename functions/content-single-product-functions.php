@@ -163,7 +163,7 @@ function artisanoscope_display_warning_for_children_ticket(){
 					}
 				});	
 			');
-			add_action('wp_head', 'echo("<script type="text/javascript" src="/assets/js/scripts.js"></script>")');
+			//add_action('wp_head', 'echo("<script type="text/javascript" src="/assets/js/scripts.js"></script>")');
 		}
 	}
 }
