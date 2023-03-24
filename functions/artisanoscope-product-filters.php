@@ -42,7 +42,6 @@ function artisanoscope_display_workshops_custom_filters() {
                             }else{
                                 echo('<option value="'.$craft->slug.'">'.$craft->name.'</option>');
                             }
-                            
                         }
                     echo('</select>
                 </div>
@@ -63,7 +62,7 @@ function artisanoscope_workshops_custom_filters($visible, $productId){
     foreach($categories as $category){
         array_push($category_slugs, $category->slug);
     }
-    
+
     if(isset($_GET['art'])||isset($_GET['cat'])){
         if(isset($_GET['art'])){
             $artisan_query = $_GET['art'];
@@ -76,6 +75,9 @@ function artisanoscope_workshops_custom_filters($visible, $productId){
             if(in_array($category_query, $category_slugs)){
                 return $visible;
             }
+        }
+        if($_GET['art']=== 'all' && $_GET['cat']=== 'all'){
+            return $visible;
         }
     }else{
         return $visible;
