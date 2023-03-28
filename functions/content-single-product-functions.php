@@ -84,96 +84,95 @@ function artisanoscope_display_acf_fields() {
 
 	echo "</section>";
  }
+ add_action( 'woocommerce_single_product_summary', 'artisanoscope_display_acf_fields', 6);
+
  // 2 - Ajouter les prix des variations dans les champs d'options
  function artisanoscope_display_price_in_variation_option_name( $term ) {
 	global $wpdb, $product;
+			if ( empty( $term ) ) return $term;
+			if ( empty( $product->get_id() ) ) return $term;
 
-	if ( empty( $term ) ) return $term;
-	if ( empty( $product->get_id() ) ) return $term;
+			$id = $product->get_id();
 
-	$id = $product->get_id();
+			$result = $wpdb->get_col( "SELECT slug FROM {$wpdb->prefix}terms WHERE name = '$term'" );
 
-	$result = $wpdb->get_col( "SELECT slug FROM {$wpdb->prefix}terms WHERE name = '$term'" );
+			$term_slug = ( !empty( $result ) ) ? $result[0] : $term;
 
-	$term_slug = ( !empty( $result ) ) ? $result[0] : $term;
+			$query = "SELECT postmeta.post_id AS product_id
+						FROM {$wpdb->prefix}postmeta AS postmeta
+							LEFT JOIN {$wpdb->prefix}posts AS products ON ( products.ID = postmeta.post_id )
+						WHERE postmeta.meta_key LIKE 'attribute_%'
+							AND postmeta.meta_value = '$term_slug'
+							AND products.post_parent = $id";
 
-	$query = "SELECT postmeta.post_id AS product_id
-				FROM {$wpdb->prefix}postmeta AS postmeta
-					LEFT JOIN {$wpdb->prefix}posts AS products ON ( products.ID = postmeta.post_id )
-				WHERE postmeta.meta_key LIKE 'attribute_%'
-					AND postmeta.meta_value = '$term_slug'
-					AND products.post_parent = $id";
+			$variation_id = $wpdb->get_col( $query );
 
-	$variation_id = $wpdb->get_col( $query );
-
-	$parent = wp_get_post_parent_id( $variation_id[0] );
-
-	if ( $parent > 0 ) {
-		 $_product = new WC_Product_Variation( $variation_id[0] );
-		 return $term . ' (' . wp_kses( wc_price( $_product->get_price() ), array() ) . ')';
-	}
-	return $term;
-
+			$parent = wp_get_post_parent_id( $variation_id[0] );
+			if ( $parent > 0 ) {
+				$_product = new WC_Product_Variation( $variation_id[0] );
+				if($term == "adulte" || $term == "enfant"){
+					return $term . ' (' . wp_kses( wc_price( $_product->get_price() ), array() ) . ')';
+				}
+			}
+			return $term;
 }
- // 3 - Si le produit est variable, effacer les prix en en-tête et les ajouter dans les champs d'options (appelle la fonction suivante)
- function artisanoscope_display_options_prices_if_variations(){
+
+ // 3 - Si le produit est variable, effacer les prix en en-tête et les ajouter dans les champs d'options (appelle la fonction précédente)
+function artisanoscope_display_options_prices_if_variations(){
 	global $product;
 	//Si le produit est variable
-	if($product->get_attributes()){
+		if($product->get_attributes()){
 		//Si le produit a un attribut "participants" avec  des options
-		if($product->get_attributes()["participants"]["options"]){
-		// retirer la mise en page normale du prix
-			remove_action('woocommerce_single_product_summary','woocommerce_template_single_price');
-			add_filter( 'woocommerce_variation_option_name', 'artisanoscope_display_price_in_variation_option_name' );
-			/*
-				foreach($product->get_attributes()["participants"]["options"] as $option){
-					var_dump(wc_price( $product->get_price()));
-					echo("<p>Prix par ".$option." ".wc_price( $product->get_price() )."</p>");
-				}
-			*/
+			if($product->get_attributes()["participants"]["options"]){
+				//retirer la mise en page normale du prix
+				remove_action('woocommerce_single_product_summary','woocommerce_template_single_price');
+				//ajouter les prix dans les champs d'option avec la fonction précédente
+				add_filter( 'woocommerce_variation_option_name', 'artisanoscope_display_price_in_variation_option_name' );
+			}
 		}
-	}
-	
- }
+}
+add_action('woocommerce_single_product_summary', 'artisanoscope_display_options_prices_if_variations', 9);
 // 4 - Ajouter une consigne en cas d'achat de ticket pour enfants
 function artisanoscope_display_warning_for_children_ticket(){
 	global $product;
 
-	// Si le produit a des attributs
+	// 1 - Si le produit a des attributs
 	if($product->get_attributes()){
-		// s'il a un attribut "participants" avec une option "enfant"
-		if(in_array("enfant",$product->get_attributes()["participants"]["options"])){
+		// 2 - S'il a un attribut "participants" avec une option "enfant"
+			if(in_array("enfant",$product->get_attributes()["participants"]["options"])){
 
-			//1 - Ajouter l'encadré d'avertissement
-			echo("<p class='atelier-option-warning hide'>
-			Notez que les enfants doivent être accompagnés d'un moins un adulte
-			</p>");
-
-			//2 - le script
-			wc_enqueue_js( '
-				let selectInput = document.getElementById("participants");
-				selectInput.addEventListener("change", function(){
-					let atelierOptionWarning = document.querySelector(".atelier-option-warning");
-					let userChoice = document.getElementById("participants").value;
-					//console.log(userChoice);
-					if(userChoice == "enfant"){
-						atelierOptionWarning.classList.remove("hide");
-					}else{
-						atelierOptionWarning.classList.add("hide");
-					}
-				});	
-			');
-			//add_action('wp_head', 'echo("<script type="text/javascript" src="/assets/js/scripts.js"></script>")');
-		}
+				//3 - Ajouter l'encadré d'avertissement
+				echo("<p class='atelier-option-warning hide'>
+				Notez que les enfants doivent être accompagnés d'un moins un adulte
+				</p>");
+				wp_enqueue_script("childrenMessage", get_stylesheet_directory_uri().'/assets/js/artisanoscopeChildrenTicketsMessage.js');
+				//wp_enqueue_script("artisanoscopeDisplayWarningForChildrenTicket", get_stylesheet_directory_uri().'/assets/js/custom-scripts.js');
+				//wp_add_inline_script( 'custom-scripts', 'artisanoscopeDisplayWarningForChildrenTicket');
+			}
 	}
 }
-
-// II - MODIFICATION DES HOOKS 
-// 1 - Avant d'ajouter un produit au panier
 add_action( 'woocommerce_before_add_to_cart_quantity', 'artisanoscope_display_warning_for_children_ticket' );
 
-// 2 - Afficher les champs ACF
-add_action( 'woocommerce_single_product_summary', 'artisanoscope_display_acf_fields', 6);
+function artisanoscope_display_workshop_dates(){
+	global $product;
 
-// 3 - Si les prix sont variables: effacer le prix en haut du résumé et les afficher dans les options 
-add_action('woocommerce_single_product_summary', 'artisanoscope_display_options_prices_if_variations', 9);
+	// 1 - Si le produit a des attributs
+	if($product->get_attributes()){
+		// 2 - S'il a un attribut "participants" avec une option "enfant"
+			if($product->get_attributes()["date"]["options"]){
+				$date_options = $product->get_attributes()["date"]["options"];
+				foreach($date_options as $option){
+					echo("<button>".$option."</button>");
+				}
+			}
+	}
+}
+add_action( 'woocommerce_single_product_summary', 'artisanoscope_display_workshop_dates' );
+
+// TODO 5 - Dans la fiche produit, les "Produits similaires" doivent afficher des produits de même catégorie
+function artisanoscope_replace_related_products_with_same_category_products($product){
+//start modif
+//Si j'arrive à déplacer la logique de related.php pour virer le template
+//end modif
+}
+
