@@ -51,25 +51,33 @@ function artisanoscope_display_workshops_custom_filters() {
                     echo('</select>
                 </div>');  
         
-        // La période de dates:
-        if (isset($_GET['du'])){
-            $today = $_GET['du'];
-        }else{
-            $today = date("Y-m-d");
-        }
-        if (isset($_GET['au'])){
-            $oneMonthOn = $_GET['au'];
-        }else{
-            $oneMonthOn = date("Y-m-d", strtotime(date("Y-m-d", strtotime($today)). " + 30 day"));
-        }
+                // La période de dates:
+                if (isset($_GET['du'])){
+                    $start = $_GET['du'];
+                }else{
+                    //$start = date("Y-m-d");
+                    $start = null;
+                }
+                if (isset($_GET['au'])){
+                    $end = $_GET['au'];
+                }else{
+                    //$end = date("Y-m-d", strtotime(date("Y-m-d", strtotime($start)). " + 365 day"));
+                    $end = null;
+                }
+        
+
             echo('
-                <div id="artisanoscope-daterange-filter">
+                <div id="artisanoscope-daterange-filter-container">
                     <button id="artisanoscope-daterange-filter-button" type="button">Dates</button>
                     <div id="artisanoscope-daterange-toggle-zone" class="hide" style="display:flex;">
-                        <input type="date" id="artisanoscope-daterange-start" name="du" value="'.$today.'" />
-                        <input type="date" id="artisanoscope-daterange-end"  name="au" value="'.$oneMonthOn.'" />
+                        <input type="date" id="artisanoscope-daterange-start" name="du" value="'.$start.'" />
+                        <input type="date" id="artisanoscope-daterange-end"  name="au" value="'.$end.'" />
                     </div>
                 </div>');
+
+            echo('<div id="artisanoscope-reset-all-filters-container">
+                    <input type="button" id="artisanoscope-reset-all-filters-button" value="Réinitialiser" name="reset" type="button"/>
+                </div>');    
          echo('
             </form>
         </div>');
@@ -95,8 +103,13 @@ add_action( 'woocommerce_before_shop_loop', 'artisanoscope_display_workshops_cus
 function artisanoscope_workshops_custom_filters($visible, $productId){
     // L'artisan
 	$artisan = get_field("artisan");
-    $artisan_slug = $artisan->post_name;
-
+    if($artisan){
+        $artisan_slug = $artisan->post_name;
+    }else{
+        // le champs 'artisan' n'est pas obligatoire pour l'affichage au catalogue
+        $artisan_slug ="";
+    }
+   
     // Les catégories
     $categories = get_the_terms( $productId, 'product_cat' );
     $category_slugs = [];
@@ -106,7 +119,7 @@ function artisanoscope_workshops_custom_filters($visible, $productId){
     // Les dates
     $workshopsDate = get_field('date');
 
-    if( isset($_GET['art'])||isset($_GET['cat'])||(isset($_GET['du'])&&isset($_GET['au'])) ){
+    if( isset($_GET['art'])||isset($_GET['cat'])|| (isset($_GET['du'])&&isset($_GET['au'])) ){
         //artisan
         if(isset($_GET['art'])){
             $artisan_query = $_GET['art'];
@@ -130,38 +143,26 @@ function artisanoscope_workshops_custom_filters($visible, $productId){
             $start_date = $_GET['du'];
             $end_date = $_GET['au'];
             
-            if(check_daterange($start_date, $end_date, $workshopsDate)){
+            if(check_date_is_in_daterange($start_date, $end_date, $workshopsDate)){
                 return $visible;
+            }else if($start_date == null || $end_date == null){
+                unset($_GET['du']);
+                unset($_GET['au']);
             }
         }
-    }else{
-        return $visible;
+        if(isset($_GET['reset'])&&$_GET['reset']=='Réinitialiser'){
+            unset($_GET['art']);
+            unset($_GET['du']);
+            unset($_GET['au']);
+            unset($_GET['cat']);
+        }
+    }else{        
+        return $visible; // Par défaut, le produit est affiché
     }
 }
-add_filter('woocommerce_product_is_visible', 'artisanoscope_workshops_custom_filters', 10, 2);
+add_filter('woocommerce_product_is_visible', 'artisanoscope_workshops_custom_filters', 10,2);
 
-function artisanoscope_workshops_custom_date_filter($visible, $productId){
-        if(isset($_GET['dates'])){
-            $workshopsDate = get_field('date');
-            
-            $dates_query = $_GET['dates'];
-            $split = explode(" - ", $dates_query);;
-            $start_date = $split[0];
-            $end_date = $split[1];
-            $inRange = check_daterange($start_date, $end_date, $workshopsDate);
-            
-            if($inRange){
-                return $visible;
-            }else{
-                return;
-            }
-        }else{
-            return $visible;
-        }
-}
-//add_filter('woocommerce_product_is_visible', 'artisanoscope_workshops_custom_date_filter', 10, 2);
-
-function check_daterange($start_date_string, $end_date_string, $workshops_date_string)
+function check_date_is_in_daterange($start_date_string, $end_date_string, $workshops_date_string)
 {
   // Convert to timestamp
   $start_date = strtotime($start_date_string);
@@ -173,3 +174,26 @@ function check_daterange($start_date_string, $end_date_string, $workshops_date_s
   // Check that user date is between start & end
   return (($workshop_date >= $start_date) && ($workshop_date <= $end_date));
 }
+
+/*
+function artisanoscope_workshops_custom_date_filter($visible, $productId){
+        if(isset($_GET['dates'])){
+            $workshopsDate = get_field('date');
+            
+            $dates_query = $_GET['dates'];
+            $split = explode(" - ", $dates_query);;
+            $start_date = $split[0];
+            $end_date = $split[1];
+            $inRange = check_date_is_in_daterange($start_date, $end_date, $workshopsDate);
+            
+            if($inRange){
+                return $visible;
+            }else{
+                return;
+            }
+        }else{
+            return $visible;
+        }
+}
+*/
+//add_filter('woocommerce_product_is_visible', 'artisanoscope_workshops_custom_date_filter', 10, 2);

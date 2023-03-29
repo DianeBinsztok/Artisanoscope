@@ -1,12 +1,16 @@
-let filterForm = document.querySelector("#artisanoscope-custom-filters-form")
+let filterForm = document.querySelector("#artisanoscope-custom-filters-form");
+let artisanOption = document.querySelector("#artisanoscope-artisan-filter");
+let categoryOption = document.querySelector("#artisanoscope-craft-filter");
+let startDate = document.querySelector('#artisanoscope-daterange-start');
+let endDate = document.querySelector('#artisanoscope-daterange-end');
 
 //Filtrer par artisan
-document.querySelector("#artisanoscope-artisan-filter").addEventListener("change", function(event){
+artisanOption.addEventListener("change", function(event){
     event.preventDefault();
     filterForm.submit();
 });
 //Filtrer par artisanat
-document.querySelector("#artisanoscope-craft-filter").addEventListener("change", function(event){
+categoryOption.addEventListener("change", function(event){
     event.preventDefault();
     filterForm.submit();
 });
@@ -20,24 +24,12 @@ dateToggle.addEventListener("click", function(event){
 });
 
 // 2 - envoi du formulaire si 2 dates sont saisies 
-let startDate = document.querySelector('#artisanoscope-daterange-start');
-let endDate = document.querySelector('#artisanoscope-daterange-end');
-startDate.addEventListener("change", function(event){
-    event.preventDefault();
-    console.log("startDate's value => ",startDate.value);
-});
 endDate.addEventListener("change", function(event){
     event.preventDefault();
-    console.log("endDate's value => ",endDate.value);
     if(startDate.value!==null){
-        localStorage.setItem("user_selected_start", startDate.value); 
-        localStorage.setItem("user_selected_end", endDate.value); 
         filterForm.submit();
-        startDate.value =  localStorage.setItem("user_selected_start");
-        endDate.value =  localStorage.setItem("user_selected_end");
     }
 });
-
 
 // toggle affichage
 function toggleVisiblility(target){
@@ -47,7 +39,15 @@ function toggleVisiblility(target){
         target.classList.add("hide");
     }
 }
-
+//Réinitialiser les filtres
+document.querySelector("#artisanoscope-reset-all-filters-button").addEventListener("click", function(event){
+    artisanOption.value = "all";
+    categoryOption.value = "all";
+    startDate.value = null;
+    endDate.value = null;
+    event.preventDefault();
+    filterForm.submit();
+});
 /*
   $(function() {
 
