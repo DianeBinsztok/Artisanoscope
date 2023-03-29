@@ -73,10 +73,12 @@ function artisanoscope_display_workshops_custom_filters() {
                         <input type="date" id="artisanoscope-daterange-start" name="du" value="'.$start.'" />
                         <input type="date" id="artisanoscope-daterange-end"  name="au" value="'.$end.'" />
                     </div>
+                    <div id="artisanoscope-daterange-warning-missing-date" class="hide">Veuillez saisir une date de début</div>
+                    <div id="artisanoscope-daterange-warning-incoherent-date" class="hide">Veuillez saisir une date de début antérieure à la date de fin</div>
                 </div>');
 
             echo('<div id="artisanoscope-reset-all-filters-container">
-                    <input type="button" id="artisanoscope-reset-all-filters-button" value="Réinitialiser" name="reset" type="button"/>
+                    <input type="button" id="artisanoscope-reset-all-filters-button" value="Réinitialiser" name="reset"/>
                 </div>');    
          echo('
             </form>
