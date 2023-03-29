@@ -25,9 +25,39 @@ dateToggle.addEventListener("click", function(event){
 
 // 2 - envoi du formulaire si 2 dates sont saisies 
 endDate.addEventListener("change", function(event){
-    event.preventDefault();
-    if(startDate.value!==null){
-        filterForm.submit();
+    let missingDateMsg = document.querySelector("#artisanoscope-daterange-warning-missing-date");
+    let incoherentDateMsg = document.querySelector("#artisanoscope-daterange-warning-incoherent-date");
+
+    console.log("startDate.value => ", startDate.value)
+    if(startDate.value !== ""){
+        if(checkDates(startDate.value,endDate.value)){
+            filterForm.submit();
+        }else{
+            setVisibility(incoherentDateMsg, true);
+            setVisibility(missingDateMsg, false);
+            console.log("Veuillez saisir une date de début antérieure à la date de fin");
+        }
+    }else{       
+        setVisibility(missingDateMsg, true);
+        setVisibility(incoherentDateMsg, false);
+        console.log("Veuillez saisir une date de début");
+    }
+});
+
+// 2-bis - si la date de fin est saisie avant la date de début
+startDate.addEventListener("change", function(event){
+    let missingDateMsg = document.querySelector("#artisanoscope-daterange-warning-missing-date");
+    let incoherentDateMsg = document.querySelector("#artisanoscope-daterange-warning-incoherent-date");
+
+    console.log("endDate.value => ", endDate.value)
+    if(endDate.value !== ""){
+        if(checkDates(startDate.value,endDate.value)){
+            filterForm.submit();
+        }else{
+            setVisibility(incoherentDateMsg, true);
+            setVisibility(missingDateMsg, false);
+            console.log("Veuillez saisir une date de début antérieure à la date de fin");
+        }
     }
 });
 
@@ -38,6 +68,21 @@ function toggleVisiblility(target){
     }else{
         target.classList.add("hide");
     }
+}
+function setVisibility(target, visibility){
+    if(visibility === true){
+        target.classList.remove('hide');
+    }else{
+        target.classList.add('hide');
+    }
+}
+// Vérifier la cohérence des dates
+function checkDates(startDateString,endDateString ){
+let startDate = Date.parse(startDateString);
+//console.log(startDate);
+let endDate = Date.parse(endDateString);
+//console.log(endDate);
+return startDate<=endDate;
 }
 //Réinitialiser les filtres
 document.querySelector("#artisanoscope-reset-all-filters-button").addEventListener("click", function(event){
