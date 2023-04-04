@@ -11,7 +11,7 @@ function artisanoscope_check_for_required_fields($productId){
     $endTime = get_field("heure_fin", $productId);
     $address = get_field("lieu", $productId);
 
-    $today = date("d/m/Y");
+    //$today = date("d/m/Y");
 
     // Vérifier que les champs obligatoires sont tous renseignés
     if(empty($date) || empty($startTime) || empty($endTime) || empty($address) || strtotime($date)<strtotime($today)) {
@@ -22,37 +22,16 @@ function artisanoscope_check_for_required_fields($productId){
     if($startTime >= $endTime) {
       return false;
     }
+
     // Vérifier la disponibilité et le prix
     if($product->get_stock_quantity() < 0 || $product->get_price() <= 0) {
       return false;
     }
+
     return true;// Par défaut, le produit est affiché
 }
 // 1 - FILTRE: Afficher uniquement les ateliers avec toutes les infos requises
 function artisanoscope_only_display_workshops_with_required_fields($visible, $productId){
-  /*
-    $product = wc_get_product($productId);
-    $date = get_field("date", $productId);
-    $startTime = get_field("heure_debut", $productId);
-    $endTime = get_field("heure_fin", $productId);
-    $address = get_field("lieu", $productId);
-
-    // Vérifier que les champs obligatoires sont tous renseignés
-    if(empty($date) || empty($startTime) || empty($endTime) || empty($address)) {
-      return false;
-    }
-    // Vérifier que les horaires sont cohérents
-    if($startTime >= $endTime) {
-      return false;
-    }
-    // Vérifier la disponibilité et le prix
-    if($product->get_stock_quantity() < 0 || $product->get_price() <= 0) {
-      return false;
-    }
-    */
-    
-    /*$visible = artisanoscope_check_for_required_fields($productId);
-    return $visible; */
     return artisanoscope_check_for_required_fields($productId);
 }
 add_filter('woocommerce_product_is_visible', 'artisanoscope_only_display_workshops_with_required_fields', 10, 2);

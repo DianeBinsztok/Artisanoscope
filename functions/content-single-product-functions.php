@@ -18,7 +18,7 @@ function artisanoscope_display_acf_fields() {
 	if($addressField=="Le Chalutier, salle 1"||$addressField=="Le Chalutier, salle 2"){
 		$address = "<p class='artisanoscope-single-product-info-acf-fields-address'>
 		<a href='/ou-nous-trouver/#adresse-chalutier'>".$addressField."</a>
-		<br/>301 Côte Simon<br/>26730 La Baume-d'Hostun</p>";
+		<br/>301 Côte Simond<br/>26730 La Baume-d'Hostun</p>";
 	}
 	
 	$minAge= get_field("age_minimum");
@@ -72,7 +72,13 @@ function artisanoscope_display_acf_fields() {
 		echo "<span class='artisanoscope-single-product-info-artisan-hover'><img class='artisanoscope-single-product-info-artisan-hover-img' src=". $artisanPortrait->guid." alt=''/><h3 class='artisanoscope-single-product-info-artisan-hover-name'>".$artisanName."</h3><p class='artisanoscope-single-product-info-artisan-description'>".$artisanIntroduction."</p></span>";
 		echo "</a>";
 	}
-	echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$dateSVG. "<p>  Le ". $date . "</p></div>";
+	// Si la date est saisie comme variation mais qu'il n'y en a qu'une: l'afficher dans l'encadré
+	if(!array_key_exists("date", $product->get_attributes()) || (array_key_exists("date", $product->get_attributes()) && count($product->get_attributes()["date"]["options"]) == 1)){
+		echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$dateSVG. "<p>  Le ". $date . "</p></div>";
+	}
+
+	// ancienne version: affichage du champs ACF "Date"
+	//echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$dateSVG. "<p>  Le ". $date . "</p></div>";
 	echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$hoursSVG."<p>  De " . $startTime . " à " . $endTime . "</p></div>";
 	echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$addressSVG.$address."</div>";
 	echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$availabilitiesSVG."<p> Il reste <span class='artisanoscope-single-product-info-availabilities'>" . $availabilities . " places </span>disponibles pour cet atelier</p></div>";
@@ -84,7 +90,7 @@ function artisanoscope_display_acf_fields() {
 
 	echo "</section>";
  }
- add_action( 'woocommerce_single_product_summary', 'artisanoscope_display_acf_fields', 6);
+ add_action( 'woocommerce_single_product_summary', 'artisanoscope_display_acf_fields', 10);
 
  // 2 - Ajouter les prix des variations dans les champs d'options
  function artisanoscope_display_price_in_variation_option_name( $term ) {
@@ -107,12 +113,12 @@ function artisanoscope_display_acf_fields() {
 
 			$variation_id = $wpdb->get_col( $query );
 
-			$parent = wp_get_post_parent_id( $variation_id[0] );
+			$parent = wp_get_post_parent_id( $variation_id[0]);
 			if ( $parent > 0 ) {
 				$_product = new WC_Product_Variation( $variation_id[0] );
-				if($term == "adulte" || $term == "enfant"){
+				/*if($term == "adulte" || $term == "enfant"){*/
 					return $term . ' (' . wp_kses( wc_price( $_product->get_price() ), array() ) . ')';
-				}
+				/*}*/
 			}
 			return $term;
 }
@@ -123,7 +129,8 @@ function artisanoscope_display_options_prices_if_variations(){
 	//Si le produit est variable
 		if($product->get_attributes()){
 		//Si le produit a un attribut "participants" avec  des options
-			if($product->get_attributes()["participants"]["options"]){
+
+			if(isset($product->get_attributes()["participants"]) && isset($product->get_attributes()["participants"]["options"])){
 				//retirer la mise en page normale du prix
 				remove_action('woocommerce_single_product_summary','woocommerce_template_single_price');
 				//ajouter les prix dans les champs d'option avec la fonction précédente
@@ -132,6 +139,7 @@ function artisanoscope_display_options_prices_if_variations(){
 		}
 }
 add_action('woocommerce_single_product_summary', 'artisanoscope_display_options_prices_if_variations', 9);
+
 // 4 - Ajouter une consigne en cas d'achat de ticket pour enfants
 function artisanoscope_display_warning_for_children_ticket(){
 	global $product;
@@ -139,40 +147,121 @@ function artisanoscope_display_warning_for_children_ticket(){
 	// 1 - Si le produit a des attributs
 	if($product->get_attributes()){
 		// 2 - S'il a un attribut "participants" avec une option "enfant"
-			if(in_array("enfant",$product->get_attributes()["participants"]["options"])){
-
+			if(isset($product->get_attributes()["participants"]["options"])&&in_array("enfant", $product->get_attributes()["participants"]["options"])){
 				//3 - Ajouter l'encadré d'avertissement
 				echo("<p class='atelier-option-warning hide'>
 				Notez que les enfants doivent être accompagnés d'un moins un adulte
 				</p>");
 				wp_enqueue_script("childrenMessage", get_stylesheet_directory_uri().'/assets/js/artisanoscopeChildrenTicketsMessage.js');
-				//wp_enqueue_script("artisanoscopeDisplayWarningForChildrenTicket", get_stylesheet_directory_uri().'/assets/js/custom-scripts.js');
-				//wp_add_inline_script( 'custom-scripts', 'artisanoscopeDisplayWarningForChildrenTicket');
 			}
 	}
 }
 add_action( 'woocommerce_before_add_to_cart_quantity', 'artisanoscope_display_warning_for_children_ticket' );
 
-function artisanoscope_display_workshop_dates(){
-	global $product;
+// 6 - Enlever le fil d'Ariane
+remove_action("woocommerce_before_main_content", "woocommerce_breadcrumb", 20);
 
-	// 1 - Si le produit a des attributs
-	if($product->get_attributes()){
-		// 2 - S'il a un attribut "participants" avec une option "enfant"
-			if($product->get_attributes()["date"]["options"]){
-				$date_options = $product->get_attributes()["date"]["options"];
-				foreach($date_options as $option){
-					echo("<button>".$option."</button>");
-				}
-			}
-	}
+// 7 - Enlever les méta: SKU, catégories et tags
+function artisanoscope_remove_sku( $enabled ) {
+	// Si on est pas dans l'admin et si on est sur la page produit
+    if ( !is_admin() && is_product() ) {
+        return false;
+    }
+    return $enabled;
 }
-add_action( 'woocommerce_single_product_summary', 'artisanoscope_display_workshop_dates' );
+add_filter( 'wc_product_sku_enabled', 'artisanoscope_remove_sku' );
+remove_action("woocommerce_single_product_summary", "woocommerce_template_single_meta", 40);
+remove_action("woocommerce_single_product_summary", "woocommerce_template_single_sharing", 50);
 
-// TODO 5 - Dans la fiche produit, les "Produits similaires" doivent afficher des produits de même catégorie
-function artisanoscope_replace_related_products_with_same_category_products($product){
-//start modif
-//Si j'arrive à déplacer la logique de related.php pour virer le template
-//end modif
+
+/* 8 - AJOUTER DES CHAMPS CUSTOM AUX VARIATIONS DE PRODUIT */
+
+// 1. Ajout des champs custom à l'input @ Product Data > Variations > Single Variation
+add_action( 'woocommerce_variation_options_pricing', 'artisanoscope_add_custom_field_to_variations', 10, 10 );
+function artisanoscope_add_custom_field_to_variations( $loop, $variation_data, $variation ) {
+    //https://woocommerce.wp-a2z.org/oik_api/woocommerce_wp_text_input/
+    //https://pluginrepublic.com/woocommerce-custom-fields/
+
+    //Heure de début
+    woocommerce_wp_text_input( array(
+        'id' => 'start_hour[' . $loop . ']',
+        'class' => 'short',
+        'type'  => 'time',
+        'label' => __( 'Heure de début', 'woocommerce' ),
+        'value' => get_post_meta( $variation->ID, 'start_hour', true )
+    ) );
+
+    //Heure de fin
+    woocommerce_wp_text_input( array(
+        'id' => 'end_hour[' . $loop . ']',
+        'class' => 'short',
+        'type'  => 'time',
+        'label' => __( 'Heure de fin', 'woocommerce' ),
+        'value' => get_post_meta( $variation->ID, 'end_hour', true )
+    ) );
+
+    //Lieu
+    woocommerce_wp_radio(array(
+        'id' => 'location[' . $loop . ']',
+        'class' => 'short',
+        'type'  => 'radio',
+        'options'     => array(
+            'Hostun1'    => __("La Baume d'Hostun, salle 1", 'woocommerce' ),
+            'Hostun2' => __("La Baume d'Hostun, salle 2", 'woocommerce' ),
+            'Autre' => __('Autre lieu:', 'woocommerce' ),
+        ),
+        'label' => __( 'Lieu', 'woocommerce' ),
+        'value' => get_post_meta( $variation->ID, 'location', true )
+    ));
+
+    //Autre lieu (si l'atelier n'est pas à la Baume d'Hostun)
+    woocommerce_wp_textarea_input( array(
+        'id' => 'other_location[' . $loop . ']',
+        'class' => 'short',
+        'type'  => 'textarea',
+        'label' => __( "Si l'atelier ne se tient pas à la Baume d'Hostun, renseignez une adresse:", 'woocommerce' ),
+        'value' => get_post_meta( $variation->ID, 'other_location', true )
+    ) );
 }
+ 
+// -----------------------------------------
+// 2. Enregistrer le champs custom en même temps que la variation du produit
+add_action( 'woocommerce_save_product_variation', 'artisanoscope_save_custom_field_variations', 10, 2 );
+function artisanoscope_save_custom_field_variations( $variation_id, $i ) {
+    //Heure de début
+    $start_hour_field = $_POST['start_hour'][$i];
+    if ( isset( $start_hour_field ) ) update_post_meta( $variation_id, 'start_hour', esc_attr( $start_hour_field ) );
 
+    //Heure de fin
+    $end_hour_field = $_POST['end_hour'][$i];
+    if ( isset( $end_hour_field ) ) update_post_meta( $variation_id, 'end_hour', esc_attr( $end_hour_field ) );
+
+    //Lieu
+    $location_field = $_POST['location'][$i];
+    if ( isset( $location_field ) ) update_post_meta( $variation_id, 'location', esc_attr( $location_field ) );
+
+    $other_location_field = $_POST['other_location'][$i];
+    if ( isset( $other_location_field ) ) update_post_meta( $variation_id, 'other_location', esc_attr( $other_location_field ) );
+}
+ 
+// -----------------------------------------
+// 3. Enregistrer le champs custom dans les données de variation de produit
+add_filter( 'woocommerce_available_variation', 'artisanoscope_add_custom_field_variation_data_classic' );
+function artisanoscope_add_custom_field_variation_data_classic( $variations ) {
+    // C'est ce qui s'affichera en front office, quand on sélectionne une date:
+   $variations['start_hour'] = '<div class="woocommerce-variation-start-hour-field">Heure de début: <span>' . get_post_meta( $variations[ 'variation_id' ], 'start_hour', true ) . '</span></div>';
+   $variations['end_hour'] = '<div class="woocommerce-variation-end_hour-field">Heure de fin: <span>' . get_post_meta( $variations[ 'variation_id' ], 'end_hour', true ) . '</span></div>';
+
+   $location = "";
+    $location_field=get_post_meta( $variations[ 'variation_id' ], 'location', true );
+    if($location_field==="Autre"){
+        $location = get_post_meta( $variations[ 'variation_id' ], 'other_location', true );
+    }else{
+        $location = get_post_meta( $variations[ 'variation_id' ], 'location', true );
+    }
+    //var_dump(get_post_meta( $variations[ 'variation_id' ], 'location', true ));
+    $variations['location'] = '<div class="woocommerce-variation-location-field">Lieu: <span>' . $location . '</span></div>';
+   
+
+   return $variations;
+}
