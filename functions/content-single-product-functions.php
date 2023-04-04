@@ -26,11 +26,9 @@ $svg = [
 // FONCTIONS CUSTOM
 // 1 - Récupérez les valeurs et afficher les champs ACF pour ce produit
 function artisanoscope_display_acf_fields() {
-
+	//Infos complémentaires sur l'atelier
 	global $product;
-	global $svg;
 
-	// Les champs ACF
 	$availabilities = $product->get_stock_quantity();
 	$date = get_field("date");
 	$startTime = get_field("heure_debut");
@@ -66,11 +64,10 @@ function artisanoscope_display_acf_fields() {
 
 		$artisanIntroduction = $artisan ->introduction;
 	}
-	
+	global $svg;
 	
 	// Afficher les champs ACF:
 	echo "<section style='margin-bottom:1.5rem;' class='artisanoscope-single-product-info-acf-fields'>";
-
 	// Le champs artisan n'est pas requis. N'afficher cette partie du template que s'il est renseigné
 	if(!empty($artisan)){
 		echo "<a href=".$artisanUrl." class='artisanoscope-single-product-info-artisan-link'>";
@@ -184,12 +181,6 @@ function artisanoscope_display_date_options($html, $args) {
 			$html .= '<div class="artisanoscope-date-option-container">';
 			$html .='<input type="radio" class name="attribute_date" data-attribute_name="attribute_date" value="'.$option.'" class="attached enabled"><label for="attribute_date">'.$option.'</label>';
 			$html .='</div>';
-			
-			/* 
-			$html .= '<div class="artisanoscope-date-option">';
-			$html .= '<input type="button" class name="attribute_date" data-attribute_name="attribute_date" value="'.$option.'" class="attached enabled">';
-			$html .='</div>';
-			*/
 		}
 		$html .='</div>';
 		$html .= '<style>
@@ -343,45 +334,55 @@ function artisanoscope_save_custom_field_variations( $variation_id, $i ) {
  
 // -----------------------------------------
 // 3. Enregistrer le champs custom dans les données de variation de produit
-add_filter( 'woocommerce_available_variation', 'artisanoscope_add_custom_field_variation_data_classic' );
-function artisanoscope_add_custom_field_variation_data_classic( $variations ) {
-    // C'est ce qui s'affichera en front office, quand on sélectionne une date:
-   $variations['start_hour'] = '<div class="woocommerce-variation-start-hour-field">Heure de début: <span>' . get_post_meta( $variations[ 'variation_id' ], 'start_hour', true ) . '</span></div>';
-   $variations['end_hour'] = '<div class="woocommerce-variation-end_hour-field">Heure de fin: <span>' . get_post_meta( $variations[ 'variation_id' ], 'end_hour', true ) . '</span></div>';
+add_filter( 'woocommerce_available_variation', 'artisanoscope_add_custom_field_variation_data' );
+function artisanoscope_add_custom_field_variation_data( $variations ) {
+	// C'est ce qui s'affichera en front office, quand on sélectionne une date:
+	global $svg;
+	global $product;
 
-   $location = "";
-    $location_field=get_post_meta( $variations[ 'variation_id' ], 'location', true );
-    if($location_field==="Autre"){
-        $location = get_post_meta( $variations[ 'variation_id' ], 'other_location', true );
-    }else{
-        $location = get_post_meta( $variations[ 'variation_id' ], 'location', true );
-    }
-    //var_dump(get_post_meta( $variations[ 'variation_id' ], 'location', true ));
-    $variations['location'] = '<div class="woocommerce-variation-location-field">Lieu: <span>' . $location . '</span></div>';
-   
+	//Horaires
 
-   return $variations;
+	$variations['hours'] = $svg["hours"].get_post_meta( $variations[ 'variation_id' ], 'start_hour', true ).' - '.get_post_meta( $variations[ 'variation_id' ], 'end_hour', true );
+
+	//Lieu
+	$location = "";
+	$location_field=get_post_meta( $variations[ 'variation_id' ], 'location', true );
+	if($location_field==="Autre"){
+		$location = $svg["location"].' '.get_post_meta( $variations[ 'variation_id' ], 'other_location', true );
+	}else{
+		$location = $svg["location"].' '.get_post_meta( $variations[ 'variation_id' ], 'location', true );
+	}
+	$variations['location'] = $location;
+
+	// Les places disponibles (stock) pour chaque variations
+
+	// 1 - Je récupère la variable Woocommerce $variations["availability_html"]
+	$default_availability_tag = $variations["availability_html"];
+	// 2 - je retire ses balises et styles par défaut
+	$availability = str_replace('<p class="stock in-stock">','',
+	$default_availability_tag);
+	$availability = str_replace(' en stock</p>','',$availability);
+	// 3 - ma chaine de caractère custom
+	$variations["availabilities"] = $svg["people"]." <span class='stock in-stock artisanoscope-single-product-info-availabilities'>".$availability ." places </span> disponibles";
+
+	return $variations;
 }
 
-// -----------------------------------------
-// 3-bis. Enregistrer le champs custom dans les données de variation de produit
-//add_filter( 'woocommerce_available_variation', 'artisanoscope_add_custom_field_variation_data' );
-function artisanoscope_add_custom_field_variation_data( $variations ) {
-
-    // C'est ce qui s'affichera en front office, quand on sélectionne une date:
-   $variations['start_hour'] = '<div class="woocommerce-variation-start-hour-field">Heure de début: <span>' . get_post_meta( $variations[ 'variation_id' ], 'start_hour', true ) . '</span></div>';
-   $variations['end_hour'] = '<div class="woocommerce-variation-end_hour-field">Heure de fin: <span>' . get_post_meta( $variations[ 'variation_id' ], 'end_hour', true ) . '</span></div>';
-
-   $location = "";
-    $location_field=get_post_meta( $variations[ 'variation_id' ], 'location', true );
-    if($location_field==="Autre"){
-        $location = get_post_meta( $variations[ 'variation_id' ], 'other_location', true );
-    }else{
-        $location = get_post_meta( $variations[ 'variation_id' ], 'location', true );
+//add_action( 'woocommerce_after_shop_loop_item', 'artisanoscope_display_stock_by_variation' );
+function artisanoscope_display_stock_by_variation(){
+    global $product;
+    if ( $product->get_type() == 'variable' ) {
+		echo('test');
+        foreach ( $product->get_available_variations() as $key ) {
+            $variation = wc_get_product( $key['variation_id'] );
+            $stock = $variation->get_availability();
+            $stock_string = $stock['availability'] ? $stock['availability'] : __( 'In stock', 'woocommerce' );
+            //$attr_string = array();
+            foreach ( $key['attributes'] as $attr_name => $attr_value ) {
+                $attr_string[] = $attr_value;
+            }
+            //echo '<br/>' . implode( ', ', $attr_string ) . ': ' . $stock_string;
+			echo '<br/>' . $stock_string.' places disponibles';
+        }
     }
-    //var_dump(get_post_meta( $variations[ 'variation_id' ], 'location', true ));
-    $variations['location'] = '<div class="woocommerce-variation-location-field">Lieu: <span>' . $location . '</span></div>';
-   
-
-   return $variations;
 }
