@@ -11,9 +11,6 @@ function artisanoscope_display_workshops_custom_filters() {
             array_push($artisans, $artisan);
         }
     }
-    
-    // b - Si c'est une custom taxonomie (utiliser $artisan->name)
-    //$artisans = get_terms('artisan', array('hide_empty' => false));
 
     // 3 - Les catégories d'artisanat
     $crafts=get_terms('product_cat', array('hide_empty' => true));
@@ -83,21 +80,6 @@ function artisanoscope_display_workshops_custom_filters() {
          echo('
             </form>
         </div>');
-
-                    /*echo('            
-            <!--<form id="artisanoscope-custom-daterange-form"> -->
-                <div id="artisanoscope-daterange-filter-container">
-                    <!-- <label for="artisanoscope-daterange-filter">Pour une période de dates</label> -->
-                </div>
-                <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
-                <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-                <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-                <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-                <div>
-                <input type="text" name="dates" value="Dates" />
-                </div>
-            </form>
-        </div>');*/
         wp_enqueue_script("customFilters", get_stylesheet_directory_uri().'/assets/js/artisanoscopeWorkshopsCustomFilters.js');
 }
 add_action( 'woocommerce_before_shop_loop', 'artisanoscope_display_workshops_custom_filters');
