@@ -8,7 +8,6 @@ function display_workshops_if_not_empty($workshops){
                 $date=date('d/m/Y', strtotime($workshop->date));
                 $startTime=substr($workshop->heure_debut, 0, -3);
                 $endTime=substr($workshop->heure_fin, 0, -3);
-                $product = wc_get_product($workshop);
                 $productSlug = $product->get_slug();
     
                 echo("<div class='artisan-workshops-card'>

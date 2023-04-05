@@ -11,9 +11,6 @@ function artisanoscope_display_workshops_custom_filters() {
             array_push($artisans, $artisan);
         }
     }
-    
-    // b - Si c'est une custom taxonomie (utiliser $artisan->name)
-    //$artisans = get_terms('artisan', array('hide_empty' => false));
 
     // 3 - Les catégories d'artisanat
     $crafts=get_terms('product_cat', array('hide_empty' => true));
@@ -73,31 +70,16 @@ function artisanoscope_display_workshops_custom_filters() {
                         <input type="date" id="artisanoscope-daterange-start" name="du" value="'.$start.'" />
                         <input type="date" id="artisanoscope-daterange-end"  name="au" value="'.$end.'" />
                     </div>
-                    <div id="artisanoscope-daterange-warning-missing-date" class="hide">Veuillez saisir une date de début</div>
-                    <div id="artisanoscope-daterange-warning-incoherent-date" class="hide">Veuillez saisir une date de début antérieure à la date de fin</div>
+                    <div id="artisanoscope-daterange-warning-missing-date" class="atelier-option-warning hide">Veuillez saisir une date de début</div>
+                    <div id="artisanoscope-daterange-warning-incoherent-date" class="atelier-option-warning hide">Veuillez saisir une date de début antérieure à la date de fin</div>
                 </div>');
 
             echo('<div id="artisanoscope-reset-all-filters-container">
-                    <input type="button" id="artisanoscope-reset-all-filters-button" value="Réinitialiser" name="reset"/>
+                    <input type="button" id="artisanoscope-reset-all-filters-button" value="Réinitialiser" name="reset" type="button"/>
                 </div>');    
          echo('
             </form>
         </div>');
-
-                    /*echo('            
-            <!--<form id="artisanoscope-custom-daterange-form"> -->
-                <div id="artisanoscope-daterange-filter-container">
-                    <!-- <label for="artisanoscope-daterange-filter">Pour une période de dates</label> -->
-                </div>
-                <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
-                <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-                <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-                <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-                <div>
-                <input type="text" name="dates" value="Dates" />
-                </div>
-            </form>
-        </div>');*/
         wp_enqueue_script("customFilters", get_stylesheet_directory_uri().'/assets/js/artisanoscopeWorkshopsCustomFilters.js');
 }
 add_action( 'woocommerce_before_shop_loop', 'artisanoscope_display_workshops_custom_filters');
@@ -115,9 +97,12 @@ function artisanoscope_workshops_custom_filters($visible, $productId){
     // Les catégories
     $categories = get_the_terms( $productId, 'product_cat' );
     $category_slugs = [];
-    foreach($categories as $category){
-        array_push($category_slugs, $category->slug);
+    if($categories){
+        foreach($categories as $category){
+            array_push($category_slugs, $category->slug);
+        }
     }
+  
     // Les dates
     $workshopsDate = get_field('date');
 
@@ -176,26 +161,3 @@ function check_date_is_in_daterange($start_date_string, $end_date_string, $works
   // Check that user date is between start & end
   return (($workshop_date >= $start_date) && ($workshop_date <= $end_date));
 }
-
-/*
-function artisanoscope_workshops_custom_date_filter($visible, $productId){
-        if(isset($_GET['dates'])){
-            $workshopsDate = get_field('date');
-            
-            $dates_query = $_GET['dates'];
-            $split = explode(" - ", $dates_query);;
-            $start_date = $split[0];
-            $end_date = $split[1];
-            $inRange = check_date_is_in_daterange($start_date, $end_date, $workshopsDate);
-            
-            if($inRange){
-                return $visible;
-            }else{
-                return;
-            }
-        }else{
-            return $visible;
-        }
-}
-*/
-//add_filter('woocommerce_product_is_visible', 'artisanoscope_workshops_custom_date_filter', 10, 2);
