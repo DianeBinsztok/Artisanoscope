@@ -136,29 +136,29 @@ function artisanoscope_display_date_options($html, $args) {
     // Vérifier que l'attribut est "Dates"
     if ($args['attribute'] === 'Date') {
 		$dates ='';
-		$date_options=$product->get_attributes()['date']['options'];
-		foreach($date_options as $date_option){
+		$variations = $product->get_available_variations();
+		foreach($variations as $variation){
 			$dates .= '
-			<div class="artisanoscope-date-option" name="'.$date_option.'">
+			<div class="artisanoscope-date-option" name="'.$variation["attributes"] ["attribute_date"].'">
 				<div class="artisanoscope-date-option-line">
 				'.$svg["date"].'
-					<h3 class="artisanoscope-date-option-date">'.$date_option.'</h3>
+					<h3 class="artisanoscope-date-option-date">'.$variation["attributes"] ["attribute_date"].'</h3>
 				</div>
 				<div class="artisanoscope-date-option-line">
 				'.$svg["hours"].'
-					<p class="artisanoscope-date-option-hours">9:00 - 12:00</p>
+					<p class="artisanoscope-date-option-hours">'.$variation["start_hour"].' - '.$variation["end_hour"].'</p>
 				</div>
 				<div class="artisanoscope-date-option-line">
 				'.$svg["location"].'
-					<p class="artisanoscope-date-option-location">Boutique de Romans</p>
+					<p class="artisanoscope-date-option-location">'.$variation["location"].'</p>
 				</div>
 				<div class="artisanoscope-date-option-line">
 				'.$svg["people"].'
-					<p class="artisanoscope-date-option-availabilities"><span class="stock in-stock artisanoscope-single-product-info-availabilities">10 places</span> disponibles</p>
+					<p class="artisanoscope-date-option-availabilities"><span class="stock in-stock artisanoscope-single-product-info-availabilities">'.$variation["availabilities"].'places </span> disponibles</p>
 				</div>
 				<div class="artisanoscope-date-option-line">
 				'.$svg["price"].'
-					<p class="artisanoscope-date-option-price"><p class="artisanoscope-date-option-price">60€</p>
+					<p class="artisanoscope-date-option-price"><p class="artisanoscope-date-option-price">'.$variation["price"].'</p>
 				</div>
 			</div>';
 		}
@@ -169,12 +169,6 @@ function artisanoscope_display_date_options($html, $args) {
 		'.$dates.'
     	</div>
 		';
-		/*
-        $html = str_replace('<select id="date" class="" name="attribute_date" data-attribute_name="attribute_date" data-show_option_none="yes"><option value="">Choisir une option</option>', '<div id="date" name="attribute_date" data-attribute_name="attribute_date" class="button-group">', $html);
-        $html = str_replace('<option', '<button class="button"', $html);
-        $html = str_replace('</option>', '</button>', $html);
-		$html = str_replace('</select>', '</div>', $html);
-		*/
     }
     return $html;
 }
@@ -279,186 +273,37 @@ function artisanoscope_add_custom_field_variation_data( $variations ) {
 
 	$variations['hours'] = $svg["hours"].get_post_meta( $variations[ 'variation_id' ], 'start_hour', true ).' - '.get_post_meta( $variations[ 'variation_id' ], 'end_hour', true );
 
+	$variations['start_hour'] = get_post_meta( $variations[ 'variation_id' ], 'start_hour', true );
+	$variations['end_hour'] = get_post_meta( $variations[ 'variation_id' ], 'end_hour', true );
+
 	//Lieu
 	$location = "";
 	$location_field=get_post_meta( $variations[ 'variation_id' ], 'location', true );
 	if($location_field==="Autre"){
-		$location = $svg["location"].' '.get_post_meta( $variations[ 'variation_id' ], 'other_location', true );
+		$location = get_post_meta( $variations[ 'variation_id' ], 'other_location', true );
 	}else{
-		$location = $svg["location"].' '.get_post_meta( $variations[ 'variation_id' ], 'location', true );
+		$location = get_post_meta( $variations[ 'variation_id' ], 'location', true );
 	}
 	$variations['location'] = $location;
 
 	// Les places disponibles (stock) pour chaque variations
-
 	// 1 - Je récupère la variable Woocommerce $variations["availability_html"]
 	$default_availability_tag = $variations["availability_html"];
 	// 2 - je retire ses balises et styles par défaut
 	$availability = str_replace('<p class="stock in-stock">','',
 	$default_availability_tag);
 	$availability = str_replace(' en stock</p>','',$availability);
-	// 3 - ma chaine de caractère custom
-	$variations["availabilities"] = $svg["people"]." <span class='stock in-stock artisanoscope-single-product-info-availabilities'>".$availability ." places </span> disponibles";
+	// 3 -  Je ne garde que le nombre
+	$variations["availabilities"] = $availability;
 
+	// Pareil pour le prix:
+	// 1 - Je récupère la variable Woocommerce $variations["price_html"]
+	$default_price_tag = $variations["price_html"];
+	// 2 - je retire ses balises et styles par défaut
+	$price = str_replace('<span class="price"><span class="woocommerce-Price-amount amount"><bdi>','',
+	$default_price_tag);
+	$price = str_replace('</span></span><span class="woocommerce-Price-currencySymbol">€</span></bdi>','',$price);
+	// 3 -  Je ne garde que le nombre
+	$variations["price"] = $price;
 	return $variations;
 }
-
-
-/*TRASH*/
-
-
-function artisanoscope_display_acf_fieldsx() {
-	//Infos complémentaires sur l'atelier
-	global $product;
-
-	$availabilities = $product->get_stock_quantity();
-	$date = get_field("date");
-	$startTime = get_field("heure_debut");
-	$endTime = get_field("heure_fin");
-
-	// Afficher le nom du lieu
-	$addressField = get_field("lieu");
-	$address = "<p class='artisanoscope-single-product-info-acf-fields-address'>".$addressField."</p>";
-	if($addressField=="Le Chalutier, salle 1"||$addressField=="Le Chalutier, salle 2"){
-		$address = "<p class='artisanoscope-single-product-info-acf-fields-address'>
-		<a href='/ou-nous-trouver/#adresse-chalutier'>".$addressField."</a>
-		<br/>301 Côte Simond<br/>26730 La Baume-d'Hostun</p>";
-	}
-	
-	$minAge= get_field("age_minimum");
-
-	//Infos relatives à l'artisan - si le champs a été renseigné
-	$artisan = get_field("artisan");
-	if(!empty($artisan)){
-		$artisanName = $artisan ->nom;
-		$artisanUrl = $artisan ->guid;
-		$artisanPortraitID = $artisan->portrait;
-		$artisanPortrait = get_post($artisanPortraitID);
-
-		$artisanPortraitMiniID = $artisan->portrait_mini;
-		// Si l'artisan a un portrait mais pas de miniature, on utilisera le portrait
-		if(!empty($artisanPortraitMiniID)){
-			$artisanPortraitMini = get_post($artisanPortraitMiniID);
-		}else{
-			$artisanPortraitMini = $artisanPortrait;
-		}
-
-		$artisanIntroduction = $artisan ->introduction;
-	}
-	global $svg;
-	
-	// Afficher les champs ACF:
-	echo "<section style='margin-bottom:1.5rem;' class='artisanoscope-single-product-info-acf-fields'>";
-	// Le champs artisan n'est pas requis. N'afficher cette partie du template que s'il est renseigné
-	if(!empty($artisan)){
-		echo "<a href=".$artisanUrl." class='artisanoscope-single-product-info-artisan-link'>";
-		echo "<div class='artisanoscope-single-product-info-artisan-title artisanoscope-single-product-info-acf-field-line'>";
-		echo "<img class='artisanoscope-single-product-info-acf-fields-img' src=". $artisanPortraitMini->guid." alt=''/><h3 class='artisanoscope-single-product-info-artisan-hover-name'>Avec ". $artisanName."</h3>";
-		echo "</div>";
-		echo "<span class='artisanoscope-single-product-info-artisan-hover'><img class='artisanoscope-single-product-info-artisan-hover-img' src=". $artisanPortrait->guid." alt=''/><h3 class='artisanoscope-single-product-info-artisan-hover-name'>".$artisanName."</h3><p class='artisanoscope-single-product-info-artisan-description'>".$artisanIntroduction."</p></span>";
-		echo "</a>";
-	}
-
-	// Si la date est saisie comme variation mais qu'il n'y en a qu'une: l'afficher dans l'encadré
-	if(!array_key_exists("date", $product->get_attributes()) || (array_key_exists("date", $product->get_attributes()) && count($product->get_attributes()["date"]["options"]) == 1)){
-		echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$svg["date"]. "<p>  Le ". $date . "</p></div>";
-	}
-
-	// ancienne version: affichage du champs ACF "Date"
-	//echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$dateSVG. "<p>  Le ". $date . "</p></div>";
-	echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$svg["hours"]."<p>  De " . $startTime . " à " . $endTime . "</p></div>";
-	echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$svg["location"].$address."</div>";
-	echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$svg["people"]."<p> Il reste <span class='artisanoscope-single-product-info-availabilities'>" . $availabilities . " places </span>disponibles pour cet atelier</p></div>";
-
-	// Le champs Âge minimum n'est pas requis. N'afficher cette partie du template que s'il est renseigné
-	if(!empty($minAge)){
-		echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$svg["kid_friendly"]."<p> Âge minimum: ". $minAge . "</p></div>";
-	}
-
-	echo "</section>";
-}
-//add_action( 'woocommerce_single_product_summary', 'artisanoscope_display_acf_fieldsx', 10);
-
-// 5 - Affichage des dates en tant qu'attributs de produit
-function artisanoscope_display_date_optionsx($html, $args) {
-	global $product;
-    // Vérifier que l'attribut est "Dates"
-    if ($args['attribute'] === 'Date') {
-        // Remplacer la liste déroulante par des boutons
-		$html="";
-
-		$html .='<div class="artisanoscope-date-options-container">';
-
-		foreach($product->get_attributes()["date"]["options"] as $option){
-			/**/
-			$html .= '<div class="artisanoscope-date-option-container">';
-			$html .='<input type="radio" class name="attribute_date" data-attribute_name="attribute_date" value="'.$option.'" class="attached enabled"><label for="attribute_date">'.$option.'</label>';
-			$html .='</div>';
-			
-			/* 
-			$html .= '<div class="artisanoscope-date-option">';
-			$html .= '<input type="button" class name="attribute_date" data-attribute_name="attribute_date" value="'.$option.'" class="attached enabled">';
-			$html .='</div>';
-			*/
-		}
-		$html .='</div>';
-		$html .= '<style>
-			/*input[type="radio"] { opacity:0; }*/
-			.artisanoscope-date-options-container {
-				display:flex;
-			  }
-
-			.artisanoscope-date-option{
-				margin:0.3em;
-				cursor:pointer;
-			}
-
-			.artisanoscope-date-option input[type="button"]:checked {
-				background-color:pink;
-			}
-			</style>';
-    }
-    return $html;
-}
-//add_filter('woocommerce_dropdown_variation_attribute_options_html', 'artisanoscope_display_date_optionsx', 10, 2);
-
-
-function artisanoscope_display_workshop_datesx($html,$args){
-	$output = '';
-    $options = $args['options'];
-    $attribute_name = $args['attribute'];
-	//var_dump($attribute_name);
-	//var_dump($html);
-    if ( $attribute_name == 'Date' ) {
-        foreach ( $options as $option ) {
-			//echo("<button>".$option."</button>");
-			$html .="<button>".$option."</button>";
-			
-            $checked = selected( sanitize_title( $args['selected'] ), sanitize_title( $option ), false );
-            $output .= '<label><input type="button" name="' . esc_attr( 'attribute_' . sanitize_title( $attribute_name ) ) . '" value="' . esc_attr( sanitize_title( $option ) ) . '"' . $checked . ' />' . esc_html( apply_filters( 'woocommerce_variation_option_name', $option ) ) . '</label>';
-			
-        }
-    }
-
-    return $html;
-}
-//add_filter( 'woocommerce_dropdown_variation_attribute_options_html', 'artisanoscope_display_workshop_datesx', 10, 2 );
-
-function artisanoscope_display_workshop_dates(){
-	global $product;
-
-	// 1 - Si le produit a des attributs
-	if($product->get_attributes()){
-		// 2 - S'il a un attribut "participants" avec une option "enfant"
-			if($product->get_attributes()["date"]["options"]){
-
-
-				$date_options = $product->get_attributes()["date"]["options"];
-				foreach($date_options as $option){
-					echo("<button>".$option."</button>");
-				}
-			}
-	}
-}
-//add_action( 'woocommerce_dropdown_variation_attribute_options_html', 'artisanoscope_display_workshop_dates', 10, 2 );
-//add_action( 'woocommerce_before_add_to_cart_quantity', 'artisanoscope_display_workshop_dates' );
