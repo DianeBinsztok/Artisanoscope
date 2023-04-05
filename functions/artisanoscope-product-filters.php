@@ -75,7 +75,7 @@ function artisanoscope_display_workshops_custom_filters() {
                 </div>');
 
             echo('<div id="artisanoscope-reset-all-filters-container">
-                    <input type="button" id="artisanoscope-reset-all-filters-button" value="Réinitialiser" name="reset"/>
+                    <input type="button" id="artisanoscope-reset-all-filters-button" value="Réinitialiser" name="reset" type="button"/>
                 </div>');    
          echo('
             </form>
