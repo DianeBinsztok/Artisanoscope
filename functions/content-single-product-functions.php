@@ -136,46 +136,59 @@ function artisanoscope_display_date_options($html, $args) {
     // Vérifier que l'attribut est "Dates"
     if ($args['attribute'] === 'Date') {
 		$dates ='';
-		$date_options=$product->get_attributes()['date']['options'];
-		foreach($date_options as $date_option){
+		$variations = $product->get_available_variations();
+		foreach($variations as $variation){
+
 			$dates .= '
-			<div class="artisanoscope-date-option" name="'.$date_option.'">
+			<div class="artisanoscope-date-option" name="date">
 				<div class="artisanoscope-date-option-line">
 				'.$svg["date"].'
-					<h3 class="artisanoscope-date-option-date">'.$date_option.'</h3>
+				<h3 class="artisanoscope-date-option-date">'.$variation["attributes"] ["attribute_date"].'</h3>
 				</div>
+
 				<div class="artisanoscope-date-option-line">
 				'.$svg["hours"].'
-					<p class="artisanoscope-date-option-hours">9:00 - 12:00</p>
+					<p class="artisanoscope-date-option-hours">De '.$variation["start_hour"].' à '.$variation["end_hour"].'</p>
 				</div>
 				<div class="artisanoscope-date-option-line">
 				'.$svg["location"].'
-					<p class="artisanoscope-date-option-location">Boutique de Romans</p>
+					<p class="artisanoscope-date-option-location">'.$variation["location"].'</p>
 				</div>
 				<div class="artisanoscope-date-option-line">
 				'.$svg["people"].'
-					<p class="artisanoscope-date-option-availabilities"><span class="stock in-stock artisanoscope-single-product-info-availabilities">10 places</span> disponibles</p>
+					<p class="artisanoscope-date-option-availabilities"><span class="stock in-stock artisanoscope-single-product-info-availabilities">'.$variation["availabilities"].'places </span> disponibles</p>
 				</div>
 				<div class="artisanoscope-date-option-line">
 				'.$svg["price"].'
-					<p class="artisanoscope-date-option-price"><p class="artisanoscope-date-option-price">60€</p>
+					<p class="artisanoscope-date-option-price"><p class="artisanoscope-date-option-price">'.$variation["price"].'</p>
 				</div>
 			</div>';
 		}
 
-
+		
 		$html= '
 		<div id="date" class="artisanoscope-date-options-container" name="attribute_date" data-attribute_name="attribute_date">
 		'.$dates.'
     	</div>
+		<input type="hidden" name="start_hour" value="'.$variation["start_hour"].'">
+		<input type="hidden" name="end_hour" value="'.$variation["end_hour"].' ">
+		<input type="hidden" name="location" value="'.$variation["location"].'">
 		';
-		/*
-        $html = str_replace('<select id="date" class="" name="attribute_date" data-attribute_name="attribute_date" data-show_option_none="yes"><option value="">Choisir une option</option>', '<div id="date" name="attribute_date" data-attribute_name="attribute_date" class="button-group">', $html);
-        $html = str_replace('<option', '<button class="button"', $html);
-        $html = str_replace('</option>', '</button>', $html);
-		$html = str_replace('</select>', '</div>', $html);
-		*/
+		
     }
+	$html.='
+	<script>
+	document.querySelectorAll(".artisanoscope-date-option").forEach(selection=>{
+		selection.addEventListener("click", event=>{
+			event.preventDefault();
+			value = document.getElementsByName("variation_id")[0];
+			value.setAttribute("value", "'.$variation["variation_id"].'");
+			console.log(value);
+			document.querySelector(".single_add_to_cart_button").classList.remove("disabled");
+			document.querySelector(".single_add_to_cart_button").classList.remove("wc-variation-selection-needed");
+		})
+	}); 
+	</script>';
     return $html;
 }
 add_filter('woocommerce_dropdown_variation_attribute_options_html', 'artisanoscope_display_date_options', 10, 2);
@@ -279,26 +292,38 @@ function artisanoscope_add_custom_field_variation_data( $variations ) {
 
 	$variations['hours'] = $svg["hours"].get_post_meta( $variations[ 'variation_id' ], 'start_hour', true ).' - '.get_post_meta( $variations[ 'variation_id' ], 'end_hour', true );
 
+	$variations['start_hour'] = get_post_meta( $variations[ 'variation_id' ], 'start_hour', true );
+	$variations['end_hour'] = get_post_meta( $variations[ 'variation_id' ], 'end_hour', true );
+
 	//Lieu
 	$location = "";
 	$location_field=get_post_meta( $variations[ 'variation_id' ], 'location', true );
 	if($location_field==="Autre"){
-		$location = $svg["location"].' '.get_post_meta( $variations[ 'variation_id' ], 'other_location', true );
+		$location = get_post_meta( $variations[ 'variation_id' ], 'other_location', true );
 	}else{
-		$location = $svg["location"].' '.get_post_meta( $variations[ 'variation_id' ], 'location', true );
+		$location = get_post_meta( $variations[ 'variation_id' ], 'location', true );
 	}
 	$variations['location'] = $location;
 
 	// Les places disponibles (stock) pour chaque variations
-
 	// 1 - Je récupère la variable Woocommerce $variations["availability_html"]
 	$default_availability_tag = $variations["availability_html"];
 	// 2 - je retire ses balises et styles par défaut
 	$availability = str_replace('<p class="stock in-stock">','',
 	$default_availability_tag);
 	$availability = str_replace(' en stock</p>','',$availability);
-	// 3 - ma chaine de caractère custom
-	$variations["availabilities"] = $svg["people"]." <span class='stock in-stock artisanoscope-single-product-info-availabilities'>".$availability ." places </span> disponibles";
+	// 3 -  Je ne garde que le nombre
+	$variations["availabilities"] = $availability;
+
+	// Pareil pour le prix:
+	// 1 - Je récupère la variable Woocommerce $variations["price_html"]
+	$default_price_tag = $variations["price_html"];
+	// 2 - je retire ses balises et styles par défaut
+	$price = str_replace('<span class="price"><span class="woocommerce-Price-amount amount"><bdi>','',
+	$default_price_tag);
+	$price = str_replace('</span></span><span class="woocommerce-Price-currencySymbol">€</span></bdi>','',$price);
+	// 3 -  Je ne garde que le nombre
+	$variations["price"] = $price;
 
 	return $variations;
 }
