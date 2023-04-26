@@ -1,4 +1,3 @@
-    console.log("TEST artisanoscopeDisplayWarningForChildrenTicket");
     let selectInput = document.getElementById("participants");
     let resetBtn = document.querySelector(".reset_variations");
     selectInput.addEventListener("change", function(){
