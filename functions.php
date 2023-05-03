@@ -24,7 +24,6 @@ require_once( get_stylesheet_directory() . '/functions/artisanoscope-archive-pro
 require_once( get_stylesheet_directory() . '/functions/artisanoscope-single-product-functions.php' );
 require_once( get_stylesheet_directory() . '/functions/artisanoscope-product-filters.php' );
 require_once( get_stylesheet_directory() . '/functions/artisanoscope-backoffice-register-product.php' );
-require_once( get_stylesheet_directory() . '/assets/svg/svg.php' );
 
 
 // TODO: CONFORMITÉ RGPD
