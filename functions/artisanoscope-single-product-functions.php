@@ -3,6 +3,7 @@
 // https://www.businessbloomer.com/woocommerce-visual-hook-guide-single-product-page/
 
 // LES SVG
+/*
 $svg = [
 	"date"=> '<svg class="artisanoscope-single-product-info-svg" width="23" height="25" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 	<path d="M6 9H4V11H6V9ZM10 9H8V11H10V9ZM14 9H12V11H14V9ZM16 2H15V0H13V2H5V0H3V2H2C0.89 2 0.00999999 2.9 0.00999999 4L0 18C0 18.5304 0.210714 19.0391 0.585786 19.4142C0.960859 19.7893 1.46957 20 2 20H16C17.1 20 18 19.1 18 18V4C18 2.9 17.1 2 16 2ZM16 18H2V7H16V18Z" fill="currentColor"/>
@@ -22,51 +23,59 @@ $svg = [
 	"beginners_accepted"=>'<svg class="artisanoscope-single-product-info-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g id="feBeginner0" fill="none" fill-rule="evenodd" stroke="none" stroke-width="1"><g id="feBeginner1" fill="currentColor" fill-rule="nonzero"><path id="feBeginner2" d="M12 7.529L5 5.09v10.372l7 3.251V7.529ZM5.632 3.108L12 5.326l6.368-2.218c1.047-.365 2.18.227 2.53 1.322c.067.213.102.436.102.66v10.372c0 .826-.465 1.574-1.188 1.91L12 21l-7.812-3.628C3.465 17.036 3 16.288 3 15.462V5.09C3 3.936 3.895 3 5 3c.215 0 .429.037.632.108Z"/></g></g></svg>',
 	"price"=>'<svg class="artisanoscope-single-product-info-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M15 18.5A6.48 6.48 0 0 1 9.24 15H14c.55 0 1-.45 1-1s-.45-1-1-1H8.58c-.05-.33-.08-.66-.08-1s.03-.67.08-1H14c.55 0 1-.45 1-1s-.45-1-1-1H9.24A6.491 6.491 0 0 1 15 5.5c1.25 0 2.42.36 3.42.97c.5.31 1.15.26 1.57-.16c.58-.58.45-1.53-.25-1.96A9.034 9.034 0 0 0 15 3c-3.92 0-7.24 2.51-8.48 6H4c-.55 0-1 .45-1 1s.45 1 1 1h2.06a8.262 8.262 0 0 0 0 2H4c-.55 0-1 .45-1 1s.45 1 1 1h2.52c1.24 3.49 4.56 6 8.48 6c1.74 0 3.36-.49 4.74-1.35c.69-.43.82-1.39.24-1.97c-.42-.42-1.07-.47-1.57-.15c-.99.62-2.15.97-3.41.97z"/></svg>'
 ];
+*/
 
 // FONCTIONS CUSTOM
 // 1 - Afficher les infos d'artisan si ce champs a été renseigné et appeler le reste du template en fonction du type de produit
-add_action( 'woocommerce_single_product_summary', 'artisanoscope_product_global_infos', 10);
-function artisanoscope_product_global_infos() {
+add_action( 'woocommerce_single_product_summary', 'artisanoscope_display_acf_fields_and_check_for_variations', 10);
+function artisanoscope_display_acf_fields_and_check_for_variations() {
 	global $product;
     global $svg;
 	$type = $product->get_type();
+	$format = get_field("prod_format");
 
     //Infos globales pour ateliers et formations
 
     //Atelier
-	$start_hour = get_field("heure_debut");
-	$end_hour = get_field("heure_fin");
-    $session_duration = get_field("duree_session");
+	$date = get_field("prod_date");
+
+	//Atelier & Formation
+	$start_hour = get_field("prod_heure_debut");
+	$end_hour = get_field("prod_heure_fin");
 
     //Formation
-	$start_date = get_field("date_debut");
-	$end_date = get_field("date_fin");
-	$periodicite= get_field("periodicite");
-	$global_duration = get_field("duree_formation");
+	$start_date = get_field("prod_date_debut");
+	$end_date = get_field("prod_date_fin");
+	$periodicite= get_field("prod_periodicite");
+	$global_duration_raw = get_field("prod_duree_formation");
+	// Si la saisie a une majuscule en première lettre
+	$global_duration = lcfirst($global_duration_raw);
+
 
     //Lieu
-    $location_field = get_field("lieu");
-	if(isset($location_field)){
-		if($location_field=="La Baume d'Hostun"){
-			$location = $location_field;
-		}elseif($location_field=="Autre lieu"){
-			$other_location = get_field("autre_lieu");
-			if(isset($other_location)){
-				$location = $other_location;
+    $location_field = get_field("prod_lieu");
+	$location = "";
+	if(isset($location_field)&&!empty($location_field)){
+		if($location_field=="hostun"){
+			$location = "La Baume d'Hostun";
+		}elseif($location_field=="autre"){
+			$other_location = get_field("prod_autre_lieu");
+			if(isset($other_location)&&!empty($other_location)){
+				$location = break_line_on_comma($other_location);
 			}
 		}
 	}
 
 	//Infos relatives à l'artisan - si le champs a été renseigné
-	$artisan = get_field("artisan");
+	$artisan = get_field("prod_artisan");
 	if(isset($artisan)){
-		$artisanName = $artisan ->nom;
-		$artisanUrl = $artisan ->guid;
+		$artisanName = $artisan->art_nom;
+		$artisanUrl = $artisan->guid;
 
-		$artisanPortraitID = $artisan->portrait;
+		$artisanPortraitID = $artisan->art_portrait;
 		$artisanPortrait = get_post($artisanPortraitID);
 
-		$artisanPortraitMiniID = $artisan->portrait_mini;
+		$artisanPortraitMiniID = $artisan->art_portrait_mini;
 		// Si l'artisan a un portrait mais pas de miniature, on utilisera le portrait
 		if(isset($artisanPortraitMiniID)){
 			$artisanPortraitMini = get_post($artisanPortraitMiniID);
@@ -74,9 +83,10 @@ function artisanoscope_product_global_infos() {
 			$artisanPortraitMini = $artisanPortrait;
 		}
 
-		$artisanIntroduction = $artisan ->introduction;
+		$artisanIntroduction = $artisan ->art_introduction;
 	}
     // Affichage des champs:
+	// I - Artisan
 	if(isset($artisan)&&!empty($artisan)){
 		echo("<section class='artisanoscope-product-info-container'>");
 
@@ -107,54 +117,89 @@ function artisanoscope_product_global_infos() {
 			echo "</a>";
 		}
 	}
-    if(isset($start_hour)&&!empty($start_hour)&&isset($end_hour)&&!empty($end_hour)){
-		echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$svg["hours"]."<p> De ".$start_hour." à ".$end_hour."</p></div>";	
-	}
-    if(isset($start_date)&&!empty($start_date)&&isset($end_date)&&!empty($end_date)){
-		echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$svg["date"]."<p> Du ".$start_date." au ".$end_date." </p></div>";
-	}
-    if(isset($global_duration)&&!empty($global_duration)){
-		echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$svg["date"]."<p> pendant ".$global_duration."</p></div>";
-	}
-    if(isset($periodicite)&&!empty($periodicite)){
-		echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$svg["date"]."<p>".$periodicite."</p></div>";
-	}
-    if(isset($session_duration)&&!empty($session_duration)){
-		echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$svg["hours"]."<p> Durée: ".$session_duration."</p></div>";
-	}
-	if(isset($location)&&!empty($location)){
-		echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$svg["location"]."<p>".$location."</p></div>";	
-	}
-	if(get_field("debutant")&&!empty(get_field("debutant"))){
-		echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$svg["beginners_accepted"]."<p> Accessible aux débutants</p></div>";
-	}
-	if(!empty(get_field("ages"))&&in_array("Moins de 12 ans", get_field("ages"))){
+
+	// II - Arguments: enfants et débutants
+	if(!empty(get_field("prod_age"))&&in_array("enfant", get_field("prod_age"))){
 		echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$svg["kid_friendly"]."<p> Adapté aux enfants</p></div>";
 	}
+	if(get_field("prod_debutant")&&!empty(get_field("prod_debutant"))){
+		echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$svg["beginners_accepted"]."<p> Accessible aux débutants</p></div>";
+	}
+
+	// III - Description du produit:
+	echo "<div class='artisanoscope-single-product-info-description'>";
 	wc_get_template( 'single-product/short-description.php' );
-    if($type=="variable"){
-        echo("</div><div>");
-		add_filter('woocommerce_dropdown_variation_attribute_options_html', 'artisanoscope_display_options_if_variable_product', 10, 3);
+	echo "</div>";
+
+	// VI - Infos complémentaires: champs selon le type de produit
+	// 1 - Si atelier simple
+	if($format === "ponctuel" &&$type === "simple"){
+		if(isset($date)&&!empty($date)){
+			echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$svg["date"]."<p>Le ".$date."</p></div>";
+		}
+		if(isset($start_hour)&&!empty($start_hour)&&isset($end_hour)&&!empty($end_hour)){
+			echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$svg["hours"]."<p> De ".$start_hour." à ".$end_hour."</p></div>";	
+		}
+		if(isset($location)&&!empty($location)){
+			echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$svg["location"]."<p>".$location."</p></div>";	
+		}
+	}
+	// 2 - Si formation simple
+	if($format === "abonnement" &&$type === "simple"){
+		if(isset($periodicite)&&!empty($periodicite)&&isset($start_hour)&&!empty($start_hour)&&isset($end_hour)&&!empty($end_hour)){
+			echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$svg["recurrence"]."<p>".$periodicite.", de ".$start_hour." à ".$end_hour."</p></div>";
+		}
+		if(isset($start_date)&&!empty($start_date)&&isset($end_date)&&!empty($end_date)){
+			echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$svg["date"]."<p> Du ".$start_date." au ".$end_date." </p></div>";
+		}
+		if(isset($location)&&!empty($location)){
+			echo "<div class='artisanoscope-single-product-info-acf-field-line'>".$svg["location"]."<p>".$location."</p></div>";	
+		}
+	}
+
+	// 3 - Si atelier ou formation variable 
+    if($type==="variable" && $format === "ponctuel"){
+		echo("</div><div>");
+		add_filter('woocommerce_dropdown_variation_attribute_options_html', 'artisanoscope_display_workshop_options', 10, 3);
     }
 }
 
-function artisanoscope_display_options_if_variable_product(){
+function artisanoscope_replace_stock_string($html, $product) {
+
+	$availability = $product->get_stock_quantity();
+	if($availability>=4){
+		$html = '<p class="artisanoscope-product-option-availabilities plenty"><span class="stock in-stock artisanoscope-single-product-info-availabilities">'.$availability.' places </span> disponibles</p>';
+	}elseif($availability<4&&$availability>=2){
+		$html = '<p class="artisanoscope-product-option-availabilities scarce"><span class="stock in-stock artisanoscope-single-product-info-availabilities">'.$availability.' places </span> disponibles</p>';
+	}elseif($availability===1){
+		$html = '<p class="artisanoscope-product-option-availabilities scarce">Il reste<span class="stock in-stock artisanoscope-single-product-info-availabilities"> une place</span> disponible</p>';
+	}else{
+		$html = "";
+	}
+	return $html;
+}
+add_filter( 'woocommerce_get_stock_html', 'artisanoscope_replace_stock_string', 10, 3 );
+
+function artisanoscope_display_workshop_options(){
     global $product;
 	global $svg;
+	$format = get_field("prod_format");
 	$variations = $product->get_available_variations();
 		if (isset($variations)) {
-
 			$options ='';
 			
 			foreach($variations as $variation){
 				// N'afficher une variation que si le prix et le stock sont renseignés
-				if(isset($variation["price"])&&!empty($variation["price"])&&isset($variation["availabilities"])&&!empty($variation["availabilities"])){
+				if(/*isset($variation["price"])&&!empty($variation["price"])&&*/isset($variation["availabilities"])&&!empty($variation["availabilities"])){
 					$options .= '<a href="#" class="artisanoscope-product-option" name="option" id="'.$variation["variation_id"].'">';
 
-					if(isset($variation["attributes"]["date"])){
-						$options .= '<div class="artisanoscope-product-option-line">
+					
+					// Pour les formations: si aucune date n'est renseignée, la date 01/01/1970 s'affiche automatiquement => ne pas afficher de variations de date pour les formations
+					
+					if(isset($variation["date"])&& !empty($variation["date"])){
+						$options .= '<div class="artisanoscope-product-option-line option-title">
 						'.$svg["date"].'
-						<h3 class="artisanoscope-product-option-title artisanoscope-product-option-line">'.$variation["attributes"]["date"].'</h3>
+						<h3 class="artisanoscope-product-option-title artisanoscope-product-option-line">'.$variation["date"].'</h3>
 						</div>';
 					}
 					if(isset($variation["start_hour"])&&isset($variation["end_hour"])){
@@ -166,7 +211,7 @@ function artisanoscope_display_options_if_variable_product(){
 					if(isset($variation["location"])){
 						$options .= '<div class="artisanoscope-product-option-line">
 						'.$svg["location"].'
-						<p class="artisanoscope-product-option-location">'.$variation["location"].'</p>
+						<p class="artisanoscope-product-option-location">'.break_line_on_comma($variation["location"]).'</p>
 						</div>';
 					}
 					if(isset($variation["availabilities"])){
@@ -175,7 +220,7 @@ function artisanoscope_display_options_if_variable_product(){
 							<p class="artisanoscope-product-option-availabilities"><span class="stock in-stock artisanoscope-single-product-info-availabilities">'.$variation["availabilities"].'places </span> disponibles</p>
 						</div>';
 					}
-					if(isset($variation["price"])){
+					if(isset($variation["price"])&&!empty($variation["price"])){
 						add_action( 'woocommerce_before_add_to_cart_button', 'artisanoscope_display_selected_variation_price');
 						$price = $variation["price"];
 						$options .= '<div class="artisanoscope-product-option-line">
@@ -204,10 +249,14 @@ function artisanoscope_display_selected_variation_price(){
     echo '<div id="artisanoscope-selected-variation-price" class="woocommerce-Price-amount" style="font-weight:500; font-size: 1.5em; color:green;"></div>';
 }
 
-// 6 - Enlever le fil d'Ariane
+function break_line_on_comma($string){
+	return str_replace(',', '<br/>', $string);
+}
+
+// Enlever le fil d'Ariane
 remove_action("woocommerce_before_main_content", "woocommerce_breadcrumb", 20);
 
-// 7 - Enlever les méta: SKU, catégories et tags
+// Enlever les méta: SKU, catégories et tags
 function artisanoscope_remove_sku( $enabled ) {
 	// Si on est pas dans l'admin et si on est sur la page produit
     if ( !is_admin() && is_product() ) {
@@ -216,7 +265,16 @@ function artisanoscope_remove_sku( $enabled ) {
     return $enabled;
 }
 add_filter( 'wc_product_sku_enabled', 'artisanoscope_remove_sku' );
-//description
+//Enlever la descrition
 remove_action("woocommerce_single_product_summary", "woocommerce_template_single_excerpt", 20);
 remove_action("woocommerce_single_product_summary", "woocommerce_template_single_meta", 40);
 remove_action("woocommerce_single_product_summary", "woocommerce_template_single_sharing", 50);
+
+//infos additionnelles
+remove_action("woocommerce_after_single_product_summary", "woocommerce_output_product_data_tabs", 20);
+remove_action("woocommerce_single_product_summary", "woocommerce_template_single_meta", 20);
+remove_action("woocommerce_single_product_summary", "woocommerce_template_single_sharing", 20);
+remove_action("woocommerce_single_product_summary", "woocommerce_template_single_rating", 20);
+
+
+

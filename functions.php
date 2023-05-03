@@ -12,42 +12,41 @@ function theme_enqueue_styles(){
 
     //styles custom artisanoscope
     wp_enqueue_style('single-artisan-style', get_stylesheet_directory_uri() .'/assets/custom-css/artisanoscope-single-artisan-style.css');
-    wp_enqueue_style('navbar-style', get_stylesheet_directory_uri() .'/assets/custom-css/artisanoscope-navbar-style.css');
     wp_enqueue_style('content-single-product-style', get_stylesheet_directory_uri() .'/assets/custom-css/artisanoscope-content-single-product-style.css');
+    wp_enqueue_style('navbar-style', get_stylesheet_directory_uri() .'/assets/custom-css/artisanoscope-navbar-style.css');
     wp_enqueue_style('wc-product-backoffice-style', get_stylesheet_directory_uri() .'/assets/custom-css/artisanoscope-wc-backoffice-style.css');
     
 }
 
 // MODULES DE FONCTIONS
 require_once( get_stylesheet_directory() . '/functions/artisanoscope-single-artisan-functions.php' );
-//require_once( get_stylesheet_directory() . '/functions/artisanoscope-archive-product-functions.php' );
 require_once( get_stylesheet_directory() . '/functions/artisanoscope-archive-products-functions.php' );
-//require_once( get_stylesheet_directory() . '/functions/artisanoscope-content-single-product-functions.php' );
 require_once( get_stylesheet_directory() . '/functions/artisanoscope-single-product-functions.php' );
 require_once( get_stylesheet_directory() . '/functions/artisanoscope-product-filters.php' );
 require_once( get_stylesheet_directory() . '/functions/artisanoscope-backoffice-register-product.php' );
+require_once( get_stylesheet_directory() . '/assets/svg/svg.php' );
 
 
 // TODO: CONFORMITÉ RGPD
 
-// TODO: ARCHIVE-PRODUCT: filtrage par intervalle de dates
+
 
 // TODO: FIX - DASHBOARD WOOCOMMERCE Vérifie si l'intervalle d'horaires est cohérent avant de sauvegarder le produit.
 function artisanoscope_check_product_schedule( $productID ) {
     // Récupérer les horaires de début et de fin du produit
-    $startHour = get_field( 'horaire_debut', $productID);
-    $endHour = get_field( 'horaire_fin', $productID);
+    $startHour = get_field( 'prod_heure_debut', $productID);
+    $endHour = get_field( 'prod_heure_debut', $productID);
     $product = wc_get_product($productID);
 
     // Si l'heure de fin précède l'heure de début, empêcher l'enregistrement du produit et afficher une notification
-    if ( $startHour >= $endHour ) {
+    if ( strtotime($startHour) >= strtotime($endHour) ) {
         
         if($product){
             $product->set_status( 'draft' );
         }
     }
 }
-//add_action( 'woocommerce_process_product_meta', 'artisanoscope_check_product_schedule', 10, 1 );
+add_action( 'woocommerce_process_product_meta', 'artisanoscope_check_product_schedule', 10, 1 );
 
 // PB: les scripts sont pris en compte mais s'exécutent trop tôt: l'élément de DOM n'existe pas encore et le script renvoie une erreur quand il ne le trouve pas => je tente de les appeler uniquement dans les templates où ils sont nécessaires
 function artisanoscope_register_frontend_scripts(){

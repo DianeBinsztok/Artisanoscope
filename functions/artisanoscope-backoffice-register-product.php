@@ -5,7 +5,7 @@
     //https://mosaika.fr/ajouter-champs-meta-produits-woocommerce/
     // check woocommerce_product_options_general_product_data
     // https://stackoverflow.com/questions/45911162/woocommerce-wp-select-options-array-from-product-attribute-terms
-
+    //https://stackoverflow.com/questions/55689560/datepicker-give-me-01-01-1970
 
 add_action( 'woocommerce_variation_options_pricing', 'artisanoscope_add_custom_field_to_date_variations', 10, 3 );
 function artisanoscope_add_custom_field_to_date_variations( $loop, $variation_data, $variation ) {
@@ -16,23 +16,12 @@ function artisanoscope_add_custom_field_to_date_variations( $loop, $variation_da
         'class' => 'short',
         'wrapper_class'=>'form-row hide_if_simple hide_if_course show_if_variation_virtual show_if_workshop',
         'type'  => 'date',
-        'label' => __( 'Date de l\'ateler', 'woocommerce' ),
+        'placeholder' => '', 
+        'label' => __( 'Pour les ateliers ponctuels: Date de l\'ateler', 'woocommerce' ),
         'value' => get_post_meta($variation->ID, 'date', true ),
     ) );
-    
 
-    //Tarif enfant
-    /*
-    woocommerce_wp_text_input( array(
-        'id' => 'children_pricing[' . $loop . ']',
-        'class' => 'short',
-        'wrapper_class'=>'form-row hide_if_simple show_if_variation_virtual show_if_workshop',
-        'type'  => 'number',
-        'label' => __( 'Tarif enfant (€) - facultatif', 'woocommerce' ),
-        'value' => get_post_meta( $variation->ID, 'children_pricing', true ),
-    ) );
-    */
-    
+
     //Heure de début
     woocommerce_wp_text_input( array(
         'id' => 'start_hour[' . $loop . ']',
@@ -60,7 +49,7 @@ function artisanoscope_add_custom_field_to_date_variations( $loop, $variation_da
         'wrapper_class'=>'form-row hide_if_simple show_if_variation_virtual show_if_workshop',
         'type'  => 'radio',
         'desc_tip' => true,
-        'description'   => "Si l'atelier ne se déroule pas au tiers-lieu, renseignez le champs suivant",
+        'description'   => "Si l'atelier ou la formation ne se déroule pas au tiers-lieu, renseignez le champs suivant",
 
         'options'     => array(
             "La Baume d'Hostun" => __("La Baume d'Hostun", 'woocommerce' ),
@@ -76,12 +65,59 @@ function artisanoscope_add_custom_field_to_date_variations( $loop, $variation_da
         'class' => 'short',
         'wrapper_class'=>'form-row hide_if_simple show_if_variation_virtual show_if_workshop',
         'type'  => 'textarea',
-        'label' => __( "Si l'atelier ne se tient pas à la Baume d'Hostun, renseignez une adresse:", 'woocommerce' ),
+        'label' => __( "Si l'atelier ou la formation ne se tient pas à la Baume d'Hostun, renseignez une adresse, en séparant chaque ligne par une virgule:", 'woocommerce' ),
         'desc_tip' => true,
         'description'   => "Vous pouvez renseigner une adresse avec des sauts de ligne",
         'value' => get_post_meta( $variation->ID, 'other_location', true )
     ) );
     
+    /*CHAMPS ADDITIONNELS POUR LES FORMATIONS */
+    /*
+    //Date de début
+    woocommerce_wp_text_input( array(
+        'id' => 'start_date[' . $loop . ']',
+        'class' => 'short',
+        'wrapper_class'=>'form-row hide_if_simple hide_if_course show_if_variation_virtual show_if_workshop',
+        'type'  => 'date',
+        'placeholder' => '', 
+        'label' => __( 'Pour les formations: date de début', 'woocommerce' ),
+        'value' => get_post_meta($variation->ID, 'start_date', true ),
+    ));
+    //Date de fin
+    woocommerce_wp_text_input( array(
+        'id' => 'end_date[' . $loop . ']',
+        'class' => 'short',
+        'wrapper_class'=>'form-row hide_if_simple hide_if_course show_if_variation_virtual show_if_workshop',
+        'type'  => 'date',
+        'placeholder' => '', 
+        'label' => __( 'Pour les formations: date de fin', 'woocommerce' ),
+        'value' => get_post_meta($variation->ID, 'end_date', true ),
+    ));
+
+    //Périodicité
+    woocommerce_wp_text_input( array(
+        'id' => 'periodicity[' . $loop . ']',
+        'class' => 'short',
+        'wrapper_class'=>'form-row hide_if_simple show_if_variation_virtual show_if_workshop',
+        'type'  => 'text',
+        'label' => __( "Périodicité", 'woocommerce' ),
+        'desc_tip' => true,
+        'description'   => "Par exemple: 'Tous les jeudis', 'Une fois par semaine', 'Une fois par mois', etc.",
+        'value' => get_post_meta( $variation->ID, 'periodicity', true )
+    ) );
+
+    //Infos additionnelles
+    woocommerce_wp_textarea_input( array(
+        'id' => 'additional[' . $loop . ']',
+        'class' => 'short',
+        'wrapper_class'=>'form-row hide_if_simple show_if_variation_virtual show_if_workshop',
+        'type'  => 'textarea',
+        'label' => __( "Infos complémentaires", 'woocommerce' ),
+        'desc_tip' => true,
+        'description'   => "Mentionnez ici les informations qui ne figurent pas dans les autres champs",
+        'value' => get_post_meta( $variation->ID, 'other_location', true )
+    ) );
+    */
 }
 
 // 2. Enregistrer le champs custom en même temps que la variation du produit
@@ -110,9 +146,26 @@ function artisanoscope_save_custom_fields_in_variation( $variation_id, $i ) {
     $location_field = $_POST['location'][$i];
     if ( isset( $location_field ) ) update_post_meta( $variation_id, 'location', esc_attr( $location_field ) );
 
-        //Autre lieu
+    //Autre lieu
     $other_location_field = $_POST['other_location'][$i];
     if ( isset( $other_location_field ) ) update_post_meta( $variation_id, 'other_location', esc_attr( $other_location_field ) );
+
+    /*CHAMPS ADDITIONNELS POUR LES FORMATIONS*/
+    //Date de début
+    $start_date_field = $_POST['start_date'][$i];
+    if ( isset( $start_date_field ) ) update_post_meta( $variation_id, 'start_date', esc_attr( $start_date_field ) );
+
+    //Date de fin
+    $end_date_field = $_POST['end_date'][$i];
+    if ( isset( $end_date_field ) ) update_post_meta( $variation_id, 'end_date', esc_attr( $end_date_field ) );
+
+    //Périodicité
+    $periodicity_field = $_POST['periodicity'][$i];
+    if ( isset( $periodicity_field ) ) update_post_meta( $variation_id, 'periodicity', esc_attr( $periodicity_field ) );
+
+    //Infos complémentaires
+    $additional_field = $_POST['additional'][$i];
+    if ( isset( $additional_field ) ) update_post_meta( $variation_id, 'additional', esc_attr( $additional_field ) );
 }
     
 // -----------------------------------------
@@ -122,16 +175,6 @@ function artisanoscope_add_custom_fields_to_variation_data( $variations ) {
     // C'est ce qui s'affichera en front office: Je retire les balises par défaut et ajouterai les miennes en front-office dans artisanoscope_display_date_options
     global $svg;
     global $product;
-
-    // format de 'children_pricing':
-        /*
-    $children_pricing = get_post_meta( $variations[ 'variation_id' ], 'children_pricing', true );
-    if(!empty($children_pricing) && !strpos($children_pricing, ',')){
-        $children_pricing = get_post_meta( $variations[ 'variation_id' ], 'children_pricing', true ).',00 €';
-    }
-    
-    $variations['children_pricing'] = $children_pricing;
-    */
 
     // Date
     $dateField = strtotime(get_post_meta( $variations[ 'variation_id' ], 'date', true ));
@@ -150,6 +193,20 @@ function artisanoscope_add_custom_fields_to_variation_data( $variations ) {
         $location = get_post_meta( $variations[ 'variation_id' ], 'location', true );
     }
     $variations['location'] = $location;
+
+    /*POUR LES FORMATIONS*/
+    //Dates 
+    $startDateField = strtotime(get_post_meta( $variations[ 'variation_id' ], 'start_date', true ));
+    $variations['start_date'] = date('d/m/Y', $startDateField);
+
+    $endDateField = strtotime(get_post_meta( $variations[ 'variation_id' ], 'end_date', true ));
+    $variations['end_date'] = date('d/m/Y', $endDateField);
+
+    //Périodicité
+    $variations['periodicity'] = get_post_meta( $variations[ 'variation_id' ], 'periodicity', true );
+
+    //Infos complémentaires
+    $variations['additional'] = get_post_meta( $variations[ 'variation_id' ], 'additional', true );
 
     // Les places disponibles (stock) pour chaque variations
     // 1 - Je récupère la variable Woocommerce $variations["availability_html"]
