@@ -1,0 +1,182 @@
+/*Désactiver les styles par défaut WC*/
+
+.product-template-default{
+    font-family: 'Roboto';
+}
+.product-template-default h1, .artisanoscope-single-product-info-artisan-title{
+    font-family: 'Roboto Condensed';
+}
+
+.product-template-default a{
+    color: rgb(52, 52, 52);
+    /*
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-emphasis-color:rgba(0, 0, 0, 0.300);
+    text-underline-offset: 0.2em;
+    */
+}
+
+/*
+.product-template-default a:hover{
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+}
+*/
+
+.woocommerce-product-details__short-description{
+    position: relative;
+    /*background-color: #FFE7C0; */
+    padding:1rem;
+}
+
+/*Vignette mini*/
+.artisanoscope-single-product-info-acf-fields-img{
+    width:60px; 
+    border-radius:50%;
+}
+
+.artisanoscope-single-product-info-artisan-hover{
+    display:none;
+}
+.artisanoscope-single-product-info-artisan-name{
+    font-size: 2em;
+    color: black;
+}
+.artisanoscope-single-product-info-artisan-link:hover .artisanoscope-single-product-info-artisan-hover{
+    display:flex;
+    position: absolute;
+    z-index: 2;
+    width:40%;
+    flex-direction:column; 
+    align-items:center; 
+    background-color:#ffffff; 
+    box-shadow: 5px 5px 10px #00000035;
+    border-radius: 7px;
+    padding: 1rem;
+}
+
+/*Vignette au survol*/
+.artisanoscope-single-product-info-artisan-hover-img{
+    width: 30%; 
+    margin-bottom: 1rem;
+    border-radius:50%;
+}
+.artisanoscope-single-product-info-artisan-hover-name{
+    font-family: 'Roboto Condensed';
+    font-size:1.5em;
+}
+
+/*Description*/
+.artisanoscope-single-product-info-description{
+    color: #fff2dd;
+    font-weight: 600;
+    background-color: #639B84;
+    padding:0.5em;
+    padding-bottom:2em;
+    padding-top: 2em;
+    margin-bottom: 1em;
+}
+
+/*OPTIONS*/
+#course-options{
+    display: grid;
+   /* grid-template-rows: 1fr;*/
+    grid-template-columns: 1fr 1fr 1fr;
+}
+/*Vignettes-boutons d'options*/
+.artisanoscope-product-option-line, .artisanoscope-product-options-container{
+    width: fit-content;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+}
+
+.artisanoscope-product-option-title{
+    display: inline;
+}
+.artisanoscope-product-option{
+    background-color: #ffffff;
+    padding: 0.6rem; 
+    margin: 0.8rem;
+    border-radius: 5px;
+    transition: transform .2s;
+    color: rgb(100, 100, 100);
+    text-decoration: none;
+    height: 100%;
+}
+.option-title{
+    display: block;
+    padding: 0.2em; 
+    margin:0 0 0.5em 0;
+    text-align: center;
+    width:100%;
+    background-color: #639B84;
+    color: rgb(255, 245, 231);
+    border-radius: 5px;
+}
+.artisanoscope-product-option-title {
+    font-size: 1.5em;
+    
+}
+.artisanoscope-product-option:hover{
+    box-shadow: 5px 5px 10px 2px #00000035;
+    transition: transform .2s;
+    transform: scale(1.02);
+}
+.artisanoscope-product-option:focus{
+    box-shadow: 5px 5px 10px 2px #00000035;
+    transition: transform .2s;
+    transform: scale(1.02);
+}
+/*Vignettes-boutons d'options - FIN*/
+
+.artisanoscope-single-product-info-acf-field-line{
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 1rem;
+    align-items: flex-start;
+}
+
+.artisanoscope-single-product-info-artisan-title{
+    align-items: center;
+    align-self: center;
+    position:relative;
+    margin-bottom: 1rem;
+}
+
+.artisanoscope-single-product-info-svg, .artisanoscope-single-product-info-acf-fields-img{
+    margin-right:1.5rem;
+}
+
+.artisanoscope-single-product-info-acf-fields-address{
+    line-height:1.5em;
+}
+.artisanoscope-single-product-info-availabilities{
+    font-weight:bold; 
+    color: #639B84;
+}
+
+/*Override des styles Woocommerce*/
+.product-template-default .price{
+    font-size: 1.4em!important;
+    /*font-weight:bold!important;*/
+    color:  #639B84!important;
+}
+.single_add_to_cart_button{
+    color: white !important;
+    background-color: #639B84!important;
+}
+.single_add_to_cart_button:hover{
+    color:  #639B84!important;
+    background-color:white!important;
+    border: 1px solid #639B84!important;
+}
+
+.atelier-option-warning{
+    color:#9f4a00; 
+    border:1px solid #9f4a00; 
+    background-color:#FFE7C0; 
+    border-radius: 7px; 
+    padding:1em;
+}
