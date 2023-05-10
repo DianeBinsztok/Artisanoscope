@@ -21,8 +21,11 @@ function artisanoscope_display_workshops_custom_filters() {
 
     // II - AFFICHAGE DES INPUTS DE FILTRES
 
-    echo('<div id="artisanoscope-custom-filters-container">
-            <form id="artisanoscope-custom-filters-form" method="get" style="display:flex; justify-content:space-around;">');
+    // OUVERTURE DU FORMULAIRE
+
+   /* echo('<div id="artisanoscope-custom-filters-container"><form id="artisanoscope-custom-filters-form" method="get" style="display:flex;justify-content:space-around;">');*/
+    echo('<div id="artisanoscope-custom-filters-container" style="display:flex; justify-content:space-around;">');
+
    
     // 1 - LES CATÉGORIES
     echo('<div id="artisanoscope-craft-filter-container">
@@ -39,7 +42,8 @@ function artisanoscope_display_workshops_custom_filters() {
             }
     echo('</select></div>');  
         
-    // 2 - LES PÉRIODES DE DATES
+    // 2 - LES PÉRIODES DE DATES - avec inputs html
+    
     if (isset($_GET['du'])){
         $start = $_GET['du'];
     }else{
@@ -62,19 +66,73 @@ function artisanoscope_display_workshops_custom_filters() {
             <div id="artisanoscope-daterange-warning-incoherent-date" class="atelier-option-warning hide">Veuillez saisir une date de début antérieure à la date de fin</div>
         </div>');
     }else{
+        $date = new DateTimeImmutable();
+        
         $today = date('Y-m-d');
         $tomorrow =  date('Y-m-d', strtotime($today . ' +1 day'));
+
         echo('<div id="artisanoscope-daterange-filter-container">
             <button id="artisanoscope-daterange-filter-button" type="button">Dates</button>
             <div id="artisanoscope-daterange-toggle-zone" class="hide" style="display:flex;">
-                <input type="date" id="artisanoscope-daterange-start" name="du" value="" />
-                <input type="date" id="artisanoscope-daterange-end"  name="au" value="" />
+                <input type="date" id="artisanoscope-daterange-start" name="du" value="'.$today.'" />
+                <input type="date" id="artisanoscope-daterange-end"  name="au" value="'.$tomorrow.'" />
             </div>
             <div id="artisanoscope-daterange-warning-missing-date" class="atelier-option-warning hide">Veuillez saisir une date de début</div>
             <div id="artisanoscope-daterange-warning-incoherent-date" class="atelier-option-warning hide">Veuillez saisir une date de début antérieure à la date de fin</div>
         </div>');
     }
 
+
+
+    // 2 - LES PÉRIODES DE DATES - avec daterangepicker
+    /*
+    echo('<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />');
+    */
+
+    /*
+    echo('<div id="artisanoscope-daterange-filter-container">
+
+        <div id="artisanoscope-daterange-toggle-zone">
+        <input type="text" name="daterange" id="artisanoscope-daterange"/>
+        </div>
+    </div>');
+    */
+        /*
+            <script>
+        $(function() {
+          $(`input[name="daterange"]`).daterangepicker({
+          }, function(start, end, label) {
+            console.log("A new date selection was made: " + start.format(`YYYY-MM-DD`) + ` to ` + end.format(`YYYY-MM-DD`));
+            console.log( start + " to " + end);
+          });
+          $(`#daterange`).trigger(`show.daterangepicker`);
+        });
+        </script>
+    */
+
+    // 5 - PLACES DISPONIBLES
+    if(isset($_GET['places'])&&!empty($_GET['places'])){
+        echo('<div id="artisanoscope-availabilities-filter-container">');
+        if(intval($_GET['places'])>1){
+            echo('<button id="artisanoscope-availabilities-filter-button" type="button">'.$_GET['places'].' places disponibles</button>');
+        }else{
+            echo('<button id="artisanoscope-availabilities-filter-button" type="button">'.$_GET['places'].' place disponible</button>');
+        }
+        echo('<div id="artisanoscope-availabilities-toggle-zone" class="hide">
+                    <input type="number" name="places" id="artisanoscope-availabilities-filter" min="1" max="50" value="'.$_GET['places'].'">
+                </div>
+            </div>');
+    }else{
+        echo('<div id="artisanoscope-availabilities-filter-container">
+                <button id="artisanoscope-availabilities-filter-button" type="button">Nombre de places disponibles</button>
+                <div id="artisanoscope-availabilities-toggle-zone" class="hide">
+                    <input type="number" name="places" id="artisanoscope-availabilities-filter" min="1" max="50" value="1">
+                </div>
+            </div>');
+    }
 
     //Container enfants et débutants - début
     echo('<div id="artisanoscope-kids-and-beginners-container">');
@@ -97,156 +155,25 @@ function artisanoscope_display_workshops_custom_filters() {
     }
     echo('<label> Débutants acceptés</label></div>');
     echo('</div>');
-
-    // 5 - PLACES DISPONIBLES
-    if(isset($_GET['places'])&&!empty($_GET['places'])){
-        echo('<div id="artisanoscope-availabilities-filter-container">');
-        if(intval($_GET['places'])>1){
-            echo('<button id="artisanoscope-availabilities-filter-button" type="button">'.$_GET['places'].' places disponibles</button>');
-        }else{
-            echo('<button id="artisanoscope-availabilities-filter-button" type="button">'.$_GET['places'].' place disponible</button>');
-        }
-        echo('<div id="artisanoscope-availabilities-toggle-zone" class="hide">
-                    <input type="number" name="places" id="artisanoscope-availabilities-filter" min="1" max="50" value="'.$_GET['places'].'">
-                </div>
-            </div>');
-    }else{
-        echo('<div id="artisanoscope-availabilities-filter-container">
-                <button id="artisanoscope-availabilities-filter-button" type="button">Nombre de places disponibles</button>
-                <div id="artisanoscope-availabilities-toggle-zone" class="hide">
-                    <input type="number" name="places" id="artisanoscope-availabilities-filter" min="1" max="50" value="">
-                </div>
-            </div>');
-    }
-
-
+    //Container enfants et débutants - fin
     // 6 - RÉINITIALISER LES FILTRES
     echo('<div id="artisanoscope-reset-all-filters-container">
             <input type="button" id="artisanoscope-reset-all-filters-button" value="Réinitialiser" name="reset"/>
         </div>');    
 
-    echo('</form></div>');
 
-            /*echo('            
-            <!--<form id="artisanoscope-custom-daterange-form"> -->
-                <div id="artisanoscope-daterange-filter-container">
-                    <!-- <label for="artisanoscope-daterange-filter">Pour une période de dates</label> -->
-                </div>
-                <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
-                <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-                <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-                <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-                <div>
-                <input type="text" name="dates" value="Dates" />
-                </div>
-            </form>
-        </div>');*/
+    // FERMETURE DU FORMULAIRE
+
+    //echo('</form></div>');
+    echo('</div>');
 
     // 3 - SCRIPT
-    wp_enqueue_script("customFilters", get_stylesheet_directory_uri().'/assets/js/artisanoscopeWorkshopsCustomFilters.js');
+    //wp_enqueue_script("customFilters", get_stylesheet_directory_uri().'/assets/js/artisanoscopeWorkshopsCustomFilters.js');
+    wp_enqueue_script("customFilters", get_stylesheet_directory_uri().'/assets/js/artisanoscopeNewFilters.js');
 }
 add_action( 'woocommerce_before_shop_loop', 'artisanoscope_display_workshops_custom_filters');
 
-//RECEPTION DES REQUETES ET FILTRAGE
 
-//CONDITIONS && (exclusives)
-/*function artisanoscope_workshops_custom_filters($visible, $productId){
-    $product = wc_get_product( $productId );
-    $type = $product->get_type();
-
-    $show_in_category = true;
-    $show_in_date = true;
-    $show_in_age = true;
-    $show_in_beginner = true;
-
-    // I - CATEGORIE
-
-    // Lister les catégories du produit
-    $categories = get_the_terms( $productId, 'product_cat' );
-    $category_slugs = [];
-    if($categories){
-        foreach($categories as $category){
-            array_push($category_slugs, $category->slug);
-        }
-    }
-    // Comparer avec la requête
-    if (isset($_GET['cat']) && $_GET['cat'] !== 'all') {
-        $category_query = $_GET['cat'];
-        $show_in_category = in_array($category_query, $category_slugs);
-    }else{
-
-    }
-
-    // II - DATES
-    if (isset($_GET['du']) && isset($_GET['au']) && !empty($_GET['du']) && !empty($_GET['au'])) {
-        $start_date = $_GET['du'];
-        $end_date = $_GET['au'];
-
-        if($start_date == null || $end_date == null) {
-            unset($_GET['du']);
-            unset($_GET['au']);
-        }
-
-        // En cas de produit variable, vérifier si au moins une date de variation est dans l'intervalle demandé
-        if($type === "variable"){
-            $variations = $product->get_available_variations();        
-            foreach($variations as $variation){
-                $variation_id = $variation['variation_id'];
-                $variation_date = get_field('date', $variation_id);
-        
-                if(check_date_is_in_range($start_date, $end_date, $variation_date)) {
-                    $show_in_date = true;
-                    // Arrêter la boucle dès que je trouve une variation qui correspond à la demande
-                    break;
-                }
-            }
-        }elseif($type === "simple"){
-            $format = get_field('prod_format', $productId);
-            if($format === "ponctuel"){
-                $workshopsDate = get_field('prod_date', $productId);
-                if(is_null($workshopsDate)||empty($workshopsDate)){
-                    $show_in_date = false;
-                }else{
-                    $show_in_date = check_date_is_in_range($start_date, $end_date, $workshopsDate);
-                }
-            }elseif($format === "abonnement"){
-                $courseStart = get_field('prod_date_debut', $productId);
-                if(is_null($courseStart)||empty($courseStart)){
-                    $show_in_date = false;
-                } else{
-                    $show_in_date =check_date_is_in_range($start_date, $end_date, $courseStart);
-                }
-            }else{
-                $show_in_date = false;
-            }
-        } else {
-            $show_in_date = false;
-        }
-    }else{
-
-    }
-
-    // III - AGE
-    if (isset($_GET['age']) && $_GET['age'] === 'on') {
-        $ages = get_field("prod_age", $productId);
-        $show_in_age = in_array("enfant", $ages);
-    }
-
-    // III - DEBUTANT
-    if (isset($_GET['debutant']) && $_GET['debutant'] === 'on') {
-        $levels = get_field("prod_debutant", $productId);
-        $show_in_beginner = in_array("debutant", $levels);
-    }
-
-    // Si tous les filtres sont satisfaits, retournez $visible, sinon retournez false
-    if(!$show_in_category && !$show_in_date && !$show_in_age && !$show_in_beginner){
-        return false;
-    }else{
-        return $visible;
-    }
-    //return $show_in_category && $show_in_date && $show_in_age && $show_in_beginner ? $visible : false;
-}
-*/
 function artisanoscope_workshops_custom_filters($visible, $productId){
     $product = wc_get_product( $productId );
     $type = $product->get_type();
@@ -388,36 +315,6 @@ function artisanoscope_workshops_custom_filters($visible, $productId){
 }
 add_filter('woocommerce_product_is_visible', 'artisanoscope_workshops_custom_filters', 10,2);
 
-/*Si atelier:
-Si produit simple => check_date_is_in_range
-Si produit variable => pour chaque variation
-Si une variation check_date_is_in_range => true
-
-Si formation:
-    si check_date_is_in_range(date de début)=> return $visible
-    */
-    /*
-function check_product_variations_dates($product, $start_date_query, $end_date_query,){
-    $type = $product->get_type();
-    $format = get_field("prod_format");
-    if($format === "ponctuel"){
-        if($type === "simple"){
-            $workshop_date = get_field("prod_date");
-            if(check_date_is_in_range($start_date_query, $end_date_query, $workshop_date)){
-                return true;
-            }else{
-                return false;
-            }
-        }elseif($type === "variable"){
-            $variations = $product->get_available_variations();
-            $variations_dates = [];
-            foreach($variations as $variation){
-                array_push($variations_dates, $variation["date"]);
-            }
-        }
-    }
-}
-*/
 function check_date_is_in_range($start_date_string, $end_date_string, $workshops_date_string)
 {
   // Convertion en timestamp
