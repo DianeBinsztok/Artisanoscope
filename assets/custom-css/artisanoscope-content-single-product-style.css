@@ -84,6 +84,17 @@
    /* grid-template-rows: 1fr;*/
     grid-template-columns: 1fr 1fr 1fr;
 }
+.artisanoscope-product-option:hover{
+    box-shadow: 5px 5px 10px 2px #00000035;
+    transition: transform .2s;
+    transform: scale(1.02);
+}
+.artisanoscope-product-option:focus{
+    box-shadow: 5px 5px 10px 2px #00000035;
+    transition: transform .2s;
+    transform: scale(1.02);
+}
+
 /*Vignettes-boutons d'options*/
 .artisanoscope-product-option-line, .artisanoscope-product-options-container{
     width: fit-content;
@@ -93,6 +104,7 @@
 }
 
 .artisanoscope-product-option-title{
+    font-size: 1.5em;
     display: inline;
 }
 .artisanoscope-product-option{
@@ -114,20 +126,6 @@
     background-color: #639B84;
     color: rgb(255, 245, 231);
     border-radius: 5px;
-}
-.artisanoscope-product-option-title {
-    font-size: 1.5em;
-    
-}
-.artisanoscope-product-option:hover{
-    box-shadow: 5px 5px 10px 2px #00000035;
-    transition: transform .2s;
-    transform: scale(1.02);
-}
-.artisanoscope-product-option:focus{
-    box-shadow: 5px 5px 10px 2px #00000035;
-    transition: transform .2s;
-    transform: scale(1.02);
 }
 /*Vignettes-boutons d'options - FIN*/
 
