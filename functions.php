@@ -4,7 +4,8 @@
 **/
 add_action( 'wp_enqueue_scripts', 'theme_enqueue_styles' );
 
-// STYLES
+
+// STYLES (marche pas)
 add_filter('elementor/editor/localize_settings', function ($config) {
 	$config['default_schemes']['color']['items'] = [
 		'Principal' => '#6ec1e4',
@@ -28,6 +29,7 @@ function theme_enqueue_styles(){
     wp_enqueue_style('navbar-style', get_stylesheet_directory_uri() .'/assets/custom-css/artisanoscope-navbar-style.css');
     wp_enqueue_style('archive-products-style', get_stylesheet_directory_uri() .'/assets/custom-css/artisanoscope-archive-products-style.css');
     wp_enqueue_style('wc-product-backoffice-style', get_stylesheet_directory_uri() .'/assets/custom-css/artisanoscope-wc-backoffice-style.css');
+    wp_enqueue_style('workshop-card-style', get_stylesheet_directory_uri() .'/assets/custom-css/artisanoscope-workshops-cards-style.css');
     
 }
 
@@ -40,44 +42,49 @@ require_once( get_stylesheet_directory() . '/functions/artisanoscope-backoffice-
 require_once( get_stylesheet_directory() . '/assets/svg/svg.php' );
 
 
-// TODO: CONFORMITÉ RGPD
-
-
-
-// TODO: FIX - DASHBOARD WOOCOMMERCE Vérifie si l'intervalle d'horaires est cohérent avant de sauvegarder le produit.
-function artisanoscope_check_product_schedule( $productID ) {
-    // Récupérer les horaires de début et de fin du produit
-    $startHour = get_field( 'prod_heure_debut', $productID);
-    $endHour = get_field( 'prod_heure_debut', $productID);
-    $product = wc_get_product($productID);
-
-    // Si l'heure de fin précède l'heure de début, empêcher l'enregistrement du produit et afficher une notification
-    if ( strtotime($startHour) >= strtotime($endHour) ) {
-        
-        if($product){
-            $product->set_status( 'draft' );
-        }
-    }
-}
-//add_action( 'woocommerce_process_product_meta', 'artisanoscope_check_product_schedule', 10, 1 );
-
-
 // Scripts:
-// PB: les scripts sont pris en compte mais s'exécutent trop tôt: l'élément de DOM n'existe pas encore et le script renvoie une erreur quand il ne le trouve pas => je tente de les appeler uniquement dans les templates où ils sont nécessaires
 function artisanoscope_register_frontend_scripts(){
     wp_register_script("navbar", get_stylesheet_directory_uri().'/assets/js/artisanoscopeNavbarScript.js', true);
     wp_enqueue_script("navbar");
-    //wp_enqueue_script("childrenMessage", get_stylesheet_directory_uri().'/assets/js/artisanoscopeChildrenTicketsMessage.js');
-    //wp_enqueue_script("filtersDisplay", get_stylesheet_directory_uri().'/assets/js/artisanoscopeDisplayProductsFilters.js');
-    //wp_enqueue_script("scheduleCheck", get_stylesheet_directory_uri().'/assets/js/artisanoscopeIncoherentHoursMessage.js');
-    //wp_enqueue_script('custom-scripts', get_stylesheet_directory_uri().'/assets/js/custom-scripts.js');
 }
 add_action( 'wp_enqueue_scripts', 'artisanoscope_register_frontend_scripts');
 
+// Ajouter toutes les dates sur un an comme terme de l'attribut global "Date"
+function artisanoscope_generate_date_options() {
+    $date_options = [];
+    $today = date('Y-m-d');
+    $last_option_day = date('Y-m-d', strtotime('+ 12 months'));
 
-function artisanoscope_register_admin_frontend_scripts(){
-    //echo('<script type="text/javascript" src="'.get_stylesheet_directory_uri().'/assets/js/artisanoscopeIncoherentHoursMessage.js" defer></script>');
-    //wp_enqueue_script("scheduleCheck", get_stylesheet_directory_uri().'/assets/js/artisanoscopeIncoherentHoursMessage.js', true);
+    $period = new DatePeriod(
+        new DateTime($today),
+        new DateInterval('P1D'),
+        new DateTime($last_option_day)
+    );
+    foreach ($period as $day => $value) {
+        array_push($date_options, $value->format('d/m/Y'));
+    }
+
+    // Get the 'date' attribute taxonomy
+    $taxonomy = 'pa_date'; // The 'pa_' prefix is for product attributes
+
+    // Loop through each date and insert it as a term
+    foreach ($date_options as $date_option) {
+        if (!term_exists($date_option, $taxonomy)) {
+            wp_insert_term($date_option, $taxonomy);
+        }
+    }
+    // Supprimer les anciens termes de date
+    $terms = get_terms([
+        'taxonomy' => $taxonomy,
+        'hide_empty' => false,
+    ]);
+
+    foreach ($terms as $term) {
+        $term_date = DateTime::createFromFormat('d/m/Y', $term->name);
+        if ($term_date < new DateTime()) {
+            wp_delete_term($term->term_id, $taxonomy);
+        }
+    }
 }
-//add_action( 'admin_enqueue_scripts', 'artisanoscope_register_admin_frontend_scripts', true);
-//add_action('admin_init','artisanoscope_register_admin_frontend_scripts');
+add_action('admin_init','artisanoscope_generate_date_options');
+
