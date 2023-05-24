@@ -18,7 +18,7 @@ remove_action('woocommerce_before_shop_loop_item_title', 'woocommerce_show_produ
 remove_action( 'woocommerce_before_shop_loop', 'woocommerce_catalog_ordering', 30 );
 
 
-//test : classe dynamiques pour filtrage des produits dans le catalogue
+//Classes dynamiques pour filtrage des produits dans le catalogue
 function artisanoscope_dynamic_class(){
   global $product;
   //ou
@@ -39,7 +39,6 @@ function artisanoscope_dynamic_class(){
   foreach($category_array as $category){
     $categories .= " ".$category->slug;
   }
-
   //DATE(S)
   $dates = "";
   if($type === "simple"){
@@ -48,15 +47,21 @@ function artisanoscope_dynamic_class(){
     }elseif($format === "abonnement"){
       $dates .= " date-".get_field("prod_date_debut");
     }
-
   }elseif($type === "variable"){
     foreach($variations as $variation){
       $variation_id = $variation['variation_id'];
+
+      /*EN ATTENTE DES ATTRIBUTS DU LOGICIEL DE CAISSE: */
+
+      /*CAS 1 -  Si nom de variation => $variation["attributes"]["attribute_pa_date"]*/
+      /*$variation_date = $variation["attributes"]["attribute_pa_date"];*/
+
+      /*CAS 2 -  Si champs custom de variation => $variation["date"]*/
       $variation_date = $variation['date'];
       $dates .=  " date-".$variation_date;
+
     }
   }
-
   //ENFANTS
   $kid_friendly = "";
   $ages = get_field("prod_age");
@@ -65,8 +70,6 @@ function artisanoscope_dynamic_class(){
       $kid_friendly = "kid-friendly";
     }
   }
-
-
   //DÉBUTANTS
   $beginner_friendly = "";
   $niveaux = get_field("prod_debutant");
@@ -102,79 +105,56 @@ function artisanoscope_dynamic_class(){
   return $dynamic_class;
 }
 
-// N'afficher que les produits dont les champs requis sont renseignés et dont les dates et horaires sont cohérents:
-add_filter('woocommerce_product_is_visible', 'artisanoscope_only_display_workshops_with_required_fields', 10, 2);
-function artisanoscope_only_display_workshops_with_required_fields($visible, $productId){
-    $product = wc_get_product($productId);
-    $product_type = get_field("prod_physique_atelier", $productId);
-    $format = get_field("prod_format", $productId);
-    $start_time = get_field("prod_heure_debut", $productId);
-    $end_time = get_field("prod_heure_fin", $productId);
-    $address = get_field("prod_lieu", $productId);
-    $workshop_date = get_field("prod_date", $productId);
-    $course_start_date = get_field("prod_date_debut", $productId);
-    $course_end_date = get_field("prod_date_fin", $productId);
-
-    // Requis pour produits simples:
-
-    //Pour les produits simples (physiques ou ateliers & formation)
-    //Pour les produits variables, la vérification se fera pour chaque option, dans artisanoscope-single-product-functions.php
-    $type = $product->get_type();
-    if($type=="simple"){
-      // Vérifier la disponibilité et le prix
-        if($product->get_stock_quantity() <= 0 || $product->get_price() <= 0){
-            return false;
-        }
-        //Un atelier (ponctuel ou formation) doit renseigner au moins les horaires et le lieu
-        if($product_type=="Atelier"){
-          // Pour un atelier (simple), la date doit être renseignée
-          if($format == "ponctuel"){
-            if(empty($workshop_date)||empty($start_time)||empty($end_time)||empty($address)){
-              return false;
-            }
-          }
-          // Pour une formation (simple), renseigner au moins les dates de début et de fin
-          if($format == "abonnement"){
-            if(empty($course_start_date)||empty($course_end_date)){
-              return false;
-            }
-            
-            // A CORRIGER - Ne fonctionne pas: Pour une formation (simple): vérifier la cohérence des dates:
-            if(strtotime($course_start_date)<strtotime(date('Y/m/d H:i:s'))||strtotime($course_start_date) >= strtotime($course_end_date)){
-              return false;
-            }
-          }
-          // Pour Atelier & Formation: vérifier la cohérence des horaires:
-          if(strtotime($start_time) >= strtotime($end_time)){
-            return false;
-          }
-        }
-    }
-    return $visible;
-}
-
 //Balise ouvrante de chaque carte, classes dynamiques pour le filtrage
 add_action( 'woocommerce_before_shop_loop_item', 'artisanoscope_start_card_div', 0 );
 function artisanoscope_start_card_div() {
-  echo('<div class="artisan-workshops-card '.artisanoscope_dynamic_class().'">');
+
+  $date="";
+  $format = get_field("prod_format");
+  //test
+  if($format == "ponctuel"){
+    $date=get_field("prod_date");
+  }elseif($format == "abonnement"){
+    $date=get_field("prod_date_debut");
+  }
+  //test
+  echo('<div class="artisanoscope-workshops-card '.artisanoscope_dynamic_class().'">');
 }
 
 // Adapté aux enfants
-add_action( 'woocommerce_before_shop_loop_item_title', 'artisanoscope_kid_friendly_notice', 10 );
-function artisanoscope_kid_friendly_notice(){
+add_action( 'woocommerce_before_shop_loop_item_title', 'artisanoscope_kids_and_beginners_notice', 10 );
+function artisanoscope_kids_and_beginners_notice(){
+  echo("<div class='artisanoscope-product-info-content'>");
+
   $age = get_field("prod_age");
-  if(isset($age)&&!empty($age)&&in_array("enfant",$age)){
-    echo("<p style='color: #598562; text-align:center; margin-top:0.5em;'>Adapté aux enfants</p>");
+  $level = get_field("prod_debutant");
+  if((isset($age)&&!empty($age)&&in_array("enfant",$age)||(isset($level)&&!empty($level)&&in_array("debutant",$level)))){
+    echo("<div class='artisanoscope-workshops-card-extras'>");
+    if(isset($age)&&!empty($age)&&in_array("enfant",$age)){
+      echo("<div class='artisanoscope-workshops-card-extra'>".svg("kid_friendly_rounded")."</div>");
+    }
+    if(isset($level)&&!empty($level)&&in_array("debutant",$level)){
+      echo("<div class='artisanoscope-workshops-card-extra'>".svg("beginners_accepted_rounded")."</div>");
+    }
+    echo("</div>");
   }
+
+
 }
 
 // Titre
 add_action('woocommerce_shop_loop_item_title', 'artisanoscope_product_content_custom_class_for_title',10);
 function artisanoscope_product_content_custom_class_for_title(){
   global $product;
-
+  $age = get_field("prod_age");
+  $level = get_field("prod_debutant");
   //Ajouter mon titre avec la classe custom
-  echo("<h2 class='artisan-workshops-card-title'>".$product->get_name()."</h2>");
+  if(empty($level)&&empty($age)){
+    echo("<h2 class='artisanoscope-workshops-card-title extra-margin'>".$product->get_name()."</h2>");
+  }else{
+    echo("<h2 class='artisanoscope-workshops-card-title'>".$product->get_name()."</h2>");
+  }
+
 }
 
 // Infos dispatch
@@ -219,26 +199,45 @@ function artisanoscope_simple_workshop_infos(){
   if(isset($start_hour) && !empty($start_hour)&& isset($end_time) && !empty($end_time)){
     $duration .= gmdate("G:i", strtotime($end_time) - strtotime($start_hour));
   }
-
-  //Afficher la date
-  if(isset($date) && !empty($date)){
-    echo("<div style='display:flex; color:lightslategray' class='artisanoscope-product-info-line'>".svg("date")."<p>Le ".$date."</p></div>");
-  }
   //Afficher la durée
   if(isset($duration) && !empty($duration)){
-    echo("<div style='display:flex; color:lightslategray' class='artisanoscope-product-info-line'>".svg("duration")."<p>".format_duration($duration)."H</p></div>");
+    echo("<div class='artisanoscope-product-info-line'>".svg("duration")."<p>".format_duration($duration)."H</p></div>");
   }
+  //Afficher la date
+  if(isset($date) && !empty($date)){
+    echo("<div class='artisanoscope-product-info-line'>".svg("date")."<p>Le ".$date."</p></div>");
+  }
+
 }
 // Infos de formation
 function artisanoscope_simple_course_infos(){
   $date_debut = get_field("prod_date_debut");
   $date_fin = get_field("prod_date_fin");
   $periodicite = get_field("prod_periodicite"); 
-  if(isset($periodicite) && !empty($periodicite)){
-    echo("<div style='display:flex; color:lightslategray' class='artisanoscope-product-info-line'>".svg("recurrence")."<p>".$periodicite."</p></div>");
+
+  /*
+    //Durée d'une session
+  $start_hour = get_field("prod_heure_debut");
+  $end_time = get_field("prod_heure_fin");
+  $duration = "";
+  if(isset($start_hour) && !empty($start_hour)&& isset($end_time) && !empty($end_time)){
+    $duration .= gmdate("G:i", strtotime($end_time) - strtotime($start_hour));
   }
+  //Afficher la durée
+  if(isset($duration) && !empty($duration)){
+    echo("<div class='artisanoscope-product-info-line'>".svg("duration")."<p>".format_duration($duration)."H</p></div>");
+  }
+  */
+  if(isset($periodicite) && !empty($periodicite)){
+    echo("<div class='artisanoscope-product-info-line'>".svg("recurrence")."<p>".$periodicite."</p></div>");
+  }
+  /*
+    if(isset($date_debut) && !empty($date_debut)&& isset($date_fin) && !empty($date_fin)){
+    echo("<div class='artisanoscope-product-info-line'>".svg("date")."<p>".$date_debut." - ".$date_fin."</p></div>");
+  }
+  */
   if(isset($date_debut) && !empty($date_debut)&& isset($date_fin) && !empty($date_fin)){
-    echo("<div style='display:flex; color:lightslategray' class='artisanoscope-product-info-line'>".svg("date")."<p>".$date_debut." - ".$date_fin."</p></div>");
+    echo("<div class='artisanoscope-product-info-line'>".svg("date")."<p> Jusqu'au ".$date_fin."</p></div>");
   }
 }
 // Infos d'atelier variable
@@ -249,44 +248,13 @@ function artisanoscope_variable_workshop_infos($product){
   $end_hour = $variations[0]["end_hour"];
   if(isset($start_hour)&&!empty($start_hour)&&isset($end_hour)&&!empty($end_hour)){
     $duration .= gmdate("G:i", strtotime($end_hour) - strtotime($start_hour));
-    echo("<div style='display:flex; color:lightslategray' class='artisanoscope-product-info-line'>".svg("duration")."<p>".format_duration($duration)."H</p></div>");
+    echo("<div class='artisanoscope-product-info-line'>".svg("duration")."<p>".format_duration($duration)."H</p></div>");
+    echo("<div class='artisanoscope-product-info-line'>".svg("date")."<p>Voir les dates</p></div>");
   }
 }
 
-
-function artisanoscope_simple_product_data_display(){
-  global $product;
-  $type = $product->get_type();
-  $format = get_field("prod_format");
-  $date = get_field("prod_date");
-  $date_debut = get_field("prod_date_debut");
-  $date_fin = get_field("prod_date_fin");
-  $periodicite = get_field("prod_periodicite"); 
-
-  //Durée d'une session
-  $heure_debut = get_field("prod_heure_debut");
-  $heure_fin = get_field("prod_heure_fin");
-  $duree = "";
-  if(!empty($heure_debut)&& !empty($heure_fin)){
-    $duree .= gmdate("G:i", strtotime($heure_fin) - strtotime($heure_debut)) ;
-  }
-  
-  if(isset($format)&&!empty($format) && isset($type)&&!empty($type)){
-    //Produits simples:
-    if($type =="simple"){
-      if($format ==="ponctuel"){
-        echo("<p class='artisan-workshops-card-info'>Le ".$date."</p>");
-        echo("<p class='artisan-workshops-card-info'>".$duree."</p>");
-      }
-      if($format ==="abonnement"){
-        echo("<p class='artisan-workshops-card-info'>Du ".$date_debut." au ".$date_fin."</p>");
-        echo("<p class='artisan-workshops-card-info'>".$periodicite."</p>");
-      }
-    }
-  }
-}
 // Bouton pour les produits variables
-add_action('woocommerce_after_shop_loop_item_title', 'artisanoscope_variable_workshop_button',10);
+//add_action('woocommerce_shop_loop_item_title', 'artisanoscope_variable_workshop_button',10);
 function artisanoscope_variable_workshop_button(){
   global $product;
   $type = $product->get_type();
@@ -294,7 +262,7 @@ function artisanoscope_variable_workshop_button(){
   if(isset($format)&&!empty($format) && isset($type)&&!empty($type)){
     if($type == "variable"){
       if($format ==="ponctuel"){
-        echo("<p style='color: #598562; text-align:center; border: 1px solid #598562; border-radius:5px; padding:0.5em; margin-top:0.5em;'>Voir les dates</p>");
+        echo("<div class='artisanoscope-product-info-line see-dates'><p class='artisanoscope-variable-workshop-dates-btn'>Voir les dates</p>".svg("arrow"))."</div>";
       }
     }
   }
@@ -304,5 +272,6 @@ function artisanoscope_variable_workshop_button(){
 //Balise fermante de chaque carte
 add_action( 'woocommerce_after_shop_loop_item', 'artisanoscope_end_of_product_card', 20 );
 function artisanoscope_end_of_product_card() {
+  echo('</div>');
   echo('</div>');
 }

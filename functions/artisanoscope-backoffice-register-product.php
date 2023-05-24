@@ -151,6 +151,7 @@ function artisanoscope_save_custom_fields_in_variation( $variation_id, $i ) {
     if ( isset( $other_location_field ) ) update_post_meta( $variation_id, 'other_location', esc_attr( $other_location_field ) );
 
     /*CHAMPS ADDITIONNELS POUR LES FORMATIONS*/
+    /*
     //Date de début
     $start_date_field = $_POST['start_date'][$i];
     if ( isset( $start_date_field ) ) update_post_meta( $variation_id, 'start_date', esc_attr( $start_date_field ) );
@@ -166,6 +167,7 @@ function artisanoscope_save_custom_fields_in_variation( $variation_id, $i ) {
     //Infos complémentaires
     $additional_field = $_POST['additional'][$i];
     if ( isset( $additional_field ) ) update_post_meta( $variation_id, 'additional', esc_attr( $additional_field ) );
+    */
 }
     
 // -----------------------------------------
@@ -195,6 +197,7 @@ function artisanoscope_add_custom_fields_to_variation_data( $variations ) {
     $variations['location'] = $location;
 
     /*POUR LES FORMATIONS*/
+    
     //Dates 
     $startDateField = strtotime(get_post_meta( $variations[ 'variation_id' ], 'start_date', true ));
     $variations['start_date'] = date('d/m/Y', $startDateField);
