@@ -1,8 +1,9 @@
 let filterForm = document.querySelector("#artisanoscope-custom-filters-form");
-let products = document.querySelectorAll(".artisan-workshops-card");
+let products = document.querySelectorAll(".artisanoscope-workshops-card");
 let categoryOption = document.querySelector("#artisanoscope-craft-filter");
 let startDate = document.querySelector('#artisanoscope-daterange-start');
 let endDate = document.querySelector('#artisanoscope-daterange-end');
+//let dateRangePicker = document.querySelector('#artisanoscope-daterange');
 let ageOption = document.querySelector('#artisanoscope-age-filter-checkbox');
 let beginnerOption = document.querySelector('#artisanoscope-beginner-friendly-filter-checkbox');
 let availabilitiesOption = document.querySelector('#artisanoscope-availabilities-filter');
@@ -55,28 +56,26 @@ function matchesDatesCriteria(product, startDate, endDate){
 
 //Vérifier qu'une date est comprise dans un intervalle donné
 function isInDateInterval(startDate, endDate, productDate){
-    console.log("startDate =>");
-    console.log(startDate);
-    console.log("endDate =>");
-    console.log(endDate);
-    console.log("productDate =>");
-    console.log(productDate);
     return (productDate>=startDate && productDate<=endDate);
 }
 
-// Fonctions pour convertir les strings de dates en objet Date
-
-// 1 . Pour les dates au format des inputs
 function parseYMDDate(ymdDate) {
     const [year, month, day] = ymdDate.split('-').map(Number);
     return new Date(year, month - 1, day);
 }
   
-  // 2 . Pour les dates au formats des champs ACF
+// Fonction pour convertir une date au format "dd/mm/yyyy" en objet Date
 function parseDMYDate(dmyDate) {
     const [day, month, year] = dmyDate.split('/').map(Number);
     return new Date(year, month - 1, day);
 }
+//Vérifier que la saisie des dates est cohérente
+function coherentDateInterval(startDateString,endDateString ){
+    let startDate = Date.parse(startDateString);
+    let endDate = Date.parse(endDateString);
+    return startDate<=endDate;
+}
+
 
 // I - ARTISANAT
 categoryOption.addEventListener("change", function(event){
@@ -103,16 +102,51 @@ dateToggle.addEventListener("click", function(event){
 datesZone.classList.toggle("hide");
 });
 
-endDate.addEventListener("change", function(event){
-    if(startDate.value != "" && endDate.value != ""){
-        filters.dates.active = true;
-        filters.dates.values.start = startDate.value;
-        filters.dates.values.end = endDate.value;
-        console.log(filters);
 
-        datesZone.classList.toggle("hide");
-        dateToggle.textContent = startDate.value+" → "+endDate.value;
-        setVisibilityOnEveryProducts(products);
+/*
+document.addEventListener('DOMContentLoaded', function() {
+    // Déclenchez l'événement "show.daterangepicker" pour rendre le calendrier visible par défaut
+    $(`#daterange`).trigger(`show.daterangepicker`);
+});
+$(function() {
+    $(`input[name="daterange"]`).daterangepicker({
+    }, function(start, end, label) {
+      console.log("A new date selection was made: " + start.format(`YYYY-MM-DD`) + ` to ` + end.format(`YYYY-MM-DD`));
+      console.log( start + " to " + end);
+    });
+});
+*/
+
+// AFFICHER LA SÉLECTION DE DATES SUR LE BOUTON
+// 1 - Mettre les dates au bon format
+function fuckJSDateFormats(rawDate){
+    let day = rawDate.substring(8,10);
+    let month= rawDate.substring(5,7);
+    let year= rawDate.substring(0,4);
+    return day+"/"+month+"/"+year;
+}
+
+// 2 - Afficher les dates à la sélection de la 2e
+endDate.addEventListener("change", function(event){
+    let incoherentDateMsg = document.querySelector("#artisanoscope-daterange-warning-incoherent-date");
+
+    if(startDate.value != "" && endDate.value != ""){
+        //Éviter une saisie de date incohérente
+        if(coherentDateInterval(startDate.value,endDate.value)){
+
+            filters.dates.active = true;
+            filters.dates.values.start = startDate.value;
+            filters.dates.values.end = endDate.value;
+            //datesZone.classList.toggle("hide");
+            setVisibility(datesZone, false);
+            //changer l'affichage du bouton pour qu'il affiche les dates choisies, au bon format
+            dateToggle.textContent = fuckJSDateFormats(startDate.value)+" → "+ fuckJSDateFormats(endDate.value);
+            setVisibilityOnEveryProducts(products);
+        }else{
+            setVisibility(datesZone, false);
+            setVisibility(incoherentDateMsg, true);
+        }
+
 
 
     }else{
