@@ -51,6 +51,12 @@ window.addEventListener('scroll', () => {
         homeIcon.classList.remove("hide");
         homepageBasketIcon.classList.remove("hide");
         homepageAccountIcon.classList.remove("hide");
+
+        //Pour la couleur des onglets au survol
+        let globalIcons = document.querySelectorAll(".ekit-menu-nav-link");
+        for(let icon of globalIcons){
+            icon.parentNode.classList.remove("homeicons-start-style");
+        }
         
     } else {
         firstBasketIcon.classList.remove("hide");
@@ -60,14 +66,5 @@ window.addEventListener('scroll', () => {
         homeIcon.classList.add("hide");
         homepageBasketIcon.classList.add("hide");
         homepageAccountIcon.classList.add("hide");
-    }
-
-    let globalIcons = document.querySelectorAll(".ekit-menu-nav-link");
-
-    //Les icônes de navigation globales
-    //globalIcons.forEach(icon=> icon.classList.remove("homeicons-start-style"));
-    
-    for(let icon of globalIcons){
-        icon.parentNode.classList.remove("homeicons-start-style");
     }
 });
