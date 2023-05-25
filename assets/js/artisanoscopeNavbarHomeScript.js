@@ -16,14 +16,14 @@ window.addEventListener('load', () => {
 
     //Les icônes de navigation globales
     let globalIcons = document.querySelectorAll(".ekit-menu-nav-link");
-    console.log(globalIcons);
     if(globalIcons){
         for(let icon of globalIcons){
             icon.parentNode.classList.add("homeicons-start-style");
-            console.log(icon.parentNode);
         }
     }
 
+    //Et la pitite flèche
+    let arrowIcons = icon.querySelectorAll(".elementskit-submenu-indicator");
 
     //Style du dernier onglet:
     let artisanLink = document.querySelector(".menu-item-3150");
@@ -66,5 +66,11 @@ window.addEventListener('scroll', () => {
         homeIcon.classList.add("hide");
         homepageBasketIcon.classList.add("hide");
         homepageAccountIcon.classList.add("hide");
+
+        //Pour la couleur des onglets au survol
+        let globalIcons = document.querySelectorAll(".ekit-menu-nav-link");
+        for(let icon of globalIcons){
+            icon.parentNode.classList.add("homeicons-start-style");
+        }
     }
 });
