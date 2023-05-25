@@ -11,18 +11,17 @@ function workshop_has_required_fields($date, $start_time, $end_time, $address, $
       $date = get_field("prod_date", $productId);
       return (!empty($date)&&!empty($start_time)&&!empty($end_time)&&!empty($address));
     }elseif($type == "variable"){
-    //Pour les produits variable, s'assurer qu'il ont au moins une variation au format valide
-    $variations = $product->get_available_variations();
-    if (isset($variations)){
-      foreach($variations as $variation){
-        if(variation_has_all_required_fields($variation)){
-          return true;
-        }else{
-          return false;
+      //Pour les produits variable, s'assurer qu'il ont au moins une variation au format valide
+      $variations = $product->get_available_variations();
+      if (isset($variations)){
+        foreach($variations as $variation){
+          if(variation_has_all_required_fields($variation)){
+            return true;
+          }else{
+            return false;
+          }
         }
       }
-    }
-
     }
     return true;
 }
@@ -50,6 +49,18 @@ function workshop_has_coherent_fields($date, $start_time, $end_time, $productId)
         return false;
       }
       return true;
+    }elseif($type == "variable"){
+      //Pour les produits variable, s'assurer qu'il ont au moins une variation au format valide
+      $variations = $product->get_available_variations();
+      if (isset($variations)){
+        foreach($variations as $variation){
+          if(variation_has_coherent_fields($variation)){
+            return true;
+          }else{
+            return false;
+          }
+        }
+      }
     }
     return true;
 }

@@ -1,0 +1,8 @@
+/*Navbar accueil: changement de couleur au scroll*/
+.elementor-element-285cb31.elementor-sticky--active{
+    background-color: #FFFCF7!important;
+}
+/*Navbar accueil: style des onglets au survol*/
+.homeicons-start-style a:hover{
+    color: #743614!important;
+}
