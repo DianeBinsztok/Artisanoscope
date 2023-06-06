@@ -1,13 +1,14 @@
 <?php
-    //https://woocommerce.wp-a2z.org/oik_api/woocommerce_wp_text_input/
-    //https://pluginrepublic.com/woocommerce-custom-fields/
-    //https://rudrastyh.com/woocommerce/add-custom-fields-to-product-variations.html
-    //https://mosaika.fr/ajouter-champs-meta-produits-woocommerce/
-    // check woocommerce_product_options_general_product_data
-    // https://stackoverflow.com/questions/45911162/woocommerce-wp-select-options-array-from-product-attribute-terms
-    //https://stackoverflow.com/questions/55689560/datepicker-give-me-01-01-1970
 
+// I - Supprimer la metabox 'Description courte'
+add_action('add_meta_boxes','artisanoscope_remove_short_desc_metabox', 40);
+function artisanoscope_remove_short_desc_metabox(){
+    remove_meta_box( 'postexcerpt','product','normal' );
+}
 add_action( 'woocommerce_variation_options_pricing', 'artisanoscope_add_custom_field_to_date_variations', 10, 3 );
+
+// II - Données de produit - produit variable: nouveaux champs de variiton
+// 1. Afficher les champs custom dans le backoffice Woocommerce, partie "Données de produit"
 function artisanoscope_add_custom_field_to_date_variations( $loop, $variation_data, $variation ) {
 
     //Date
@@ -120,7 +121,7 @@ function artisanoscope_add_custom_field_to_date_variations( $loop, $variation_da
     */
 }
 
-// 2. Enregistrer le champs custom en même temps que la variation du produit
+// 2. Enregistrer les valeurs cutom saisies en même temps que la variation du produit
 add_action( 'woocommerce_save_product_variation', 'artisanoscope_save_custom_fields_in_variation', 10, 2 );
 //add_action( 'woocommerce_process_product_meta_workshop', 'artisanoscope_save_custom_fields_in_variation', 10, 2 );
 function artisanoscope_save_custom_fields_in_variation( $variation_id, $i ) {
