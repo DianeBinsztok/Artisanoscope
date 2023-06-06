@@ -1,8 +1,38 @@
 /*Navbar accueil: changement de couleur au scroll*/
 .elementor-element-285cb31.elementor-sticky--active{
     background-color: #FFFCF7!important;
+    transition-property: background-color;
+    transition-duration: 1s;
 }
 /*Navbar accueil: style des onglets au survol*/
 .homeicons-start-style a:hover{
     color: #743614!important;
+}
+
+i .homeicons-start-style{
+    color: #743614!important;
+}
+
+
+@media screen and (min-width: 1180px){
+    .account-pictogram-basket, .account-pictogram-account{
+        position:absolute!important;
+        top:15px;
+    }
+    .account-pictogram-account{
+        right:5px;
+    }
+    .account-pictogram-basket{
+        right:95px;
+    }
+}
+
+/*1367*/
+/*Breakpoints navbar*/
+#nav-logo-home{
+    height:45px; 
+    width:60px;
+}
+.artisanoscope-account-menu-items{
+    width:30px;
 }

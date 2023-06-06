@@ -3,9 +3,9 @@
 window.addEventListener('load', () => {
 
     //Les icônes de retour à l'accueil et Woocommerce
-    let homeIcon = document.querySelector(".menu-item-86");
-    let homepageBasketIcon = document.querySelector("#menu-1-41e6d0d .menu-item-2656");
-    let homepageAccountIcon = document.querySelector("#menu-1-41e6d0d .menu-item-2658");
+    let homeIcon = document.querySelector("#menu-item-86");
+    let homepageBasketIcon = document.querySelector("#menu-item-4302");
+    let homepageAccountIcon = document.querySelector("#menu-item-4305");
 
     if(homeIcon && homepageBasketIcon && homepageAccountIcon){
      
@@ -22,35 +22,52 @@ window.addEventListener('load', () => {
         }
     }
 
-    //Et la pitite flèche
-    let arrowIcons = icon.querySelectorAll(".elementskit-submenu-indicator");
+    //les panels de sous-menu
+    /*
+    let dropdownPanels = document.querySelectorAll(".menu-item-has-children");
+    console.log(dropdownPanels);
+    if(dropdownPanels){
+        for(let panel of dropdownPanels){
+            panel.classList.remove("ekit-menu-dropdown-toggle");
+            console.log(panel);
 
-    //Style du dernier onglet:
-    let artisanLink = document.querySelector(".menu-item-3150");
-
+        }
+    }
+    */
 });
 
 window.addEventListener('scroll', () => {
-    //Les icônes de retour à l'accueil et Woocommerce
-    let firstBasketIcon = document.querySelector("#menu-1-41e6d0d .menu-item-2656");
-    let firstAccountIcon = document.querySelector("#menu-1-41e6d0d .menu-item-2658");
+    //Les premières icônes Woocommerce
+    let firstBasketIcon = document.querySelector(".menu-item-2656");
+    let firstAccountIcon = document.querySelector(".menu-item-2658");
 
-    let navMenuOnSticky = document.querySelector("#menu-1-41e6d0d");
+    //La barre de navigation
+    let navMenuOnSticky = document.querySelector(".elementor-element-285cb31");
 
-    let homeIcon = document.querySelector(".menu-item-86");
-    let homepageBasketIcon = document.querySelector("#menu-1-41e6d0d .menu-item-2656");
-    let homepageAccountIcon = document.querySelector("#menu-1-41e6d0d .menu-item-2658");
+    //Les icônes de retour à l'accueil et Woocommerce de la barre de navigation
+    let homeIcon = document.querySelector("#menu-item-86");
+    let homepageBasketIcon = document.querySelector("#menu-item-4302");
+    let homepageAccountIcon = document.querySelector("#menu-item-4305");
 
+    //Lorsque la barre de navigation atteint le haut de l'écran
     if (navMenuOnSticky.getBoundingClientRect().y <= 42) { // Nombre de pixels de distance au bord haut
                 
+        
+        //Cacher les premières icônes Woocommerce
         firstBasketIcon.classList.add("hide");
         firstAccountIcon.classList.add("hide");
 
+        //Fixer la barre au haut de l'écran
         navMenuOnSticky.classList.add('sticky');
-        
+
+        //Révéler les icônes accueil et Woocommerce sur la barre de navigation
         homeIcon.classList.remove("hide");
         homepageBasketIcon.classList.remove("hide");
         homepageAccountIcon.classList.remove("hide");
+
+        //Pour cibler et positionner les icônes e-commerce
+        homepageBasketIcon.classList.add("account-pictogram-basket");
+        homepageAccountIcon.classList.add("account-pictogram-account");
 
         //Pour la couleur des onglets au survol
         let globalIcons = document.querySelectorAll(".ekit-menu-nav-link");
@@ -59,8 +76,9 @@ window.addEventListener('scroll', () => {
         }
         
     } else {
+        //Au scroll de retour, revenir au style précédent
         firstBasketIcon.classList.remove("hide");
-        firstAccountIcon.classList.add("hide");
+        firstAccountIcon.classList.remove("hide");
 
         navMenuOnSticky.classList.remove('sticky');
         homeIcon.classList.add("hide");

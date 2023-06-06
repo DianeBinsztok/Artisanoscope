@@ -1,0 +1,185 @@
+/*DEFAUT*/
+/*
+.elementor-page-1016{
+    background-color: #DDC3AC!important;
+}
+.elementor-page-1016 .elementor-1016{
+    background-color: #DDC3AC!important;
+}
+*/
+
+#artisanoscope-custom-filters-container{
+    padding: 1.5rem 0 1.5rem 0;
+    align-items:center;
+}
+/*Catégories*/
+#artisanoscope-craft-filter{
+    background-color: #FFFCF7;
+    padding:0.7rem;
+    box-sizing: border-box;
+    font-size: 1em;
+    font-weight: 300;
+    text-transform: uppercase;
+}
+#artisanoscope-craft-filter option{
+    font-size: 1em;
+    font-weight: 300;
+}
+
+/*Boutons: Dates, Places, Réinitialiser*/
+/*Inactifs*/
+#artisanoscope-daterange-filter-button, #artisanoscope-availabilities-filter-button, #artisanoscope-reset-all-filters-button, #artisanoscope-craft-filter, .quantity-button{
+    color: #3b2a1c;
+    border-color: #DDC3AC;
+}
+/*Actifs*/
+#artisanoscope-daterange-filter-button:focus, #artisanoscope-availabilities-filter-button:focus, #artisanoscope-reset-all-filters-button:focus, .quantity-button:focus, #artisanoscope-daterange-filter-button:hover, #artisanoscope-availabilities-filter-button:hover, #artisanoscope-reset-all-filters-button:hover, #artisanoscope-availabilities-decrement:hover , #artisanoscope-availabilities-increment:hover, .filter-button-active{
+    color: #fffcf7!important;
+    background-color: #005c4d!important;
+    outline: none!important;
+    box-shadow: 1px 3px 5px 0 #002e2740;
+    transition: transform 0.2s;
+    transform: scale(1.01);
+    border-color: #005c4d!important;
+}
+
+/*Boutons: Enfants et Débutants*/
+/*Inactifs*/
+#artisanoscope-age-filter-button, #artisanoscope-beginner-friendly-filter-button{
+    padding-left: 2.5rem;
+    color:#3b2a1c;
+    align-items: center!important;
+    border: none!important;
+    background-color: transparent;
+    font-style: normal;
+    text-transform: none;
+    /*pictos*/
+    background-repeat: no-repeat;
+    background-position-x: left;
+    background-position-y: center;
+    background-size: 12%;
+}
+#artisanoscope-age-filter-button{
+    background-image: url("/wp-content/uploads/2023/06/icone-age-inactif.png");
+}
+#artisanoscope-beginner-friendly-filter-button{
+    background-image: url("/wp-content/uploads/2023/06/icone-niveau-inactif.png");
+}
+/*Survol*/
+#artisanoscope-age-filter-button:hover, #artisanoscope-beginner-friendly-filter-button:hover, .age-filter-active,.beginner-filter-active{
+    background-size: 15%!important;
+}
+/*Actifs*/
+.age-filter-active,.beginner-filter-active{
+    background-color: none!important;
+    border-color: transparent!important;
+    border: none!important;
+    transition:none;
+    /*pictos:*/
+    background-repeat: no-repeat;
+    background-position-x: left;
+    background-position-y: center;
+    border: none!important;
+    outline: none!important;
+
+}
+.age-filter-active{
+    background-image: url("/wp-content/uploads/2023/06/icone-age-actif.png")!important;
+}
+.beginner-filter-active{
+    background-image: url("/wp-content/uploads/2023/06/icone-niveau-actif.png")!important;
+}
+/*Focus*/
+#artisanoscope-age-filter-button:focus, #artisanoscope-beginner-friendly-filter-button:focus{
+    border: none!important;
+    outline: none!important;
+}
+
+/*Dates et Places: zones d'inputs*/
+#artisanoscope-daterange-toggle-zone, #artisanoscope-availabilities-toggle-zone{
+    position:absolute;
+    border-radius: 10px;
+    margin-top: 1rem;
+    padding:2rem;
+    display:flex;
+    z-index: 2;
+    background-color: #ffffff;
+    box-shadow: 5px 5px 10px 2px #00000035;
+}
+
+#artisanoscope-availabilities-filter::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+.quantity-button{
+    border-radius: 700px;
+    font-size: 1.7em;
+    margin:0 0.5rem 0 0.5rem;
+}
+
+#artisanoscope-daterange-toggle-zone input, #artisanoscope-availabilities-toggle-zone input{
+    border-color: #002e27;
+}
+
+/*AGE*/
+/*
+#artisanoscope-age-filter-checkbox, #artisanoscope-beginner-friendly-filter-checkbox{
+    accent-color:#278678;
+}
+#artisanoscope-age-filter-container, #artisanoscope-beginner-friendly-filter-container{
+    display: flex;
+    align-items:center;
+    margin:0.1em auto;
+}
+*/
+
+/*DEBUTANT & ÂGES*/
+/*
+#artisanoscope-beginner-friendly-filter-label, #artisanoscope-age-filter-label{
+    padding-left: 10px;
+    color:#002e27;
+}
+*/
+
+/*MESSAGE D'ERREUR DES DATES*/
+#artisanoscope-daterange-warning-incoherent-date{
+    position:absolute;
+    margin-top: 1rem;
+    z-index: 2;
+}
+/*MOBILE*/
+@media (min-width: 250px) and (max-width: 420px) { 
+    /*Zone de filtres*/
+    #artisanoscope-custom-filters-container{
+        display:flex; 
+        flex-direction: column;
+    }
+}
+/*TABLETTE*/
+@media (min-width: 420px) and (max-width: 920px) { 
+
+}
+/*DESKTOP*/
+@media (min-width: 920px) and (max-width: 2000px){ 
+    /*CORRIGER: Titre de page*/
+    .woocommerce-products-header{
+        align-items: center;
+    }
+
+    /*Zone de filtres*/
+    #artisanoscope-custom-filters-container{
+        display:flex; 
+        flex-wrap: wrap;
+        justify-content:space-around;
+        margin:3rem 0 3rem 0;
+    }
+
+    /*DEBUTANT*/
+    /*
+    #artisanoscope-beginner-friendly-filter-label, #artisanoscope-age-filter-label{
+        padding-left: 25px;
+    }
+    */
+
+
+}

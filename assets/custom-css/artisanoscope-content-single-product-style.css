@@ -1,10 +1,10 @@
 /*Désactiver les styles par défaut WC*/
 
 .product-template-default{
-    font-family: 'Roboto';
+    font-family: 'Roboto Slab'!important;
 }
 .product-template-default h1, .artisanoscope-single-product-info-artisan-title{
-    font-family: 'Roboto Condensed';
+    font-family: 'Roboto Condensed'!important;
 }
 
 .product-template-default a{
@@ -23,7 +23,12 @@
     text-decoration-thickness: 1px;
 }
 */
-
+.entry-summary, .artisanoscope-product-info-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between!important;
+    height: 100%;
+}
 .woocommerce-product-details__short-description{
     position: relative;
     /*background-color: #FFE7C0; */
@@ -43,6 +48,7 @@
     font-size: 2em;
     color: black;
 }
+/*Lien vers l'artisan*/
 .artisanoscope-single-product-info-artisan-link:hover .artisanoscope-single-product-info-artisan-hover{
     display:flex;
     position: absolute;
@@ -55,7 +61,11 @@
     border-radius: 7px;
     padding: 1rem;
 }
-
+/*
+.woocommerce-product-gallery__trigger{
+    z-index: 1!important;
+}
+*/
 /*Vignette au survol*/
 .artisanoscope-single-product-info-artisan-hover-img{
     width: 30%; 
@@ -67,67 +77,40 @@
     font-size:1.5em;
 }
 
-/*Description*/
-.artisanoscope-single-product-info-description{
-    color: #fff2dd;
-    font-weight: 600;
-    background-color: #639B84;
-    padding:0.5em;
-    padding-bottom:2em;
-    padding-top: 2em;
-    margin-bottom: 1em;
-}
-
-/*OPTIONS*/
-#course-options{
-    display: grid;
-   /* grid-template-rows: 1fr;*/
-    grid-template-columns: 1fr 1fr 1fr;
-}
-.artisanoscope-product-option:hover{
-    box-shadow: 5px 5px 10px 2px #00000035;
-    transition: transform .2s;
-    transform: scale(1.02);
-}
-.artisanoscope-product-option:focus{
-    box-shadow: 5px 5px 10px 2px #00000035;
-    transition: transform .2s;
-    transform: scale(1.02);
-}
-
-/*Vignettes-boutons d'options*/
-.artisanoscope-product-option-line, .artisanoscope-product-options-container{
-    width: fit-content;
+.artisanoscope-kids-and-beginners-container{
     display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
+    justify-content: space-around;
+    vertical-align: middle;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.artisanoscope-kids-and-beginners-container .artisanoscope-single-product-info-acf-field-line{
+    display: flex;
+    vertical-align: middle;
+    align-items: center!important;
+    font-size: 0.9em;
+    color: #57412e;
 }
 
-.artisanoscope-product-option-title{
-    font-size: 1.5em;
-    display: inline;
+.artisanoscope-kids-and-beginners-container .artisanoscope-single-product-info-acf-field-line .artisanoscope-single-product-info-svg {
+    align-self: center;
+    vertical-align: middle;
+    align-items: center;
+    margin: auto 1rem;
 }
-.artisanoscope-product-option{
-    background-color: #ffffff;
-    padding: 0.6rem; 
-    margin: 0.8rem;
-    border-radius: 5px;
-    transition: transform .2s;
-    color: rgb(100, 100, 100);
-    text-decoration: none;
-    height: 100%;
+
+.artisanoscope-single-product-info-container{
+    padding: 0 1rem;
+    background-color: #FFEED1;
+    color: #403226;
+    margin-bottom: 1rem;
 }
-.option-title{
-    display: block;
-    padding: 0.2em; 
-    margin:0 0 0.5em 0;
+.artisanoscope-single-product-info-container h3{
+    align-self: center;
     text-align: center;
-    width:100%;
-    background-color: #639B84;
-    color: rgb(255, 245, 231);
-    border-radius: 5px;
+    font-weight: 300;
+    font-size: 1.3em!important;
 }
-/*Vignettes-boutons d'options - FIN*/
 
 .artisanoscope-single-product-info-acf-field-line{
     display: flex;
@@ -152,23 +135,72 @@
 }
 .artisanoscope-single-product-info-availabilities{
     font-weight:bold; 
-    color: #639B84;
+    color: #008670!important;
 }
+
+/*OPTIONS*/
+#course-options{
+    display: grid;
+   /* grid-template-rows: 1fr;*/
+    grid-template-columns: 1fr 1fr 1fr;
+}
+.artisanoscope-product-option:hover{
+    box-shadow: 5px 5px 10px 2px #00000035;
+    transition: transform .2s;
+    transform: scale(1.02);
+}
+.artisanoscope-product-option:focus{
+    box-shadow: 5px 5px 10px 2px #00000035;
+    transition: transform .2s;
+    transform: scale(1.02);
+}
+
+/*Vignettes-boutons d'options*/
+.artisanoscope-product-option{
+    background-color: #ffffff;
+    margin: 0.8rem;
+    border-radius: 5px;
+    transition: transform .2s;
+    text-decoration: none;
+    height: 100%;
+}
+.artisanoscope-product-option-line, .artisanoscope-product-options-container, #course-options{
+    width: 100%;
+    display: flex;
+    align-items: baseline;
+    padding: 0 1em!important;
+}
+.option-title{
+    color: #ffffff!important;
+    border-radius:5px 5px 0 0;
+    text-align: center;
+    width:100%;
+    margin-bottom:0.5em;
+    background-color: #008670;
+}
+.artisanoscope-product-option-title{
+    font-family: Roboto!important;
+    color: #ffffff!important;
+    font-size: 1.3em!important;
+    display: inline;
+}
+/*Vignettes-boutons d'options - FIN*/
 
 /*Override des styles Woocommerce*/
 .product-template-default .price{
     font-size: 1.4em!important;
     /*font-weight:bold!important;*/
-    color:  #639B84!important;
+    color:  #008670!important;
 }
 .single_add_to_cart_button{
     color: white !important;
-    background-color: #639B84!important;
+    background-color: #008670!important;
 }
 .single_add_to_cart_button:hover{
-    color:  #639B84!important;
-    background-color:white!important;
-    border: 1px solid #639B84!important;
+    color:  #008670!important;
+    background-color:#ffffff!important;
+    border: 1px solid #008670!important;
+    align-self: flex-end!important;
 }
 
 .atelier-option-warning{
@@ -178,3 +210,4 @@
     border-radius: 7px; 
     padding:1em;
 }
+
