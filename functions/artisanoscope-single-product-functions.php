@@ -141,12 +141,16 @@ function artisanoscope_display_acf_fields_and_check_for_variations() {
 			echo "<div class='artisanoscope-single-product-info-acf-field-line'>".svg("location")."<p>".$location."</p></div>";	
 		}
 		echo("</div>");
-
-		// Envoyer les infos pratiques dans des inputs cachés
-		add_action('','');
 	}
 	// 2 - Si formation
 	if($format === "abonnement" &&$type === "simple"){
+		$vacation_info_field = get_field('prod_vacances');
+		$vacation_info_msg = '';
+		if(isset($vacation_info_field)&&!empty($vacation_info_field)){
+			$vacation_info_msg = "Vacances scolaires comprises";
+		}else{
+			$vacation_info_msg = "Vacances scolaires non comprises";
+		}
 		echo("<div class=artisanoscope-single-product-info-container>");
 		echo("<h3>Infos pratiques</h3>");
 		if(isset($periodicite)&&!empty($periodicite)&&isset($start_hour)&&!empty($start_hour)&&isset($end_hour)&&!empty($end_hour)){
@@ -157,9 +161,8 @@ function artisanoscope_display_acf_fields_and_check_for_variations() {
 			<div class='artisanoscope-single-product-info-acf-field-line'>".svg("date")."<p> Du ".$start_date." au ".$end_date."</p>
 				<div class='artisanoscope-formation-periodicite-info-hover-picto>
 					<img class='artisanoscope-formation-periodicite-info-hover-picto src='/wp-content/uploads/2023/06/picto-formation-periodicite-info.png'/>
-					<span class='artisanoscope-formation-periodicite-info'>Vacances scolaires non comprises</span>
+					<span class='artisanoscope-formation-periodicite-info'>".$vacation_info_msg."</span>
 				</div>
-
 			</div>";
 		}
 		if(isset($location)&&!empty($location)){
