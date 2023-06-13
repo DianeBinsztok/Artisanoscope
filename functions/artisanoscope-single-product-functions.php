@@ -1,8 +1,7 @@
 <?php
-// CONTENT-SINGLE-PRODUCT.PHP => template de la vue détaillée du produit
 
-// FONCTIONS CUSTOM
-// 1 - Afficher les infos d'artisan si ce champs a été renseigné et appeler le reste du template en fonction du type de produit
+// I - AFFICHAGE DES CHAMPS PERSONNALISES
+// Afficher les infos d'artisan si ce champs a été renseigné et appeler le reste du template en fonction du type de produit
 function artisanoscope_display_acf_fields_and_check_for_variations() {
 	global $product;
 
@@ -12,7 +11,6 @@ function artisanoscope_display_acf_fields_and_check_for_variations() {
 	$date_format1 = DateTime::createFromFormat('d/m/Y', $date_string, new DateTimeZone('Europe/Paris'));
 	$date_format2 = date("d/m/Y",strtotime($date_string));
 	$date = get_field("prod_date");
-
 	$tomorrow = date("d/m/Y",strtotime('tomorrow'));
 	/*
 	if ($date == $tomorrow ) {
@@ -84,10 +82,9 @@ function artisanoscope_display_acf_fields_and_check_for_variations() {
 		$artisanIntroduction = $artisan ->art_introduction;
 	}
     // Affichage des champs:
+	echo("<section class='artisanoscope-product-info-container'>");
 	// I - Artisan
 	if(isset($artisan)&&!empty($artisan)){
-		echo("<section class='artisanoscope-product-info-container'>");
-
 		if(isset($artisanUrl)&&!empty($artisanUrl)){
 			echo "<a href=".$artisanUrl." class='artisanoscope-single-product-info-artisan-link'>";
 		}
@@ -144,8 +141,11 @@ function artisanoscope_display_acf_fields_and_check_for_variations() {
 			echo "<div class='artisanoscope-single-product-info-acf-field-line'>".svg("location")."<p>".$location."</p></div>";	
 		}
 		echo("</div>");
+
+		// Envoyer les infos pratiques dans des inputs cachés
+		add_action('','');
 	}
-	// 2 - Si formation simple
+	// 2 - Si formation
 	if($format === "abonnement" &&$type === "simple"){
 		echo("<div class=artisanoscope-single-product-info-container>");
 		echo("<h3>Infos pratiques</h3>");
@@ -153,18 +153,26 @@ function artisanoscope_display_acf_fields_and_check_for_variations() {
 			echo "<div class='artisanoscope-single-product-info-acf-field-line'>".svg("recurrence")."<p>".$periodicite.", de ".$start_hour." à ".$end_hour."</p></div>";
 		}
 		if(isset($start_date)&&!empty($start_date)&&isset($end_date)&&!empty($end_date)){
-			echo "<div class='artisanoscope-single-product-info-acf-field-line'>".svg("date")."<p> Du ".$start_date." au ".$end_date." </p></div>";
+			echo "
+			<div class='artisanoscope-single-product-info-acf-field-line'>".svg("date")."<p> Du ".$start_date." au ".$end_date."</p>
+				<div class='artisanoscope-formation-periodicite-info-hover-picto>
+					<img class='artisanoscope-formation-periodicite-info-hover-picto src='/wp-content/uploads/2023/06/picto-formation-periodicite-info.png'/>
+					<span class='artisanoscope-formation-periodicite-info'>Vacances scolaires non comprises</span>
+				</div>
+
+			</div>";
 		}
 		if(isset($location)&&!empty($location)){
 			echo "<div class='artisanoscope-single-product-info-acf-field-line'>".svg("location")."<p>".$location."</p></div>";	
 		}
 		echo("</div>");
 	}
-
-
+	echo("</section>");
 	//Afficher le prix sous les infos globales
 	echo('<p class="price">'.$product->get_price_html().'</p>');
-	
+	//test
+	//echo("</div>");
+
 
 	// 3 - Si atelier ou formation variable 
     if($type==="variable"){
@@ -174,7 +182,7 @@ function artisanoscope_display_acf_fields_and_check_for_variations() {
 }
 add_action( 'woocommerce_single_product_summary', 'artisanoscope_display_acf_fields_and_check_for_variations', 10);
 
-// 2 - Pour les produits variables, contrôler les champs de chaque variation et afficher les options sous forme de vignettes cliquables
+// Pour les produits variables, contrôler les champs de chaque variation et afficher les options sous forme de vignettes cliquables
 function artisanoscope_display_workshop_options(){
     global $product;
 	$format = get_field("prod_format");
@@ -184,8 +192,6 @@ function artisanoscope_display_workshop_options(){
 			$options ='';
 			
 			foreach($variations as $variation){
-				//var_dump($variation);
-
 				// N'afficher une variation que les champs requis sont renseignés et cohérents
 				if(variation_has_all_required_fields($variation)&&variation_has_coherent_fields($variation)){
 					$options .= '<a href="#" class="artisanoscope-product-option" name="option" id="'.$variation["variation_id"].'">';
@@ -201,7 +207,7 @@ function artisanoscope_display_workshop_options(){
 					if(isset($variation["start_hour"])&&isset($variation["end_hour"])&&!empty($variation["start_hour"])&&!empty($variation["end_hour"])){
 						$options .= '<div class="artisanoscope-product-option-line">
 						'.svg("hours").'
-						<p class="artisanoscope-product-option-hours">De '.$variation["start_hour"].' à '.$variation["end_hour"].'</p>
+						<p>De <span class="artisanoscope-product-option-start-hour">'.$variation["start_hour"].'</span> à <span class="artisanoscope-product-option-end-hour">'.$variation["end_hour"].'</span></p>
 						</div>';
 					}
 					//Lieu
@@ -233,41 +239,18 @@ function artisanoscope_display_workshop_options(){
 					return;
 				}
 			}
-			
 			$html= '
 			<section id="course-options" class="artisanoscope-product-options-container" name="course-attribute" data-attribute_name="course-attribute">
 			'.$options.'
 			</section>
 			';
-			
 		}
-		wp_enqueue_script("chooseDateOptionAndAddToCart", get_stylesheet_directory_uri().'/assets/js/artisanoscopeSingleProductScripts.js');
+		wp_enqueue_script("chooseDateOptionAndAddToCart", get_stylesheet_directory_uri().'/assets/js/artisanoscopeSingleProductDisplayPriceScript.js');
 		return $html;
 }
-// 3 - Contrôles des variations, utilisés dans artisanoscope_display_workshop_options
-function variation_has_all_required_fields($variation){
-	return (isset($variation["availabilities"])&&!empty($variation["availabilities"])&&isset($variation["date"])&& !empty($variation["date"]&&$variation["date"]!= "01/01/1970") &&isset($variation["start_hour"])&&isset($variation["end_hour"])&&!empty($variation["start_hour"])&&!empty($variation["end_hour"]));
-}
-function variation_has_coherent_fields($variation){
 
-	$date_string = $variation["date"];
-	$start = $variation["start_hour"];
-	$end = $variation["end_hour"];
-
-	//Le format de date
-	$date_format = DateTime::createFromFormat("d/m/Y", $date_string);
-	$date = $date_format->getTimestamp();
-
-	if($date<strtotime(date("d/m/Y"))){
-		return false;
-	}
-	
-	if(strtotime($start)>strtotime($end)){
-		return false;
-	}
-	return true;
-}
-
+// II - MODIFICATIONS DE MISE EN PAGE
+// Remplacer la mention "en stock" par "places disponibles"
 function artisanoscope_replace_stock_string($html, $product) {
 
 	$availability = $product->get_stock_quantity();
@@ -283,19 +266,34 @@ function artisanoscope_replace_stock_string($html, $product) {
 	return $html;
 }
 add_filter( 'woocommerce_get_stock_html', 'artisanoscope_replace_stock_string', 10, 3 );
-function artisanoscope_display_selected_variation_price(){
-    // Afficher le prix de la variation avant le bouton d'ajout au panier
-    echo '<div id="artisanoscope-selected-variation-price" class="woocommerce-Price-amount" style="font-weight:500; font-size: 1.5em; color:green;"></div>';
-}
 
+// Afficher le prix de la variation avant le bouton d'ajout au panier
+function artisanoscope_display_selected_variation_price(){
+    //Cette div sera ciblée par le script '/assets/js/artisanoscopeSingleProductScripts.js' pour afficher et modifier le prix en fonction des choix de l'utilisateur
+    echo '<div id="artisanoscope-selected-variation-price" class="woocommerce-Price-amount"></div>';
+}
+// Saut de ligne à chaque virgule (pour l'affichage des adresses si besoin)
 function break_line_on_comma($string){
 	return str_replace(',', '<br/>', $string);
 }
+// Changer le titre des produits similaires
+add_filter('gettext', 'artisanoscope_change_related_products_title', 10, 3);
+add_filter('ngettext', 'artisanoscope_change_related_products_title', 10, 3);
+function artisanoscope_change_related_products_title($translated, $text, $domain)
+{
+     if ($text === 'Related products' && $domain === 'woocommerce') {
+         $translated = esc_html__('Ateliers similaires', $domain);
+     }
+     return $translated;
+}
+
+/* III - SUPPRESSIONS */
 
 // Enlever le fil d'Ariane
 remove_action("woocommerce_before_main_content", "woocommerce_breadcrumb", 20);
 
 // Enlever les méta: SKU, catégories et tags
+add_filter( 'wc_product_sku_enabled', 'artisanoscope_remove_sku' );
 function artisanoscope_remove_sku( $enabled ) {
 	// Si on est pas dans l'admin et si on est sur la page produit
     if ( !is_admin() && is_product() ) {
@@ -303,8 +301,6 @@ function artisanoscope_remove_sku( $enabled ) {
     }
     return $enabled;
 }
-//Retirer le prix de son emplacement habituel
-remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_price', 10 );
 
 //Retirer les onglets de description et avis
 add_filter( 'woocommerce_product_tabs', 'artisanoscope_remove_product_tabs', 98 );
@@ -315,40 +311,14 @@ function artisanoscope_remove_product_tabs( $tabs ) {
     return $tabs;
 }
 
-// Remplacer la description courte par la description longue et virer la metabox de la description courte en backoffice
-//1 - Virer la description courte
-add_action('woocommerce_before_main_content', 'artisanoscope_replace_product_summary_with_long_description');
-remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_excerpt', 20 );
-function artisanoscope_replace_product_summary_with_long_description() {
-    if ( get_option('woocommerce_product_tabs') == false ) {
-        remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_excerpt', 20 );
-    }
-}
-
-
-//2 - Afficher la description longue à la place
-//add_action( 'woocommerce_single_product_summary', 'artisanoscope_display_long_description', 9 );
-function artisanoscope_display_long_description() {
-    global $woocommerce, $post;
-
-    if ( $post->post_content ) : ?>
-        <div itemprop="description" class="item-description">
-            <?php $heading = apply_filters('woocommerce_product_description_heading', __('Product Description', 'woocommerce')); ?>
-
-            <!-- <h2><?php echo $heading; ?></h2> -->
-            <?php the_content(); ?>
-
-        </div>
-    <?php endif;
-}
-
-add_filter( 'wc_product_sku_enabled', 'artisanoscope_remove_sku' );
 //Enlever la descrition
 remove_action("woocommerce_single_product_summary", "woocommerce_template_single_excerpt", 20);
 remove_action("woocommerce_single_product_summary", "woocommerce_template_single_meta", 40);
 remove_action("woocommerce_single_product_summary", "woocommerce_template_single_sharing", 50);
 
-//infos additionnelles
+//Retirer le prix de son emplacement habituel
+remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_price', 10 );
+//Enlever les infos additionnelles
 remove_action("woocommerce_after_single_product_summary", "woocommerce_output_product_data_tabs", 20);
 remove_action("woocommerce_single_product_summary", "woocommerce_template_single_meta", 20);
 remove_action("woocommerce_single_product_summary", "woocommerce_template_single_sharing", 20);
