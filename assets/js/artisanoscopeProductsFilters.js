@@ -32,7 +32,6 @@ function setVisibility(target, visibility){
     }
 }
 
-/*STOCK*/
 // Comparer le stock d'un produit au critère du filtre "availabilities"
 function sufficientNumber(criteria, number){
     return (number >= criteria);
@@ -50,7 +49,9 @@ function matchesAvailabilityCriteria(product, availabilityCriteria){
     return  stockClasses.find(className => sufficientNumber(parseInt(availabilityCriteria,10), parseInt(className,10)));
 }
 
-/*DATES*/
+//Vérifier que le produit comporte une date comprise dans l'intervalle donné
+
+
 //Vérifier que le produit comporte une date comprise dans l'intervalle donné
 function matchesDatesCriteria(product, startDate, endDate){
     let classes =  product.classList;
@@ -63,6 +64,7 @@ function matchesDatesCriteria(product, startDate, endDate){
     return  dateClasses.find(className => isInDateInterval(startDate, endDate, className));
 }
 
+
 function isInDateInterval(startDate, endDate, productDate){
     // Conversion de productDate en objet Moment
     let productDateMoment = moment(productDate, "DD/MM/YYYY");
@@ -70,18 +72,16 @@ function isInDateInterval(startDate, endDate, productDate){
     // Comparaison de productDateMoment avec startDate et endDate
     return (productDateMoment.isSameOrAfter(startDate) && productDateMoment.isSameOrBefore(endDate));
 }
-
-
+// Fonction pour convertir une date au format "d/m/Y" en objet Date
 function parseYMDDate(ymdDate) {
     const [year, month, day] = ymdDate.split('-').map(Number);
     return new Date(year, month - 1, day);
 }
-  
-// Fonction pour convertir une date au format "d/m/Y" en objet Date
 function parseDMYDate(dmyDate) {
     const [day, month, year] = dmyDate.split('/').map(Number);
     return new Date(year, month - 1, day);
 }
+
 //Vérifier que la saisie des dates est cohérente
 function coherentDateInterval(startDateString,endDateString ){
     let startDate = Date.parse(startDateString);
@@ -118,7 +118,7 @@ dateToggle.addEventListener("click", function(event){
 
 /*DATERANGE PICKER* */
 document.addEventListener('DOMContentLoaded', function() {
-    // Déclenchez l'événement "show.daterangepicker" pour rendre le calendrier visible par défaut
+// Déclenchez l'événement "show.daterangepicker" pour rendre le calendrier visible par défaut
 });
 $(function() {
     $(`#artisanoscope-daterange-filter-button`).daterangepicker({
@@ -163,7 +163,6 @@ function sloppyJSDateFormats(rawDate){
     return day+"/"+month+"/"+year;
 }
 
-// 2 - Afficher les dates à la sélection de la 2e
 // III - PLACES DISPONBLES
 let availabilitiesToggle = document.querySelector("#artisanoscope-availabilities-filter-button");
 availabilitiesToggle.addEventListener("click", function(){
@@ -266,7 +265,6 @@ beginnerOption.addEventListener("click", function(event){
         filters.beginnerFriendly.value = "";
         setVisibilityOnEveryProducts(products);}
 });
-
 
 function matchesAtLeastOneFilter(product){
     if(filters.category.active === true || filters.kidFriendly.active === true || filters.beginnerFriendly.active === true || filters.availabilities.active === true || filters.dates.active === true){
