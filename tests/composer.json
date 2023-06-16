@@ -1,0 +1,17 @@
+{
+    "name": "root/project",
+    "authors": [
+       {
+            "name": "Diane",
+            "email": "dbinsztok@lemoulindigital.fr"
+       }
+    ],
+    "require": {
+        "phpunit/phpunit": "9.5.10"
+    },
+    "autoload": {
+        "classmap": [
+            "src/"
+        ]
+    }
+ }

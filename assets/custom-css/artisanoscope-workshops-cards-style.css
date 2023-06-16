@@ -1,0 +1,129 @@
+/*DEFAUT*/
+/*1 - Carte*/
+.artisanoscope-workshops-card{
+    background-color: #ffffff;
+    max-width: fit-content;
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-direction:column; 
+    border-radius: 10px;
+    margin:1rem;
+}
+/*2 - Titre*/
+.artisanoscope-workshops-card-title{
+    font-family: "Roboto Condensed";
+    font-weight: 400!important;
+}
+
+.artisanoscope-workshops-card img{
+    width: 100%;
+    border-radius: 10px 10px 0 0!important;
+}
+
+.artisanoscope-workshops-card-extras{
+    align-items:center; 
+    justify-content: center; 
+    display:flex; 
+    margin-top:-2rem; 
+}
+
+.extra-margin{
+    margin-top:2rem;
+}
+
+.artisanoscope-product-info-title{
+    text-align: center;
+}
+
+/*Prix*/
+.woocommerce-Price-amount{
+    font-size: 1.2em;
+    font-weight: 500;
+    color: #15685B;
+
+}
+/*MOBILE*/
+@media (min-width: 250px) and (max-width: 420px) { 
+    .artisanoscope-workshops-card{
+        margin:0.5rem;
+    }
+    .artisanoscope-product-info-content{
+        padding:0 1rem 1rem 1rem !important;
+    }
+    .artisanoscope-workshops-card-title{
+        font-size: 1.2em!important;
+        line-height: 1.3em!important;
+    }
+
+    .artisanoscope-workshops-card-extras{
+        align-items:center; 
+        justify-content: center; 
+        display:flex; 
+        margin-top:-2rem; 
+        max-width: 100%;
+    }
+    .artisanoscope-product-info-line{
+        display: none;
+    }
+
+}
+
+/*TABLETTE*/
+@media (min-width: 420px) and (max-width: 920px) { 
+    .artisanoscope-workshops-card{
+        margin:0.7rem;
+    }
+    .artisanoscope-workshops-card-title{
+        font-size: 1.5em!important;
+        line-height: 1.5em!important;
+    }
+    .artisanoscope-workshops-card-extras{
+        align-items:center; 
+        justify-content: center; 
+        display:flex; 
+        margin-top:-2rem; 
+        max-width: 100%;
+    }
+    .artisanoscope-product-info-line{
+        display: none;
+    }
+}
+/*DESKTOP*/
+@media (min-width: 920px) and (max-width: 2000px) { 
+    .artisanoscope-workshops-card{
+        margin:1rem;
+        transition: transform .2s;
+    }
+    .artisanoscope-workshops-card:hover{
+        box-shadow: 5px 5px 10px 2px #00000035;
+        transition: transform .2s;
+        transform: scale(1.02);
+    }
+    .artisanoscope-workshops-card-title{
+        font-size: 1.5em!important;
+        line-height: 1.5em!important;
+    }
+
+    .artisanoscope-workshops-card-extras{
+        align-items:center; 
+        justify-content: center; 
+        display:flex; 
+        margin-top:-2rem; 
+        max-width: 100%;
+    }
+    .artisanoscope-product-info-content{
+        padding:0 1.5rem 1rem 1.5rem !important;
+    }
+    .artisanoscope-product-info-line{
+        font-size: 0.9em;
+        opacity: 0.7;
+        display: flex;
+    }
+    
+    .arrow{
+        margin-left: 1rem;
+        vertical-align: baseline;
+        align-self: baseline;
+    }
+}
+
