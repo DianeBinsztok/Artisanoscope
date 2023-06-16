@@ -1,32 +1,52 @@
 <?php
 //SINGLE-ARTISAN.PHP => ajouter les ateliers dans la page de l'artisan
-function display_workshops_if_not_empty($workshops){
-    if(!empty($workshops)){
-        foreach ($workshops as $workshop){   
-            $product = wc_get_product($workshop);
-            if($product->is_visible()){
-                $date=date('d/m/Y', strtotime($workshop->date));
-                $startTime=substr($workshop->heure_debut, 0, -3);
-                $endTime=substr($workshop->heure_fin, 0, -3);
-                $productSlug = $product->get_slug();
-    
-                echo("<div class='artisan-workshops-card'>
-                <a href='/produit/$productSlug'>
-                ".$product->get_image()."
-                <p class='artisan-workshops-card-info date'>$date</p>
-                <h3 class='artisan-workshops-card-title'>".$product->get_name()."</h3>
-                <p class='artisan-workshops-card-info'>$startTime - $endTime</p>
-                <p class='artisan-workshops-card-info price'>");
-                echo("</p></a></div>");
-            }else{
-                echo('<div class="artisan-workshops-card-inactive">
-                        '.$product->get_image().'
-                        <h3 class="artisan-workshops-card-title">'.$product->get_name().'</h3>
-                        <div class="artisan-workshops-card-text"><p>Il n\'y a pas encore de date programmée pour cet atelier.</p><a href="mailto:communication@lartisanoscope.fr" class="artisan-info-card-shoplink">Contactez-nous pour en savoir plus</a></div>
-                    </div>');
-            }
+function artisanoscope_display_workshops($workshops){
+
+    //Si l'artisan organise des ateliers
+    if (!empty($workshops)) {
+        //Rassembler les ids dans un tableau
+        $workshops_ids = [];
+        foreach($workshops as $workshop){
+            array_push($workshops_ids, $workshop->ID);
         }
-    }else{
-        echo("Je n'organise pas d'atelier pour le moment");
-    }
+        //Requête des ateliers avec le tableau
+        $args = array(
+            'post_type' => 'product',
+            'posts_per_page' => -1,
+            'post__in' => $workshops_ids
+        );
+        $loop = new WP_Query($args);
+
+        //Affichage
+        while ($loop->have_posts()) : $loop->the_post();
+            $post_id = get_the_ID();
+            $product = wc_get_product($post_id);
+
+            //Si le produit est visible au catalogue: afficher la vignette Woocommerce qui mène au produit
+            $visibile = $product->get_catalog_visibility();
+            $visibility = artisanoscope_control_product_before_set_visibility($visibile, $product->get_id());
+            if($visibility=="visible"){
+                wc_get_template_part('content', 'product');
+                            
+            //Si le produit est n'est pas visible au catalogue(problème de date, horaire ou autre): afficher une vignette d'annonce, non cliquable
+            }else{
+                echo("
+                <li class='artisanoscope-workshops-card non-clickable'>
+                    ".$product->get_image()."<br/>
+                    <div class='artisanoscope-product-info-content'>
+                        <h2 class='artisanoscope-workshops-card-title'>".$product->get_name()."</h2>
+                        <p>Les dates seront proposées prochainement pour cet atelier</p>
+                    </div>
+                </li>
+                ");
+            }
+                    
+        endwhile;
+
+        //Remise à zéro
+        wp_reset_postdata();
+    //Si l'artisan n'organise pas d'ateliers
+    }else {
+        echo "<p>Je n'organise pas encore d'atelier pour le moment</p>";
+    }   
 }
