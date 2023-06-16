@@ -115,7 +115,7 @@ the_content();?>
 
                             <?}
                             } else {
-                                echo "Pas de point de vente pour le moment";
+                                echo "<p class='artisan-info-card-shoplist'>Pas de point de vente pour le moment</p>";
                             }
 
                             if (!empty($otherShop)) {
@@ -125,52 +125,52 @@ the_content();?>
                 </div>
                 <!--Contact-->
                 <div class="artisan-info-card-block">
-                <h2 class="artisan-info-title">Contact:</h2>
+                    <h2 class="artisan-info-title">Contact:</h2>
                     <div class="artisan-contact-icons">    
 
-                    <?php 
-                    if(!empty($email)||!empty($website)||!empty($facebook)||!empty($instagram)||!empty($etsy)){?>
                         <?php 
-                            if(!empty($email)){?>
-                                <a target="_blank" href="mailto:<?php echo $email ?>">
-                                    <?php echo(svg("email"))?>
-                                </a>
-                        <?php }?>
-                        
-                        
-                        <?php 
-                            if(!empty($website)){?>
-                                <a target="_blank" href="<?php echo $website ?>">
-                                <?php echo(svg("website"))?>
-                                </a>
-                            <?php }?>
-                        
-                        
+                        if(!empty($email)||!empty($website)||!empty($facebook)||!empty($instagram)||!empty($etsy)){?>
                             <?php 
-                            if(!empty($facebook)){?>
-                                <a target="_blank" href="<?php echo $facebook ?>">
-                                <?php echo(svg("facebook"))?>
-                                </a>
+                                if(!empty($email)){?>
+                                    <a target="_blank" href="mailto:<?php echo $email ?>">
+                                        <?php echo(svg("email"))?>
+                                    </a>
                             <?php }?>
-                        
-                        
+                            
+                            
                             <?php 
-                            if(!empty($instagram)){?>
-                                <a target="_blank" href="<?php echo $instagram ?>">
-                                <?php echo(svg("instagram"))?>
-                                </a>
-                            <?php }?>
-                        
-                        
-                            <?php 
-                            if(!empty($etsy)){?>
-                                <a target="_blank" href="<?php echo $etsy ?>">
-                                <?php echo(svg("etsy"))?>
-                                </a>
-                            <?php }?>
-                    <?}else{?>
-                            <p>Pas d'informations de contact pour le moment ...</p>
-                    <?}?>
+                                if(!empty($website)){?>
+                                    <a target="_blank" href="<?php echo $website ?>">
+                                    <?php echo(svg("website"))?>
+                                    </a>
+                                <?php }?>
+                            
+                            
+                                <?php 
+                                if(!empty($facebook)){?>
+                                    <a target="_blank" href="<?php echo $facebook ?>">
+                                    <?php echo(svg("facebook"))?>
+                                    </a>
+                                <?php }?>
+                            
+                            
+                                <?php 
+                                if(!empty($instagram)){?>
+                                    <a target="_blank" href="<?php echo $instagram ?>">
+                                    <?php echo(svg("instagram"))?>
+                                    </a>
+                                <?php }?>
+                            
+                            
+                                <?php 
+                                if(!empty($etsy)){?>
+                                    <a target="_blank" href="<?php echo $etsy ?>">
+                                    <?php echo(svg("etsy"))?>
+                                    </a>
+                                <?php }?>
+                        <?}else{?>
+                                <p>Pas d'informations de contact pour le moment ...</p>
+                        <?}?>
                     </div>
                 </div>
             </div>
@@ -180,9 +180,11 @@ the_content();?>
     <section class="artisan-workshops-section">
         <h2 class="artisan-info-title workshops-title">Ateliers et formations</h2>
         <ul class="artisan-workshops-list">
-            <!-- Replacer d' ici-->
-               <? display_workshops_if_not_empty($marque); ?>
-            <!-- à  ici-->
+            <!-- Affichage des ateliers organisés par l'artisan-->
+               <? 
+                    artisanoscope_display_workshops($stages)
+               ?>
+            <!-- ateliers - fin-->
         </ul>
     </section>
 </div>
