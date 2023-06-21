@@ -1,4 +1,18 @@
 <?php
+//PROGRAMMER LA MISE À JOUR DE TOUS LES PRODUITS EN FONCTION DU META "IMMINENCE"
+
+//Appeler la fonction "artisanoscope_create_post_meta_imminence" pour chaque produit
+function artisanoscope_update_all_products_imminence() {
+    $args = array(
+        'post_type' => 'product',
+        'posts_per_page' => -1,
+    );
+    $products = get_posts($args);
+    foreach ($products as $product) {
+        artisanoscope_update_post_meta_imminence($product->ID);
+    }
+}
+
 //Ajouter le champs meta "imminence" à un produit en fonction de sa date de référence
 function artisanoscope_create_post_meta_imminence( $post_id ) {
     // Vérifier si le type de post est un produit
