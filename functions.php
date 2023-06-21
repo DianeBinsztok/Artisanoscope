@@ -2,8 +2,6 @@
 /**
 **activation theme
 **/
-add_action( 'wp_enqueue_scripts', 'theme_enqueue_styles' );
-
 
 // STYLES (marche pas)
 /*
@@ -20,18 +18,21 @@ add_filter('elementor/editor/localize_settings', function ($config) {
 }, 99);
 */
 
+add_action( 'wp_enqueue_scripts', 'theme_enqueue_styles' );
 function theme_enqueue_styles(){
     wp_enqueue_style( 'parent-style', get_template_directory_uri() . '/style.css' );
 
-    // TODO 
-
     //styles custom artisanoscope
+    wp_enqueue_style('navbar-style', get_stylesheet_directory_uri() .'/assets/custom-css/artisanoscope-navbar-style.css');
+    wp_enqueue_style('footer-style', get_stylesheet_directory_uri() .'/assets/custom-css/artisanoscope-footer-style.css');
     wp_enqueue_style('single-artisan-style', get_stylesheet_directory_uri() .'/assets/custom-css/artisanoscope-single-artisan-style.css');
     wp_enqueue_style('content-single-product-style', get_stylesheet_directory_uri() .'/assets/custom-css/artisanoscope-content-single-product-style.css');
     wp_enqueue_style('archive-products-style', get_stylesheet_directory_uri() .'/assets/custom-css/artisanoscope-archive-products-style.css');
+    wp_enqueue_style('products-filters-style', get_stylesheet_directory_uri() .'/assets/custom-css/artisanoscope-products-filters-style.css');
+    wp_enqueue_style('daterangepicker-style', get_stylesheet_directory_uri() .'/assets/custom-css/artisanoscope-daterangepicker-style.css');
     wp_enqueue_style('wc-product-backoffice-style', get_stylesheet_directory_uri() .'/assets/custom-css/artisanoscope-wc-backoffice-style.css');
     wp_enqueue_style('workshop-card-style', get_stylesheet_directory_uri() .'/assets/custom-css/artisanoscope-workshops-cards-style.css');
-    
+    wp_enqueue_style('testimonials-style', get_stylesheet_directory_uri() .'/assets/custom-css/artisanoscope-testimonials-style.css');
 }
 
 // MODULES DE FONCTIONS
@@ -40,20 +41,22 @@ require_once( get_stylesheet_directory() . '/functions/artisanoscope-control-pro
 require_once( get_stylesheet_directory() . '/functions/artisanoscope-archive-products-functions.php' );
 require_once( get_stylesheet_directory() . '/functions/artisanoscope-single-product-functions.php' );
 require_once( get_stylesheet_directory() . '/functions/artisanoscope-product-filters.php' );
-require_once( get_stylesheet_directory() . '/functions/artisanoscope-backoffice-register-product.php' );
+require_once( get_stylesheet_directory() . '/functions/artisanoscope-backoffice-register-product.php');
+require_once( get_stylesheet_directory() . '/functions/artisanoscope-custom-product-meta.php');
 require_once( get_stylesheet_directory() . '/assets/svg/svg.php' );
-//Les emails:
-require_once( get_stylesheet_directory() . '/functions/artisanoscope-order-email-functions.php' );
 
 
 // TODO: CONFORMITÉ RGPD
 
 
 // Scripts:
-// PB: les scripts sont pris en compte mais s'exécutent trop tôt: l'élément de DOM n'existe pas encore et le script renvoie une erreur quand il ne le trouve pas => je tente de les appeler uniquement dans les templates où ils sont nécessaires
-function artisanoscope_register_frontend_scripts(){
+function artisanoscope_register_scripts(){
+    //Scripts de changements de styles de la navbar 
     wp_register_script("navbar_global", get_stylesheet_directory_uri().'/assets/js/artisanoscopeNavbarScript.js', true);
     wp_register_script("navbar_home", get_stylesheet_directory_uri().'/assets/js/artisanoscopeNavbarHomeScript.js', true);
+    wp_register_script("overflow_check", get_stylesheet_directory_uri().'/assets/js/checkForOverflow.js', true);
+    wp_enqueue_script("overflow_check");
+
     if(is_front_page()){
         wp_enqueue_script("navbar_home");
     }else{
@@ -63,10 +66,14 @@ function artisanoscope_register_frontend_scripts(){
     //wp_enqueue_script("childrenMessage", get_stylesheet_directory_uri().'/assets/js/artisanoscopeChildrenTicketsMessage.js');
     //wp_enqueue_script("filtersDisplay", get_stylesheet_directory_uri().'/assets/js/artisanoscopeDisplayProductsFilters.js');
     //wp_enqueue_script("scheduleCheck", get_stylesheet_directory_uri().'/assets/js/artisanoscopeIncoherentHoursMessage.js');
-    //wp_enqueue_script('custom-scripts', get_stylesheet_directory_uri().'/assets/js/custom-scripts.js');
 }
-add_action( 'wp_enqueue_scripts', 'artisanoscope_register_frontend_scripts');
+add_action( 'wp_enqueue_scripts', 'artisanoscope_register_scripts');
 
+ //SHORTCODES
+ include('shortcodes/artisanoscope_articles.php');
+ include('shortcodes/artisanoscope_artisans_map.php');
+
+//Générer les variations de l'attribut "Date"
 function artisanoscope_generate_date_options() {
     $date_options = [];
     $today = date('Y-m-d');
@@ -105,6 +112,35 @@ function artisanoscope_generate_date_options() {
 }
 add_action('admin_init','artisanoscope_generate_date_options');
 
+
+//Pastille nombre d'articles dans le panier
+function artisanoscope_nb_of_items_in_cart() {
+    //$test_menu = wp_get_nav_menu_items("menu-sticky");
+    ob_start();
+    ?>
+    <span class="cart-contents-count"><?php echo WC()->cart->get_cart_contents_count(); ?></span>
+    <?php
+    $fragments['.cart-contents-count'] = ob_get_clean();
+    var_dump($fragments);
+    return $fragments;
+}
+add_filter('woocommerce_add_to_cart_fragments', 'artisanoscope_update_cart_count');
+
+
+// Fonction pour ajouter le bouton de panier avec le compte au menu
+/*
+function artisanoscope_add_cart_button($items, $args) {
+    if($args->theme_location == 'primary'){
+        $items .= '<li class="menu-item menu-item-type-post_type menu-item-object-page"><a href="'.wc_get_cart_url().'"><span class="cart-contents-count">'.WC()->cart->get_cart_contents_count().'</span></a></li>';
+    }
+    return $items;
+    
+}
+add_filter('wp_nav_menu_items','artisanoscope_nb_of_items_in_cart', 10,2);
+*/
+
+/* ZONE DE TESTS - ne fonctionnent pas */
+
 //En cours de réflexion: pour ajout d'un input de dates au dessus du champs d'options de produit
 /*
 function artisanoscope_register_backoffice_script() {
@@ -131,3 +167,4 @@ function artisanoscope_register_backoffice_script($hook) {
 }
 add_action( 'admin_enqueue_scripts', 'artisanoscope_register_backoffice_script' );
 */
+
