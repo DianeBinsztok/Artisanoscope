@@ -1,7 +1,8 @@
 <?php
+
 //PROGRAMMER LA MISE À JOUR DE TOUS LES PRODUITS EN FONCTION DU META "IMMINENCE"
 
-//Appeler la fonction "artisanoscope_create_post_meta_imminence" pour chaque produit
+// 1 - LA FONCTION: Appeler la fonction artisanoscope_update_post_meta_imminence pour chaque produit
 function artisanoscope_update_all_products_imminence() {
     $args = array(
         'post_type' => 'product',
@@ -9,9 +10,20 @@ function artisanoscope_update_all_products_imminence() {
     );
     $products = get_posts($args);
     foreach ($products as $product) {
-        artisanoscope_update_post_meta_imminence($product->ID);
+        artisanoscope_create_post_meta_imminence($product->ID);
     }
 }
+
+// 2 - L'ÉVÉNEMENT: Créer un évènement journalier "artisanoscope_daily_event"
+if (!wp_next_scheduled('artisanoscope_daily_event')) {
+    wp_schedule_event(strtotime('midnight'), 'daily', 'artisanoscope_daily_event');
+}
+
+// 3 - Attacher la fonction à l'événement
+add_action('artisanoscope_daily_event', 'artisanoscope_update_all_products_imminence');
+
+
+//DÉTAIL: LES FONCTIONS APPELÉES
 
 //Ajouter le champs meta "imminence" à un produit en fonction de sa date de référence
 function artisanoscope_create_post_meta_imminence( $post_id ) {
