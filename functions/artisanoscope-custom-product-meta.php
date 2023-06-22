@@ -1,8 +1,9 @@
 <?php
 
-//PROGRAMMER LA MISE À JOUR DE TOUS LES PRODUITS EN FONCTION DU META "IMMINENCE"
+//TÂCHES JOURNALIÈRES:
 
-// 1 - LA FONCTION: Appeler la fonction artisanoscope_update_post_meta_imminence pour chaque produit
+// 1 - LES FONCTIONS: 
+// a - Appeler la fonction artisanoscope_update_post_meta_imminence pour chaque produit
 function artisanoscope_update_all_products_imminence() {
     $args = array(
         'post_type' => 'product',
@@ -13,14 +14,56 @@ function artisanoscope_update_all_products_imminence() {
         artisanoscope_create_post_meta_imminence($product->ID);
     }
 }
+// b - Vérifier le meta "imminence" pour tous les produits et déclencher l'envoi d'emails
+function artisanoscope_check_all_products_imminence_and_send_emails() {
+    $args = array(
+        'post_type' => 'product',
+        'posts_per_page' => -1,
+    );
+    $products = get_posts($args);
+    foreach ($products as $product) {
+        if($product->get_type() == "simple"){
+            if(get_post_meta($product->ID, "imminence", true ) == "in-seven-days"){
+                // trouver toutes les commandes finalisées qui contiennent ce produit
+                // Pour chaque commande qui contient le produit: trigger l'envoi de l'email correspondant
+            }
+            if(get_post_meta($product->ID, "imminence", true ) == "in-one-day"){
+                // trouver toutes les commandes finalisées qui contiennent ce produit
+                // Pour chaque commande qui contient le produit: trigger l'envoi de l'email correspondant
+            }
+            if(get_post_meta($product->ID, "imminence", true ) == "passed-one-day"){
+                // trouver toutes les commandes finalisées qui contiennent ce produit
+                // Pour chaque commande qui contient le produit: trigger l'envoi de l'email correspondant
+            }
+        }elseif($product->get_type() == "variable"){
+            $variations = $product->get_available_variations();
+            foreach($variations as $variation){
+                if(get_post_meta($variation["variation_id"], "imminence", true ) == "in-seven-days"){
+                    // trouver toutes les commandes finalisées qui contiennent ce produit
+                    // Pour chaque commande qui contient la variation du produit: trigger l'envoi de l'email correspondant
+                }
+                if(get_post_meta($variation["variation_id"], "imminence", true ) == "in-one-day"){
+                    // trouver toutes les commandes finalisées qui contiennent ce produit
+                    // Pour chaque commande qui contient la variation du produit: trigger l'envoi de l'email correspondant
+                }
+                if(get_post_meta($variation["variation_id"], "imminence", true ) == "passed-one-day"){
+                    // trouver toutes les commandes finalisées qui contiennent ce produit
+                    // Pour chaque commande qui contient la variation du produit: trigger l'envoi de l'email correspondant
+                }
+            }
+        }
+    }
+}
+
 
 // 2 - L'ÉVÉNEMENT: Créer un évènement journalier "artisanoscope_daily_event"
 if (!wp_next_scheduled('artisanoscope_daily_event')) {
     wp_schedule_event(strtotime('midnight'), 'daily', 'artisanoscope_daily_event');
 }
 
-// 3 - Attacher la fonction à l'événement
-add_action('artisanoscope_daily_event', 'artisanoscope_update_all_products_imminence');
+// 3 - Attacher les fonctions à l'événement
+add_action('artisanoscope_daily_event', 'artisanoscope_update_all_products_imminence', 1);
+add_action('artisanoscope_daily_event', 'artisanoscope_check_all_products_imminence_and_send_emails', 2);
 
 
 //DÉTAIL: LES FONCTIONS APPELÉES
