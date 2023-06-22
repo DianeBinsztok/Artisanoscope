@@ -1,6 +1,6 @@
 <?php
 
-//TÂCHES JOURNALIÈRES:
+//TÂCHES JOURNALIÈRE: MISE À JOUR DU META "IMMINENCE" DE TOUS LES PRODUITS EN FONCTION DE LEUR META "REFERENCE_DATE"
 
 // 1 - LES FONCTIONS: 
 // a - Appeler la fonction artisanoscope_update_post_meta_imminence pour chaque produit
@@ -228,4 +228,44 @@ function closest_date_variation($variations){
         }
     }
     return $closest_date_timestamp;
+}
+
+// REQUÊTES DE COMMANDES
+// Récupérer toutes les commandes qui contiennent un produit donné:
+function get_orders_ids_by_product_id($product_id) {
+ 
+    global $wpdb;
+
+    $results = $wpdb->get_col("
+        SELECT order_items.order_id
+        FROM {$wpdb->prefix}woocommerce_order_items as order_items
+        LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta as order_item_meta ON order_items.order_item_id = order_item_meta.order_item_id
+        LEFT JOIN {$wpdb->posts} AS posts ON order_items.order_id = posts.ID
+        WHERE posts.post_type = 'shop_order'
+        AND posts.post_status = 'wc-completed'
+        AND order_items.order_item_type = 'line_item'
+        AND order_item_meta.meta_key = '_product_id'
+        AND order_item_meta.meta_value = '".$product_id."'
+        ORDER BY order_items.order_id DESC");
+ 
+    return $results;
+}
+// Récupérer toutes les commandes qui contiennent une variation donnée de produit:
+function get_orders_ids_by_variation_id($variation_id) {
+ 
+    global $wpdb;
+ 
+    $results = $wpdb->get_col("
+        SELECT order_items.order_id
+        FROM {$wpdb->prefix}woocommerce_order_items as order_items
+        LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta as order_item_meta ON order_items.order_item_id = order_item_meta.order_item_id
+        LEFT JOIN {$wpdb->posts} AS posts ON order_items.order_id = posts.ID
+        WHERE posts.post_type = 'shop_order'
+        AND posts.post_status = 'wc-completed'
+        AND order_items.order_item_type = 'line_item'
+        AND order_item_meta.meta_key = '_variation_id'
+        AND order_item_meta.meta_value = '".$variation_id."'
+        ORDER BY order_items.order_id DESC");
+ 
+    return $results;
 }
