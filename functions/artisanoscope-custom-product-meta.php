@@ -3,6 +3,7 @@
 //TÂCHES JOURNALIÈRE: MISE À JOUR DU META "IMMINENCE" DE TOUS LES PRODUITS EN FONCTION DE LEUR META "REFERENCE_DATE"
 
 // 1 - LES FONCTIONS: 
+
 // a - Appeler la fonction artisanoscope_update_post_meta_imminence pour chaque produit
 function artisanoscope_update_all_products_imminence() {
     $args = array(
@@ -14,6 +15,7 @@ function artisanoscope_update_all_products_imminence() {
         artisanoscope_create_post_meta_imminence($product->ID);
     }
 }
+
 // b - Vérifier le meta "imminence" pour tous les produits et déclencher l'envoi d'emails
 function artisanoscope_check_all_products_imminence_and_send_emails() {
     $args = array(
@@ -22,33 +24,59 @@ function artisanoscope_check_all_products_imminence_and_send_emails() {
     );
     $products = get_posts($args);
     foreach ($products as $product) {
+        $product_id = $product->ID;
         if($product->get_type() == "simple"){
-            if(get_post_meta($product->ID, "imminence", true ) == "in-seven-days"){
-                // trouver toutes les commandes finalisées qui contiennent ce produit
-                // Pour chaque commande qui contient le produit: trigger l'envoi de l'email correspondant
+            if(get_post_meta($product_id, "imminence", true ) == "in-seven-days"){
+
+                // Pour toutes les commandes finalisées qui contiennent ce produit
+                $orders_ids = get_orders_ids_by_product_id($product_id);
+
+                // Envoyer un email de rappel
+                send_email_to_customers_by_orders_ids($orders_ids, "Prêt.e pour votre atelier?", "L'Artisanoscope vous attend dans sept jours pour votre atelier!");
             }
-            if(get_post_meta($product->ID, "imminence", true ) == "in-one-day"){
-                // trouver toutes les commandes finalisées qui contiennent ce produit
-                // Pour chaque commande qui contient le produit: trigger l'envoi de l'email correspondant
+            if(get_post_meta($product_id, "imminence", true ) == "in-one-day"){
+
+                // Pour toutes les commandes finalisées qui contiennent ce produit
+                $orders_ids = get_orders_ids_by_product_id($product_id);
+
+                // Envoyer un email de rappel
+                send_email_to_customers_by_orders_ids($orders_ids, "Prêt.e pour votre atelier?", "L'Artisanoscope vous attend demain pour votre atelier!");
             }
-            if(get_post_meta($product->ID, "imminence", true ) == "passed-one-day"){
-                // trouver toutes les commandes finalisées qui contiennent ce produit
-                // Pour chaque commande qui contient le produit: trigger l'envoi de l'email correspondant
+            if(get_post_meta($product_id, "imminence", true ) == "passed-one-day"){
+
+                // Pour toutes les commandes finalisées qui contiennent ce produit
+                $orders_ids = get_orders_ids_by_product_id($product_id);
+
+                // Envoyer un email pour récolter des avis
+                send_email_to_customers_by_orders_ids($orders_ids, "Comment s'est passé votre atelier?", "N'hésitez pas à nous envoyer vos retours sur votre atelier!");
             }
         }elseif($product->get_type() == "variable"){
             $variations = $product->get_available_variations();
             foreach($variations as $variation){
-                if(get_post_meta($variation["variation_id"], "imminence", true ) == "in-seven-days"){
-                    // trouver toutes les commandes finalisées qui contiennent ce produit
-                    // Pour chaque commande qui contient la variation du produit: trigger l'envoi de l'email correspondant
+                $variation_id = $variation["variation_id"];
+                if(get_post_meta($variation_id, "imminence", true ) == "in-seven-days"){
+
+                    // Pour toutes les commandes finalisées qui contiennent ce produit
+                    $orders_ids = get_orders_ids_by_variation_id($variation_id);
+
+                    // Envoyer un email de rappel
+                    send_email_to_customers_by_orders_ids($orders_ids, "Prêt.e pour votre atelier?", "L'Artisanoscope vous attend dans sept jours pour votre atelier!");
                 }
-                if(get_post_meta($variation["variation_id"], "imminence", true ) == "in-one-day"){
-                    // trouver toutes les commandes finalisées qui contiennent ce produit
-                    // Pour chaque commande qui contient la variation du produit: trigger l'envoi de l'email correspondant
+                if(get_post_meta($variation_id, "imminence", true ) == "in-one-day"){
+
+                    // Pour toutes les commandes finalisées qui contiennent ce produit
+                    $orders_ids = get_orders_ids_by_variation_id($variation_id);
+
+                    // Envoyer un email de rappel
+                    send_email_to_customers_by_orders_ids($orders_ids, "Prêt.e pour votre atelier?", "L'Artisanoscope vous attend demain pour votre atelier!");
                 }
-                if(get_post_meta($variation["variation_id"], "imminence", true ) == "passed-one-day"){
-                    // trouver toutes les commandes finalisées qui contiennent ce produit
-                    // Pour chaque commande qui contient la variation du produit: trigger l'envoi de l'email correspondant
+                if(get_post_meta($variation_id, "imminence", true ) == "passed-one-day"){
+                    
+                    // Pour toutes les commandes finalisées qui contiennent ce produit
+                    $orders_ids = get_orders_ids_by_variation_id($variation_id);
+
+                    // Envoyer un email pour récolter des avis
+                    send_email_to_customers_by_orders_ids($orders_ids, "Comment s'est passé votre atelier?", "N'hésitez pas à nous envoyer vos retours sur votre atelier!");
                 }
             }
         }
@@ -230,7 +258,6 @@ function closest_date_variation($variations){
     return $closest_date_timestamp;
 }
 
-// REQUÊTES DE COMMANDES
 // Récupérer toutes les commandes qui contiennent un produit donné:
 function get_orders_ids_by_product_id($product_id) {
  
@@ -268,4 +295,22 @@ function get_orders_ids_by_variation_id($variation_id) {
         ORDER BY order_items.order_id DESC");
  
     return $results;
+}
+
+// Envoyer un email aux clients pour une liste de commande donnée
+function send_email_to_customers_by_orders_ids($orders_ids, $subject, $message){
+    $customers_emails = [];
+
+    //Pour chaque commande
+    foreach($orders_ids as $order_id){
+        $order = wc_get_order( $order_id );
+
+        //Trouver le client
+        $customer_id = $order->get_customer_id();
+
+        //Récupérer l'email et envoyer le message
+        $customer_email = $order->get_billing_email();
+        array_push($customers_emails, $customer_email);
+    }
+    wp_mail( $customers_emails, $subject, $message, "De: l'Artisanoscope <coordination@lartisanoscope.fr >" );
 }
