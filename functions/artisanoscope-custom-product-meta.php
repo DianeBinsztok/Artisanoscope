@@ -263,7 +263,7 @@ function get_orders_ids_by_product_id($product_id) {
  
     global $wpdb;
 
-    $results = $wpdb->get_col("
+    $query = $wpdb->prepare("
         SELECT order_items.order_id
         FROM {$wpdb->prefix}woocommerce_order_items as order_items
         LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta as order_item_meta ON order_items.order_item_id = order_item_meta.order_item_id
@@ -272,17 +272,20 @@ function get_orders_ids_by_product_id($product_id) {
         AND posts.post_status = 'wc-completed'
         AND order_items.order_item_type = 'line_item'
         AND order_item_meta.meta_key = '_product_id'
-        AND order_item_meta.meta_value = '".$product_id."'
-        ORDER BY order_items.order_id DESC");
+        AND order_item_meta.meta_value = %d
+        ORDER BY order_items.order_id DESC", $product_id);
+        
+    $results = $wpdb->get_col($query);
  
     return $results;
 }
+
 // Récupérer toutes les commandes qui contiennent une variation donnée de produit:
 function get_orders_ids_by_variation_id($variation_id) {
  
     global $wpdb;
- 
-    $results = $wpdb->get_col("
+
+    $query = $wpdb->prepare("
         SELECT order_items.order_id
         FROM {$wpdb->prefix}woocommerce_order_items as order_items
         LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta as order_item_meta ON order_items.order_item_id = order_item_meta.order_item_id
@@ -291,8 +294,10 @@ function get_orders_ids_by_variation_id($variation_id) {
         AND posts.post_status = 'wc-completed'
         AND order_items.order_item_type = 'line_item'
         AND order_item_meta.meta_key = '_variation_id'
-        AND order_item_meta.meta_value = '".$variation_id."'
-        ORDER BY order_items.order_id DESC");
+        AND order_item_meta.meta_value = %d
+        ORDER BY order_items.order_id DESC", $variation_id);
+        
+    $results = $wpdb->get_col($query);
  
     return $results;
 }
