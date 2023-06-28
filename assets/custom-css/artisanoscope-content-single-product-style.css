@@ -105,7 +105,7 @@
     color: #403226;
     margin-bottom: 1rem;
 }
-.artisanoscope-single-product-info-container h3{
+.artisanoscope-single-product-info-title{
     align-self: center;
     text-align: center;
     font-weight: 300;
@@ -131,7 +131,10 @@
 }
 /*Info au survol: vacances scolaires comprises ou non*/
 .artisanoscope-formation-periodicite-info-hover-picto{
-    margin-left: 0.7rem;
+    margin-left: 0.5rem;
+    vertical-align: super;
+    width:13px;
+    cursor: help;
 }
 .artisanoscope-formation-periodicite-info{
     display: none;
@@ -230,3 +233,6 @@
     padding:1em;
 }
 
+.related{
+    clear: both;
+}

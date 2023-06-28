@@ -74,8 +74,8 @@ function artisanoscope_create_post_meta_reference_date( $post_id ) {
     }
 }
 // Mettre à jour le post_meta chaque fois que le produit est sauvegardé
-add_action( 'post_updated', 'artisanoscope_create_post_meta_reference_date', 20 );
 add_action( 'save_post', 'artisanoscope_create_post_meta_reference_date', 20 );
+add_action( 'post_updated', 'artisanoscope_create_post_meta_reference_date', 20 );
 
 // Pour les produits variables: renvoie la variation la plus imminente
 function closest_date_variation($variations){
@@ -166,8 +166,8 @@ function artisanoscope_create_post_meta_imminence( $post_id ) {
     }
 }
 // Mettre à jour le post_meta chaque fois que le produit est créé ou sauvegardé
-add_action( 'post_updated', 'artisanoscope_create_post_meta_imminence', 20 );
 add_action( 'save_post', 'artisanoscope_create_post_meta_imminence', 20 );
+add_action( 'post_updated', 'artisanoscope_create_post_meta_imminence', 20 );
 
 //Assigner des valeurs au champs meta "imminence"
 function get_workshop_imminence_data($reference_timestamp){

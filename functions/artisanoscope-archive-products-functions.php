@@ -21,9 +21,6 @@ remove_action( 'woocommerce_before_shop_loop', 'woocommerce_catalog_ordering', 3
 //Classes dynamiques pour filtrage des produits dans le catalogue
 function artisanoscope_dynamic_class(){
   global $product;
-  //ou
-  //$product = wc_get_product( $productId ); si param
-
   $dynamic_class = "";
   $id = $product->get_id();
   $type = $product->get_type();
@@ -41,12 +38,14 @@ function artisanoscope_dynamic_class(){
   }
   //DATE(S)
   $dates = "";
+  //Si le produit est simple, récupérer le champs ACF de date
   if($type === "simple"){
     if($format === "ponctuel"){
       $dates .= " date-".get_field("prod_date");
     }elseif($format === "abonnement"){
       $dates .= " date-".get_field("prod_date_debut");
     }
+  //Si le produit est variable, récupérer toutes les variations de date
   }elseif($type === "variable"){
     foreach($variations as $variation){
       $variation_id = $variation['variation_id'];
@@ -82,21 +81,23 @@ function artisanoscope_dynamic_class(){
 
   //STOCK
   $stock="";
+  //Pour un produit simple, récupérer le stock
   if($type === "simple"){
     $stock .= "stock-".$product->get_stock_quantity();
+
+  //Pour un produit variable, récupérer le stock de chaque variation
   }elseif($type === "variable"){
     foreach($variations as $variation){
 
- //Récupérer l'objet de variation WooCommerce à partir de l'ID de la variation
         $variation_id = $variation['variation_id'];
         $variation_obj = wc_get_product($variation_id);
 
         // Vérifier si la variation existe et si elle est de type "variation"
         if ($variation_obj && $variation_obj->is_type('variation')) {
-            // Obtenez la quantité de stock sous la forme d'un entier
+            // La quantité de stock sous la forme d'un entier
             $stock_quantity = $variation_obj->get_stock_quantity();
 
-            // Affichez la quantité de stock
+            // Ajouter la classe "stock-..."
             $stock .= " stock-".$stock_quantity;
         }
     }
@@ -108,16 +109,6 @@ function artisanoscope_dynamic_class(){
 //Balise ouvrante de chaque carte, classes dynamiques pour le filtrage
 add_action( 'woocommerce_before_shop_loop_item', 'artisanoscope_start_card_div', 0 );
 function artisanoscope_start_card_div() {
-
-  $date="";
-  $format = get_field("prod_format");
-  //test
-  if($format == "ponctuel"){
-    $date=get_field("prod_date");
-  }elseif($format == "abonnement"){
-    $date=get_field("prod_date_debut");
-  }
-  //test
   echo('<div class="artisanoscope-workshops-card '.artisanoscope_dynamic_class().'">');
 }
 
@@ -164,21 +155,26 @@ function artisanoscope_dispatch_infos_if_simple_or_variable(){
   $type = $product->get_type();
   $format = get_field("prod_format");
 
-  //Produits simples
+  //1 - Produits simples
   if(isset($type)&&!empty($type)&&$type==="simple"){
-    //Atelier
+
+    //Atelier simple
     if(isset($format)&&!empty($format)&&$format==="ponctuel"){
       artisanoscope_simple_workshop_infos();
+
     //Formation
     }elseif(isset($format)&&!empty($format)&&$format==="abonnement"){
       artisanoscope_simple_course_infos();
     }
+
+  //2 - Produits variables
   }elseif(isset($type)&&!empty($type)&&$type==="variable"){
     artisanoscope_variable_workshop_infos($product);
   }
 
 }
 
+// Afficher la durée d'une session au bon format - utilisé par les 3 fonctions suivantes:
 function format_duration($hour){
 
   $minutes = substr($hour, -3);
@@ -207,7 +203,6 @@ function artisanoscope_simple_workshop_infos(){
   if(isset($date) && !empty($date)){
     echo("<div class='artisanoscope-product-info-line'>".svg("date")."<p>Le ".$date."</p></div>");
   }
-
 }
 // Infos de formation
 function artisanoscope_simple_course_infos(){
@@ -253,25 +248,88 @@ function artisanoscope_variable_workshop_infos($product){
   }
 }
 
-// Bouton pour les produits variables
-//add_action('woocommerce_shop_loop_item_title', 'artisanoscope_variable_workshop_button',10);
-function artisanoscope_variable_workshop_button(){
-  global $product;
-  $type = $product->get_type();
-  $format = get_field("prod_format");
-  if(isset($format)&&!empty($format) && isset($type)&&!empty($type)){
-    if($type == "variable"){
-      if($format ==="ponctuel"){
-        echo("<div class='artisanoscope-product-info-line see-dates'><p class='artisanoscope-variable-workshop-dates-btn'>Voir les dates</p>".svg("arrow"))."</div>";
-      }
-    }
-  }
-}
-
 
 //Balise fermante de chaque carte
 add_action( 'woocommerce_after_shop_loop_item', 'artisanoscope_end_of_product_card', 20 );
 function artisanoscope_end_of_product_card() {
+  /*TEST POST-META*/
+
+  // I - reference_date
+  $reference_date = get_post_meta(get_the_ID(), "reference_date", true );
+  echo("reference_date=>");
+  var_dump($reference_date);
+  echo("en date=>");
+  $date_string = gmdate("d/m/Y", intval($reference_date));
+  var_dump($date_string);
+
+  //  II - imminence
+  $imminence = get_post_meta(get_the_ID(), "imminence", true );
+  echo("imminence=>");
+  var_dump($imminence);
+  
+
+  /*TEST POST-META*/
+
   echo('</div>');
   echo('</div>');
 }
+
+//Supprimer les étoiles de note dans les vignettes de produit
+remove_action( 'woocommerce_after_shop_loop_item_title', 'woocommerce_template_loop_rating', 5 );
+
+
+
+
+
+/*TEST - CETTE SECTION NE FONCTIONNE PAS*/
+//Ordonner les ateliers et formations par leur date, du plus imminent au plus éloigné dans le temps
+function artisanoscope_display_workshops_and_courses_chronologically($args){
+  global $post;
+  $product = $post->wc_get_product($post->ID);
+
+
+  $type = $product->get_type();
+  $format = get_field("prod_format");
+
+  //Les arguments de la requête
+  $args['orderby'] = 'meta_value';
+  $args['order'] = 'ASC';
+
+  //Pour un atelier simple: se référer à la date
+  if($type == "simple"){
+    if($format === "ponctuel"){
+      $date= get_field("prod_date");
+      $args['meta_key'] =  $date;
+
+    }elseif($format === "abonnement"){
+      $date_debut = get_field("prod_date_debut");
+      $args['meta_key'] =  $date_debut;
+    }
+  //Pour une formation: se référer à la date de début
+  }elseif($type == "variable"){
+  //Pour un atelier variable: se référer à la date la plus imminente parmis les dates des variations
+    $variation = $product->get_available_variations();
+    echo("test");
+    var_dump($variation);
+  }
+  return $args;
+}
+//add_filter( 'woocommerce_get_catalog_ordering_args', 'artisanoscope_display_workshops_and_courses_chronologically' );
+
+
+function artisanoscope_archive_product_order_by_date($q){
+	$meta_query = $q->get('meta_query');
+	$meta_query[] = array(
+		'key' => 'date',
+		'value' => date('Y/m/d'),
+    /*'value' => date('Y-m-d'),*/
+		'compare' => '>=',
+		'type' => 'DATE'
+	);
+	$q->set('meta_query', $meta_query);
+	$q->set('orderby', 'meta_value');
+	$q->set('meta_key', 'prod_date');
+	$q->set('order', 'ASC');
+}
+//add_filter( 'woocommerce_product_query', 'artisanoscope_archive_product_order_by_date' );
+/*FIN DE SECTION QUI NE FONCTIONNE PAS*/

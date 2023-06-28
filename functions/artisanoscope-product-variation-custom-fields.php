@@ -68,7 +68,7 @@ function artisanoscope_add_custom_field_to_date_variations( $loop, $variation_da
         'type'  => 'textarea',
         'label' => __( "Si l'atelier ou la formation ne se tient pas à la Baume d'Hostun, renseignez une adresse, en séparant chaque ligne par une virgule:", 'woocommerce' ),
         'desc_tip' => true,
-        'description'   => "Vous pouvez renseigner une adresse avec des sauts de ligne",
+        'description'   => "Vous pouvez renseigner une adresse avec des virgules pour les sauts de ligne",
         'value' => get_post_meta( $variation->ID, 'other_location', true )
     ) );
     

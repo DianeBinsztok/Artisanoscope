@@ -1,11 +1,5 @@
 <?php
 // I - LES FONCTIONS 
-//TEST DE TEMPLATE D'EMAIL
-function test_template($product){
-    
-}
-//TEST
-
 // 1 - mettre à jour le post_meta 'imminence' pour chaque produit
 function artisanoscope_update_all_products_imminence() {
     $args = array(
@@ -32,23 +26,16 @@ function artisanoscope_check_all_products_imminence_and_send_emails() {
         $post_id = $post->ID;
         $product=wc_get_product( $post_id );
         $product_id = $product->get_id();
+        
 
         if($product->get_type() == "simple"){
-            if(get_post_meta($product_id, "imminence", true ) == "in-seven-days"){
+            if(get_post_meta($product_id, "imminence", true ) == "in-seven-days" || get_post_meta($product_id, "imminence", true ) == "in-one-day"){
 
                 // Pour toutes les commandes finalisées qui contiennent ce produit
                 $orders_ids = get_orders_ids_by_product_id($product_id);
 
                 // Envoyer un email de rappel
-                send_email_to_customers_by_orders_ids($orders_ids, "Prêt.e pour votre atelier?", "L'Artisanoscope vous attend dans sept jours pour votre atelier!");
-            }
-            if(get_post_meta($product_id, "imminence", true ) == "in-one-day"){
-
-                // Pour toutes les commandes finalisées qui contiennent ce produit
-                $orders_ids = get_orders_ids_by_product_id($product_id);
-
-                // Envoyer un email de rappel
-                send_email_to_customers_by_orders_ids($orders_ids, "Prêt.e pour votre atelier?", "L'Artisanoscope vous attend demain pour votre atelier!");
+                send_reminder_email_to_customers_by_product($orders_ids, $product);
             }
             if(get_post_meta($product_id, "imminence", true ) == "passed-one-day"){
 
@@ -56,27 +43,19 @@ function artisanoscope_check_all_products_imminence_and_send_emails() {
                 $orders_ids = get_orders_ids_by_product_id($product_id);
 
                 // Envoyer un email pour récolter des avis
-                send_email_to_customers_by_orders_ids($orders_ids, "Comment s'est passé votre atelier?", "N'hésitez pas à nous envoyer vos retours sur votre atelier!");
+                send_followup_email_to_customers_by_product($orders_ids, $product);
             }
         }elseif($product->get_type() == "variable"){
             $variations = $product->get_available_variations();
             foreach($variations as $variation){
                 $variation_id = $variation["variation_id"];
-                if(get_post_meta($variation_id, "imminence", true ) == "in-seven-days"){
+                if(get_post_meta($variation_id, "imminence", true ) == "in-seven-days" || get_post_meta($variation_id, "imminence", true ) == "in-one-day"){
 
                     // Pour toutes les commandes finalisées qui contiennent ce produit
                     $orders_ids = get_orders_ids_by_variation_id($variation_id);
 
                     // Envoyer un email de rappel
-                    send_email_to_customers_by_orders_ids($orders_ids, "Prêt.e pour votre atelier?", "L'Artisanoscope vous attend dans sept jours pour votre atelier!");
-                }
-                if(get_post_meta($variation_id, "imminence", true ) == "in-one-day"){
-
-                    // Pour toutes les commandes finalisées qui contiennent ce produit
-                    $orders_ids = get_orders_ids_by_variation_id($variation_id);
-
-                    // Envoyer un email de rappel
-                    send_email_to_customers_by_orders_ids($orders_ids, "Prêt.e pour votre atelier?", "L'Artisanoscope vous attend demain pour votre atelier!");
+                    send_reminder_email_to_customers_by_variation($orders_ids, $product, $variation);
                 }
                 if(get_post_meta($variation_id, "imminence", true ) == "passed-one-day"){
                     
@@ -84,14 +63,12 @@ function artisanoscope_check_all_products_imminence_and_send_emails() {
                     $orders_ids = get_orders_ids_by_variation_id($variation_id);
 
                     // Envoyer un email pour récolter des avis
-                    send_email_to_customers_by_orders_ids($orders_ids, "Comment s'est passé votre atelier?", "N'hésitez pas à nous envoyer vos retours sur votre atelier!");
+                    send_followup_email_to_customers_by_product($orders_ids, $product);
                 }
             }
         }
     }
 }
-
-
 
 // II - L'ÉVÉNEMENT: Créer un évènement journalier "artisanoscope_daily_event"
 if (!wp_next_scheduled('artisanoscope_daily_event')) {
@@ -147,22 +124,4 @@ function get_orders_ids_by_variation_id($variation_id) {
     $results = $wpdb->get_col($query);
  
     return $results;
-}
-
-// Envoyer un email aux clients pour une liste de commande donnée
-function send_email_to_customers_by_orders_ids($orders_ids, $subject, $message){
-    $customers_emails = [];
-
-    //Pour chaque commande
-    foreach($orders_ids as $order_id){
-        $order = wc_get_order( $order_id );
-
-        //Trouver le client
-        $customer_id = $order->get_customer_id();
-
-        //Récupérer l'email et envoyer le message
-        $customer_email = $order->get_billing_email();
-        array_push($customers_emails, $customer_email);
-    }
-    wp_mail( $customers_emails, $subject, $message, "De: l'Artisanoscope <coordination@lartisanoscope.fr >" );
 }

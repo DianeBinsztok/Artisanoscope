@@ -1,4 +1,8 @@
 <?php
+
+
+//add_action( 'woocommerce_before_shop_loop', 'artisanoscope_dates_test');
+
 // AFFICHAGE DES INPUTS DE FILTRES
 function artisanoscope_display_workshops_custom_filters() {
     // I - RÉCUPÉRATION DES TERMES
@@ -23,8 +27,8 @@ function artisanoscope_display_workshops_custom_filters() {
 
     // OUVERTURE DU FORMULAIRE
 
-   /* echo('<div id="artisanoscope-custom-filters-container"><form id="artisanoscope-custom-filters-form" method="get" style="display:flex;justify-content:space-around;">');*/
-    echo('<div id="artisanoscope-custom-filters-container" style="display:flex; justify-content:space-around;">');
+   /* echo('<div id="artisanoscope-custom-filters-container"><form id="artisanoscope-custom-filters-form" method="get">');*/
+    echo('<div id="artisanoscope-custom-filters-container">');
 
    
     // 1 - LES CATÉGORIES
@@ -43,7 +47,7 @@ function artisanoscope_display_workshops_custom_filters() {
     echo('</select></div>');  
         
     // 2 - LES PÉRIODES DE DATES - avec inputs html
-    
+/*
     if (isset($_GET['du'])){
         $start = $_GET['du'];
     }else{
@@ -73,7 +77,8 @@ function artisanoscope_display_workshops_custom_filters() {
 
         echo('<div id="artisanoscope-daterange-filter-container">
             <button id="artisanoscope-daterange-filter-button" type="button">Dates</button>
-            <div id="artisanoscope-daterange-toggle-zone" class="hide" style="display:flex;">
+            <div id="artisanoscope-daterange-toggle-zone" class="hide">
+            
                 <input type="date" id="artisanoscope-daterange-start" name="du" value="'.$today.'" />
                 <input type="date" id="artisanoscope-daterange-end"  name="au" value="'.$tomorrow.'" />
             </div>
@@ -81,7 +86,7 @@ function artisanoscope_display_workshops_custom_filters() {
             <div id="artisanoscope-daterange-warning-incoherent-date" class="atelier-option-warning hide">Veuillez saisir une date de début antérieure à la date de fin</div>
         </div>');
     }
-
+*/
 
 
     // 2 - LES PÉRIODES DE DATES - avec daterangepicker
@@ -91,15 +96,37 @@ function artisanoscope_display_workshops_custom_filters() {
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />');
     */
+    //test sans le css
+    echo('<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>');
 
+    $date = new DateTimeImmutable();
+        
+    $today = date('Y-m-d');
+    $tomorrow =  date('Y-m-d', strtotime($today . ' +1 day'));
+
+    //Le bouton
+    echo('<div id="artisanoscope-daterange-filter-container">
+        <button id="artisanoscope-daterange-filter-button" type="button">Dates</button>
+        <div id="artisanoscope-daterange-toggle-zone" class="hide">
+        </div>');
+
+    //L'avertissement
+    echo('<div id="artisanoscope-daterange-warning-incoherent-date" class="atelier-option-warning hide">Veuillez saisir une date de début antérieure à la date de fin</div>
+    </div>');
+    
+
+    //L'input
     /*
     echo('<div id="artisanoscope-daterange-filter-container">
-
-        <div id="artisanoscope-daterange-toggle-zone">
-        <input type="text" name="daterange" id="artisanoscope-daterange"/>
-        </div>
-    </div>');
-    */
+            <div id="artisanoscope-daterange-toggle-zone">
+                <input type="text" name="daterange" id="artisanoscope-daterange-filter-button" value="Dates"/>
+            </div>
+        </div>');
+        */
+    
+        //Le script
         /*
             <script>
         $(function() {
@@ -121,41 +148,59 @@ function artisanoscope_display_workshops_custom_filters() {
         }else{
             echo('<button id="artisanoscope-availabilities-filter-button" type="button">'.$_GET['places'].' place disponible</button>');
         }
-        echo('<div id="artisanoscope-availabilities-toggle-zone" class="hide">
-                    <input type="number" name="places" id="artisanoscope-availabilities-filter" min="1" max="50" value="'.$_GET['places'].'">
-                </div>
-            </div>');
+        echo('
+        <div id="artisanoscope-availabilities-toggle-zone" class="hide">
+        <button class="quantity-add quantity-button">-</button>
+        <input type="number" name="places" id="artisanoscope-availabilities-filter" min="1" max="50" value="'.$_GET['places'].'">
+        <button class="quantity-remove quantity-button">+</button >
+        </div>');
     }else{
         echo('<div id="artisanoscope-availabilities-filter-container">
-                <button id="artisanoscope-availabilities-filter-button" type="button">Nombre de places disponibles</button>
+                <button id="artisanoscope-availabilities-filter-button" type="button">Places disponibles</button>
                 <div id="artisanoscope-availabilities-toggle-zone" class="hide">
+                    <button class="quantity-remove quantity-button">-</button>
                     <input type="number" name="places" id="artisanoscope-availabilities-filter" min="1" max="50" value="1">
+                    <button class="quantity-add quantity-button">+</button >
                 </div>
             </div>');
     }
 
-    //Container enfants et débutants - début
-    echo('<div id="artisanoscope-kids-and-beginners-container">');
-    // 3 - ADAPTÉ AUX ENFANTS
+    //ENFANTS ET DÉBUTANTS
+    echo('<div id="artisanoscope-kids-and-beginners-filter-container">');
+    //V1
+    /*
+    //Adapté aux enfants
     echo('<div id="artisanoscope-age-filter-container">');
     if(isset($_GET['age'])){
-        echo(' <input type="checkbox" name="age" id="artisanoscope-age-filter-checkbox" checked>');
+        echo(''.svg("kid_friendly_rounded").'<input type="checkbox" name="age" id="artisanoscope-age-filter-checkbox" checked>');
     }else{
-        echo(' <input type="checkbox" name="age" id="artisanoscope-age-filter-checkbox">');
+        echo(''.svg("kid_friendly_rounded").'<input type="checkbox" name="age" id="artisanoscope-age-filter-checkbox">');
     }
-    echo('<label> Adapté aux enfants</label></div>');
+    echo(' <label id="artisanoscope-age-filter-label">Adapté aux enfants</label></div>');
 
-
-    // 4 - DÉBUTANTS ACCEPTÉS
+    //Débutants acceptés
     echo('<div id="artisanoscope-beginner-friendly-filter-container">');
     if(isset($_GET['debutant'])){
-        echo('<input type="checkbox"  name="debutant" id="artisanoscope-beginner-friendly-filter-checkbox" checked>');
+        echo(''.svg("beginners_accepted_rounded").'<input type="checkbox"  name="debutant" id="artisanoscope-beginner-friendly-filter-checkbox" checked>');
     }else{
-        echo('<input type="checkbox"  name="debutant" id="artisanoscope-beginner-friendly-filter-checkbox">');
+        echo(''.svg("beginners_accepted_rounded").'<input type="checkbox"  name="debutant" id="artisanoscope-beginner-friendly-filter-checkbox">');
     }
-    echo('<label> Débutants acceptés</label></div>');
+    echo('<label id="artisanoscope-beginner-friendly-filter-label">Débutants acceptés</label></div>');
+    */
+    //V2
+    echo('<div id="artisanoscope-age-filter-container">
+            <button id="artisanoscope-age-filter-button">Adapté aux enfants</button>
+        </div>');
+    echo('<div id="artisanoscope-beginner-friendly-filter-container">
+            <button id="artisanoscope-beginner-friendly-filter-button">Débutants acceptés</button>
+        </div>');
+
+
+
     echo('</div>');
-    //Container enfants et débutants - fin
+
+
+
     // 6 - RÉINITIALISER LES FILTRES
     echo('<div id="artisanoscope-reset-all-filters-container">
             <input type="button" id="artisanoscope-reset-all-filters-button" value="Réinitialiser" name="reset"/>
@@ -169,11 +214,11 @@ function artisanoscope_display_workshops_custom_filters() {
 
     // 3 - SCRIPT
     //wp_enqueue_script("customFilters", get_stylesheet_directory_uri().'/assets/js/artisanoscopeWorkshopsCustomFilters.js');
-    wp_enqueue_script("customFilters", get_stylesheet_directory_uri().'/assets/js/artisanoscopeNewFilters.js');
+    wp_enqueue_script("customFilters", get_stylesheet_directory_uri().'/assets/js/artisanoscopeProductsFilters.js');
 }
 add_action( 'woocommerce_before_shop_loop', 'artisanoscope_display_workshops_custom_filters');
 
-
+/*
 function artisanoscope_workshops_custom_filters($visible, $productId){
     $product = wc_get_product( $productId );
     $type = $product->get_type();
@@ -332,3 +377,4 @@ function check_date_is_in_range($start_date_string, $end_date_string, $workshops
     return false;
   }
 }
+*/

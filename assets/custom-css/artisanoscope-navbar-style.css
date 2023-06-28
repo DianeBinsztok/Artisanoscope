@@ -1,0 +1,66 @@
+body{
+    overflow-x: hidden!important;
+}
+.elementor-widget-ekit-nav-menu .elementskit-dropdown-menu-full_width .elementskit-megamenu-panel {
+    overflow-x: clip !important;
+}
+/*Navbar accueil: changement de couleur au scroll*/
+.elementor-element-285cb31.elementor-sticky--active{
+    background-color: #FFFCF7!important;
+    transition-property: background-color;
+    transition-duration: 1s;
+}
+/*Navbar accueil: style des onglets au survol*/
+.homeicons-start-style a:hover{
+    color: #743614!important;
+}
+
+i .homeicons-start-style{
+    color: #743614!important;
+}
+
+/*logo retour accueil*/
+#nav-logo-home{
+    height:45px; 
+    width:60px;
+}
+
+/*premier menu - avant scroll*/
+.menu-item-2656, .menu-item-2658{
+    width:70px;
+}
+/*deuxième menu*/
+#menu-item-4302, #menu-item-4403{
+    width:60px;
+}
+/*deuxième menu - fusionné avec menu global*/
+
+@media screen and (min-width: 1100px){
+    #menu-item-4302, #menu-item-4403{
+        position:absolute!important;
+        top:15px;
+        width:60px;
+    }
+
+    /*Panier*/
+    #menu-item-4302{
+        right:75px;
+    }
+    /*Mon compte*/
+    #menu-item-4403{
+        right:4px;        
+    }
+}
+
+/*sous-menu*/
+.elementskit-submenu-panel, .elementskit-dropdown-open{
+    right:0!important;
+    width:max-content!important;
+    margin-left:-135px!important;
+}
+
+/*FF8413*/
+/*
+<img id="artisanoscope-menu-item-cart" src="/wp-content/uploads/2023/06/picto-boutique-panier.png" alt="menu voir mon panier">
+<img id="artisanoscope-menu-item-account" src="/wp-content/uploads/2023/06/picto-boutique-mon-compte.png" alt="menu voir mon compte">
+*/

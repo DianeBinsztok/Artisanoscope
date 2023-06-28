@@ -1,40 +1,30 @@
 /*GLOBAL*/
-
-.artisan-template-default{
-    font-family: 'Roboto';
-    line-height:2.2em;
-}
-
-.artisan-info-card-shoplink{
-    color: black;
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-emphasis-color:rgba(0, 0, 0, 0.300);
-    text-underline-offset: 0.2em;
-}
-.artisan-info-card-shoplink:hover{
-    text-decoration: none;
-}
 .artisan-container{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    align-content: center;
+    font-family: 'Roboto Slab';
+    line-height: 2em;
+    max-width:100%!important;
+    
+    display: flex!important;
+    flex-direction: column!important;
 }
-.artisan-top-section{
-    justify-content: space-around;
-    align-content: center;
-}
-/*Couleur des liens*/
-.artisan-workshops-card-info{
-    color: black;
-}
+
+
 /*Fontes*/
 .artisan-main-title, .artisan-info-title, .artisan-workshops-card-title, .artisan-subtitle-text{
-    font-family:'Roboto Condensed';
-    font-weight: 400;
+    font-family:'Roboto Condensed'!important;
+    font-weight: 300!important;
 }
+.artisan-info-title, .artisan-subtitle-text{
+    text-transform:uppercase!important;
+}
+
+/*Colonnes gauche et droite*/
+.artisan-section-presentation{
+    width:100%!important;
+}
+.artisan-section-info{
+    width:100%!important;
+} 
 
 /*Titre principal h1*/
 .artisan-main-title{
@@ -52,56 +42,45 @@
     margin-bottom: 3rem;
 }
 .artisan-subtitle img{
-    width:40%;
     border-radius: 50%;
     margin-bottom: 1.5rem;
-}
-
-.artisan-info-title, .artisan-subtitle-text{
-    font-size:1.1em; 
-    text-transform:uppercase;
-}
-
-
-.artisan-info-card-block ul{
-    padding-bottom:1.5rem;
 }
 
 .artisan-introduction{
     font-weight:bold; 
     margin-bottom: 2.6rem;
 }
-/*Colonnes gauche et droite*/
-.artisan-section-presentation{
-    width:100%;
-}
-.artisan-section-info{
-    width:100%;
-} 
 
 /*Encadré de droite: infos pratiques*/
 .artisan-info-card{
     background-color:#FFE7C0; 
-    padding:2rem; 
     text-align: end; 
+    position:relative;
 }
-.artisan-info-card-block:nth-child(1), .artisan-info-card-block:nth-child(2), .artisan-info-card-block:nth-child(3),.workshops-title{
+
+/*Couleur des liens*/
+.artisan-workshops-card-info{
+    color: black;
+}
+.artisan-info-card-shoplink{
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-emphasis-color:rgba(0, 0, 0, 0.300);
+    text-underline-offset: 0.2em;
+}
+
+.artisan-info-card-shoplink:hover{
+    text-decoration: none;
+    font-weight: 400;
+}
+.artisan-info-card-block:nth-child(1), .artisan-info-card-block:nth-child(2),.workshops-title{
     border-bottom:1px solid #464646;
 }
 /*Liste des points de vente*/
 .artisan-info-card-shoplist{
     list-style-type: none;
 }
-/*Liens vers la page 'boutiques'*/
-.artisan-info-card-shoplink{
-    color:black;
-    text-decoration: underline;
-}
-.artisan-info-card-shoplink:hover{
-    color:black;
-    text-decoration: none;
-    font-weight: 500;
-}
+
 /*contact*/
 .artisan-contact-icons{
     display:flex; 
@@ -119,117 +98,206 @@
     transform: scale(1.15);
 }
 
-/*Atelier(s)*/
-.artisan-workshops-section{
-    width:100%;
-}
 .artisan-workshops-list{
     display:flex; 
     justify-content: center;
     list-style-type:none;
     margin-bottom: 2rem;
 }
-.artisan-workshops-card{
-    max-width: fit-content;
-    /*max-width: 100%;*/
-    display:flex; 
-    flex-grow: 1;
-    flex-shrink: 1;
-    flex-direction:column; 
-    border-radius: 10px;
-    padding:1rem;
-    margin:1rem;
-    transition: transform .2s;
-}
-.artisan-workshops-card img{
-    width: 100%;
-}
-.artisan-workshops-card:hover{
-    box-shadow: 5px 5px 10px 2px #00000035;
-    transition: transform .2s;
-    transform: scale(1.02);
-}
-.artisan-workshops-card-title{
-    font-size:1.3em;
-    line-height: 1em;
-    font-weight: bold;
-    color: #2e4038;
-}
-.date{
-    text-align: center;
-    font-weight: bold;
-    color: #ffffff;
-    background-color: #639B84;
-    font-size: 1.2em;
-    padding:0.2em;
-}
-.price{
-    font-weight:500;
-    font-size: 1.1em;
-    color: #639B84;
+
+/*MOBILES*/
+@media screen and (max-width: 420px){
+    .artisan-top-section{
+        display:flex; 
+        flex-direction: column;
+        padding:1rem;
+        align-items: center;
+    }
+    .artisan-section-info{
+        display:flex; 
+        flex-direction: column;
+        align-items:flex-start;
+    }
+    .artisan-info-title{
+        font-size:1.2rem!important; 
+    }
+    .artisan-info-card{
+        padding:2rem; 
+        margin-top: 0.7rem;
+        width:100%; 
+    }
 }
 
-.artisan-workshops-card-inactive{
-    display:flex; 
-    flex-direction:column; 
-    align-items: center;
-    width:100%;
-    padding:1rem;
-    margin:1rem;
-}
-.artisan-workshops-card-text{
-    position: relative;
-    max-width: 100%;
-}
-.artisan-workshops-card-text a{
-    text-align: center;
+/*TABLETTES*/
+/*INTERMÉDIAIRES*/
+@media screen and (min-width: 420px) and (max-width: 700px){
+    .artisan-container{
+        padding: 0 5%;
+    }
+    .artisan-subtitle img{
+        width: 30%;
+    }
+    .artisan-introduction{
+        text-align: center;
+    }
+    .artisan-info-card{
+        padding:2rem; 
+        margin-top: 0.7rem;
+        width:85%; 
+        position:relative; 
+    }
 }
 
-/*MOBILES & TABLETTES*/
-@media screen and (max-width: 900px){
-    .artisan-top-section-container{
+@media screen and (min-width: 420px) and (max-width: 830px){
+    .artisan-top-section{
         align-items: center;
     }
     .artisan-top-section{
         display:flex; 
         flex-direction: column;
         padding:1rem;
-    }
-
-    /*Colonnes gauche et droite*/
-    .artisan-section-presentation{
-        width:100%;
+        align-items: center;
     }
     .artisan-section-info{
-        width:100%;
+        display:flex; 
+        flex-direction: column;
+        align-items:center;
+    }
+    .artisan-info-title{
+        font-size:1.2em!important; 
+    }
+
+}
+@media screen and (min-width: 700px) and (max-width: 800px){
+    .artisan-container{
+        padding: 0 5%;
+    }
+    .artisan-subtitle img{
+        width: 25%;
+    }
+    .artisan-introduction{
+        text-align: center;
+    }
+    .artisan-info-card{
+        padding:1rem; 
+        margin-top: -5rem;
+        width:65%; 
+        position:relative; 
     }
 }
+@media screen and (min-width: 800px) and (max-width: 900px){
+        /*Colonne de droite:infos pratiques*/
+        .artisan-container{
+            padding: 0 7%;
+        }
+        .artisan-top-section{
+            display:flex; 
+            flex-direction: column;
+            padding:1rem;
+            align-items: center;
+            max-width: 100%!important;
+        }
+        .artisan-subtitle img{
+            width: 20%;
+        }
 
-/*TABLETTES*/
-@media screen and (min-width: 420px) and (max-width: 900px){
+        .artisan-section-info{
+            display:flex; 
+            flex-direction: row;
+            align-items: center;
+            margin-left:2.5rem;
+        }
+        .artisan-introduction{
+            text-align: center;
+        }
+        .artisan-info-card{
+            padding:1.2rem; 
+            margin-left:-5rem;  
+        }
+
+        .artisan-info-title{
+            font-size:1.2rem!important; 
+        }
+        .artisan-workshops-section{
+            max-width: 95%!important;
+        }
 
 }
+/*TABLETTES 2*/
+@media screen and (min-width: 900px)and (max-width: 1024px){
+    .artisan-container{
+        font-family: 'Roboto Slab';
+        width:100%!important;
+        padding:1rem 5% 1rem!important;
+    }
+    .artisan-top-section{
+        display:flex; 
+    }
+    .artisan-section-presentation{
+        margin-right: 2.5%;
+    }
 
+    .artisan-section-info{
+        margin-left: 2.5%;
+    }
+    .artisan-subtitle img{
+        width:30%;
+    }
+
+    .artisan-info-title, .artisan-subtitle-text{
+        font-size:1.3em!important; 
+    }
+
+    /*Colonne de droite:infos pratiques*/
+    .artisan-info-card{
+        padding:2rem; 
+        margin-left:1.5rem; 
+        text-align: end; 
+        margin-top:-5rem; 
+        position:relative; 
+        width:85%;
+    }
+}
 /*DESKTOP*/
-@media screen and (min-width: 900px) {
+@media screen and (min-width: 1024px) {
 
     .artisan-container{
-        margin:0 27rem 0 27rem;
+        font-family: 'Roboto Slab';
+        width:100%!important;
+        padding:0 22%!important;
     }
 
     .artisan-top-section{
         display:flex; 
         align-content: center;
-        padding:2rem;
     }
-    /*Colonnes gauche et droite*/
     .artisan-section-presentation{
-        padding-right: 3.5rem;
+        margin-right: 3.5%;
     }
-    .artisan-section-info{
-        padding-left: 3.5rem;
+    .artisan-main-title{
+        font-size:4em!important;
     }
 
+    .artisan-subtitle img{
+        width:25%;
+    }
+
+    .artisan-section-info{
+        margin-left: 3.5%;
+    }
+
+    .artisan-info-title, .artisan-subtitle-text{
+        font-size:1.3em!important; 
+    }
+
+    .artisan-info-card{
+        padding:1rem; 
+        margin-left:1.5rem; 
+        text-align: end; 
+        margin-top:-5rem; 
+        position:relative; 
+        width:85%;
+    }
     /*Colonne de droite:infos pratiques*/
     .artisan-info-card{
         background-color:#FFE7C0; 
@@ -237,8 +305,6 @@
         width:85%; 
         margin-left:1.5rem; 
         text-align: end; 
-        margin-top:-5rem; 
         position:relative; 
-        z-index:1;
     }
 }

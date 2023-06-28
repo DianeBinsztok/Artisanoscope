@@ -1,0 +1,16 @@
+/*DESKTOP*/
+
+@media screen and (min-width: 900px) {
+    .elementor-location-footer
+    {
+        bottom:0;
+    }
+}
+
+/*DESKTOP*/
+@media screen and (min-width: 1025px){
+    .elementor-location-footer
+    {
+        width:100%;
+    }
+}

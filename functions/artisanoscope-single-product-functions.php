@@ -3,28 +3,17 @@
 // I - AFFICHAGE DES CHAMPS PERSONNALISES
 // Afficher les infos d'artisan si ce champs a été renseigné et appeler le reste du template en fonction du type de produit
 function artisanoscope_display_acf_fields_and_check_for_variations() {
+
+	//TEST
+	$today_object = DateTime::createFromFormat("d/m/Y", date('d/m/Y'));
+    $today_timestamp = $today_object->getTimestamp();
+    $today = gmdate("Y-m-d", $today_timestamp);
+	$re_today = date('d/m/Y');//=> renvoie la date au bon format aussi
+	$tomorrow = gmdate("Y-m-d", strtotime("+1 day"));
+	//var_dump($re_today);
+	//TEST
+
 	global $product;
-
-	/*TESTS DATES*/
-	$date_string = "06/06/2023";
-	//Le format de date
-	$date_format1 = DateTime::createFromFormat('d/m/Y', $date_string, new DateTimeZone('Europe/Paris'));
-	$date_format2 = date("d/m/Y",strtotime($date_string));
-	$date = get_field("prod_date");
-	$tomorrow = date("d/m/Y",strtotime('tomorrow'));
-	/*
-	if ($date == $tomorrow ) {
-		echo($date .'=='. $tomorrow);
-	}
-	*/
-	/*
-	$date = $date_format->getTimestamp();
-	echo("date, sans timezone =>");
-	var_dump($date);
-	var_dump(strtotime('tomorrow 00:00:00'));
-	*/
-	/*FIN - TESTS DATES*/
-
 	$type = $product->get_type();
 	$format = get_field("prod_format");
     //Infos globales pour ateliers et formations
@@ -112,6 +101,7 @@ function artisanoscope_display_acf_fields_and_check_for_variations() {
 			echo "</a>";
 		}
 	}
+
 	// II - Arguments: enfants et débutants
 	echo("<div class=artisanoscope-kids-and-beginners-container>");
 	if(!empty(get_field("prod_age"))&&in_array("enfant", get_field("prod_age"))){
@@ -130,7 +120,7 @@ function artisanoscope_display_acf_fields_and_check_for_variations() {
 	// 1 - Si atelier simple
 	if($format === "ponctuel" &&$type === "simple"){
 		echo("<div class=artisanoscope-single-product-info-container>");
-		echo("<h3>Infos pratiques</h3>");
+		echo("<h2 class='artisanoscope-single-product-info-title'>Infos pratiques</h2>");
 		if(isset($date)&&!empty($date)){
 			echo "<div class='artisanoscope-single-product-info-acf-field-line'>".svg("date")."<p>Le ".$date."</p></div>";
 		}
@@ -144,6 +134,7 @@ function artisanoscope_display_acf_fields_and_check_for_variations() {
 	}
 	// 2 - Si formation
 	if($format === "abonnement" &&$type === "simple"){
+		//Message: vacances scolaires comprises ou non 
 		$vacation_info_field = get_field('prod_vacances');
 		$vacation_info_msg = '';
 		if(isset($vacation_info_field)&&!empty($vacation_info_field)){
@@ -151,8 +142,9 @@ function artisanoscope_display_acf_fields_and_check_for_variations() {
 		}else{
 			$vacation_info_msg = "Vacances scolaires non comprises";
 		}
+		
 		echo("<div class=artisanoscope-single-product-info-container>");
-		echo("<h3>Infos pratiques</h3>");
+		echo("<h2 class='artisanoscope-single-product-info-title'>Infos pratiques</h2>");
 		if(isset($periodicite)&&!empty($periodicite)&&isset($start_hour)&&!empty($start_hour)&&isset($end_hour)&&!empty($end_hour)){
 			echo "<div class='artisanoscope-single-product-info-acf-field-line'>".svg("recurrence")."<p>".$periodicite.", de ".$start_hour." à ".$end_hour."</p></div>";
 		}
@@ -195,6 +187,24 @@ function artisanoscope_display_workshop_options(){
 			$options ='';
 			
 			foreach($variations as $variation){
+
+				//TEST POST_META
+				$variation_ID = $variation["variation_id"];
+
+				// I - reference_date
+				$reference_date = get_post_meta($variation_ID, "reference_date", true );
+				echo("reference_date=>");
+				var_dump($reference_date);
+				echo("en date=>");
+				$date_string = gmdate("d/m/Y", intval($reference_date));
+				var_dump($date_string);
+
+				// II - imminence
+				$imminence = get_post_meta($variation_ID, "imminence", true );
+				echo("imminence=>");
+				var_dump($imminence);
+				//TEST POST_META
+
 				// N'afficher une variation que les champs requis sont renseignés et cohérents
 				if(variation_has_all_required_fields($variation)&&variation_has_coherent_fields($variation)){
 					$options .= '<a href="#" class="artisanoscope-product-option" name="option" id="'.$variation["variation_id"].'">';
@@ -238,8 +248,6 @@ function artisanoscope_display_workshop_options(){
 
 					}
 					$options .= '</a>';
-				}else{
-					return;
 				}
 			}
 			$html= '
@@ -251,6 +259,98 @@ function artisanoscope_display_workshop_options(){
 		wp_enqueue_script("chooseDateOptionAndAddToCart", get_stylesheet_directory_uri().'/assets/js/artisanoscopeSingleProductDisplayPriceScript.js');
 		return $html;
 }
+
+//INFOS PRATIQUES ENVOYEES A L'ACHAT
+// Ateliers simple et variables
+function artisanoscope_send_additional_infos_when_purchase(){
+	global $product;
+	$format = get_field("prod_format");
+	$type = $product->get_type();
+
+	// Champs d'ateliers
+	if($format == "ponctuel"){
+		if($type == "simple"){
+			$date = get_field("prod_date");
+			$start_hour = get_field("prod_heure_debut");
+			$end_hour = get_field("prod_heure_fin");
+			//Lieu
+			$location_field = get_field("prod_lieu");
+			$location = "";
+			if(isset($location_field)&&!empty($location_field)){
+				if($location_field=="hostun"){
+					$location = "La Baume d'Hostun";
+				}elseif($location_field=="autre"){
+					$other_location = get_field("prod_autre_lieu");
+					if(isset($other_location)&&!empty($other_location)){
+						$location = break_line_on_comma($other_location);
+					}
+				}
+			}
+
+			echo('
+			<div class="artisanoscope-additional-infos">
+			<input id="workshop-date" name="date" type="hidden" value="'.$date.'">
+			<input id="workshop-start_hour" name="start_hour" type="hidden" value="'.$start_hour.'">
+			<input id="workshop-end_hour" name="end_hour" type="hidden" value="'.$end_hour.'">
+			<input id="workshop-location" name="location" type="hidden" value="'.$location.'">
+			</div>
+			');
+
+		}elseif($type == "variable"){
+			$variations = $product->get_available_variations();
+			if (isset($variations)) {				
+				echo('
+				<div class="artisanoscope-additional-infos">
+				<input id="workshop-date" name="date" type="hidden" value="">
+				<input id="workshop-start_hour" name="start_hour" type="hidden" value="">
+				<input id="workshop-end_hour" name="end_hour" type="hidden" value="">
+				<input id="workshop-location" name="location" type="hidden" value="">
+				</div>
+				');
+				//script: ajouter les valeurs des inputs au clic sur la variation
+				wp_enqueue_script("setDateOptionInfosBeforeAddToCart", get_stylesheet_directory_uri().'/assets/js/artisanoscopeSingleProductSendChosenVariationInfos.js');
+
+				
+			}
+		}
+	// Champs des formations continues
+	}elseif($format == "abonnement"){
+
+		$start_date = get_field("prod_date_debut");
+		$end_date = get_field("prod_date_fin");
+		$start_hour = get_field("prod_heure_debut");
+		$end_hour = get_field("prod_heure_fin");
+		$periodicity= get_field("prod_periodicite");
+		$vacations_included = get_field("prod_vacances");
+		//Lieu
+		$location_field = get_field("prod_lieu");
+		$location = "";
+		if(isset($location_field)&&!empty($location_field)){
+			if($location_field=="hostun"){
+				$location = "La Baume d'Hostun";
+			}elseif($location_field=="autre"){
+				$other_location = get_field("prod_autre_lieu");
+				if(isset($other_location)&&!empty($other_location)){
+					$location = break_line_on_comma($other_location);
+				}
+			}
+		}
+
+		echo('
+		<div class="artisanoscope-additional-infos">
+		<input id="course-start_date" name="start_date" type="hidden" value="'.$start_date.'">
+		<input id="course-end_date" name="end_date" type="hidden" value="'.$end_date.'">
+		<input id="course-periodicity" name="vacations_included" type="hidden" value="'.$periodicity.'">
+		<input id="course-vacations_included" name="vacations_included" type="hidden" value="'.$vacations_included.'">
+		<input id="course-start_hour" name="start_hour" type="hidden" value="'.$start_hour.'">
+		<input id="course-end_hour" name="end_hour" type="hidden" value="'.$end_hour.'">
+		<input id="course-location" name="location" type="hidden" value="'.$location.'">
+		</div>
+		');
+	}
+} 
+add_action('woocommerce_before_add_to_cart_button', 'artisanoscope_send_additional_infos_when_purchase');
+
 
 // II - MODIFICATIONS DE MISE EN PAGE
 // Remplacer la mention "en stock" par "places disponibles"
@@ -305,6 +405,9 @@ function artisanoscope_remove_sku( $enabled ) {
     return $enabled;
 }
 
+// Enlever les étoiles d'avis clients
+remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_rating', 10 );
+
 //Retirer les onglets de description et avis
 add_filter( 'woocommerce_product_tabs', 'artisanoscope_remove_product_tabs', 98 );
 function artisanoscope_remove_product_tabs( $tabs ) {
@@ -334,19 +437,242 @@ remove_action("woocommerce_single_product_summary", "woocommerce_template_single
 //Créer un template de formulaire Elementor
 //Ajouter le shortcode du formulaire dans la fonction
 //Envoyer en POST le commentaire et l'enregistrer dans les commentaires de l'artisan
-//add_action( 'woocommerce_after_single_product_summary', 'artisanoscope_custom_reviews' );
+
+//TENTATIVE DE SLIDER PERSO
+function artisanoscope_custom_reviews2(){
+	$artisan = get_field("prod_artisan");
+	$artisan_ID = $artisan->ID;
+	//echo("test!");
+
+	$args = array(
+		'numberposts'   => -1,
+		'post_type'     => 'temoignage',
+		'meta_query' => array(
+			array(
+			   'key'     => 'tem_artisan',
+			   'value'   => $artisan_ID,
+			   'compare' => 'LIKE',
+		   )
+	   ),
+	);
+
+	$query = new WP_Query( $args );
+	if( $query->have_posts()){
+		echo("<section id='artisanoscope-testimonials-container'>");
+		if($query->post_count>1){
+			echo("<button id='previous'><</button>");
+		}
+		echo('<img class="quote-image" src="/wp-content/uploads/2023/06/picto-temoignages-guillemets-debut.png"/> ');
+		while( $query->have_posts() ) : $query->the_post();
+
+				$image = get_field('tem_image');
+				$author_name = get_field("tem_nom");
+				$content = get_field("tem_temoignage");
+				echo('<div id="testimonial-content">');
+					echo("<p id='testimonial-content-text'>$content</p>");
+					echo("<div id='testimonial-author-infos'>");
+						echo("<img id='testimonial-author-portrait' src='".$image."'/>");
+						echo("<h3 id='testimonial-author-name'>$author_name</h3>");
+					echo("</div>");
+				echo('</div>');
+		
+		endwhile; 
+		echo('<img class="quote-image" src="/wp-content/uploads/2023/06/picto-temoignages-guillemets-fin.png"/> ');
+		if($query->post_count>1){
+			echo("<button id='next'>></button>");
+		}
+
+		wp_reset_postdata();
+		echo("</section>");
+	}
+}
+
 function artisanoscope_custom_reviews(){
 	$artisan = get_field("prod_artisan");
-	var_dump($artisan);
-	echo(do_shortcode('[testimonies artisan="Teika"]'));
-	echo("<div style='margin-bottom:3rem; align-items:center; text-align:center;'><a href='#' style=' color:white; font-size:1.2em; background-color: #008670; border-radius:5px; padding:0.8rem; align-self:center; text-align:center;'>Je laisse un témoignage</a></div>");
-	//echo (comments_template());
+	if(isset($artisan)&&!empty($artisan)){
+
+		$artisan_ID = $artisan->ID;
+
+		$args = array(
+			'numberposts'   => -1,
+			'post_type'     => 'temoignage',
+			'meta_query' => array(
+				array(
+				'key'     => 'tem_artisan',
+				'value'   => $artisan_ID,
+				'compare' => 'LIKE',
+			)
+		),
+		);
+
+		$query = new WP_Query( $args );
+		if( $query->have_posts()){
+			echo("<section id='artisanoscope-testimonials-container'>");
+			if($query->post_count>1){
+				echo("<button class='btn btn-prev'><img src='/wp-content/uploads/2023/06/picto-temoignages-precedent.png'/></button>");
+			}
+				//slider
+				echo('<div class="slider">');
+					
+					while( $query->have_posts() ) : $query->the_post();
+					$image = get_field('tem_image');
+					$author_name = get_field("tem_nom");
+					$content = get_field("tem_temoignage");
+					//slide
+						echo('<div class="slide">');
+							echo('<img class="quote-image" src="/wp-content/uploads/2023/06/picto-temoignages-guillemets-debut.png"/> ');
+							echo('<div id="testimonial-content">');
+								echo("<p id='testimonial-content-text'>$content</p>");
+								echo("<div id='testimonial-author-infos'>");
+									echo("<img id='testimonial-author-portrait' src='".$image."'/>");
+									echo("<h3 id='testimonial-author-name'>$author_name</h3>");
+								echo("</div>");
+							echo('</div>');
+							echo('<img class="quote-image" src="/wp-content/uploads/2023/06/picto-temoignages-guillemets-fin.png"/> ');
+						echo('</div>');
+					endwhile; 
+
+				echo('</div>');
+			if($query->post_count>1){
+				echo("<button class='btn btn-next'><img src='/wp-content/uploads/2023/06/picto-temoignages-prochain.png'/></button>");
+				wp_enqueue_script("childrenMessage", get_stylesheet_directory_uri().'/assets/js/artisanoscopeTestimonialsCarouselScript.js');
+			}
+			wp_reset_postdata();
+
+			echo("</section>");
+		}
+	}else{
+		return;
+	}
 }
+add_action( 'woocommerce_after_single_product_summary', 'artisanoscope_custom_reviews' );
+
+
+
+
+
+//https://developers.elementor.com/docs/hooks/custom-query-filter/
+function artisanoscope_testimonials_custom_query($product){
+	$artisan = get_field("prod_artisan", $product);
+	$artisan_ID = $artisan->ID;
+
+	//Problème: si le template est aussi utilisé dans une page qui n'a pas accès à "prod_artisan"
+
+	$args = array(
+		'numberposts'   => -1,
+		'post_type'     => 'temoignage',
+		
+		'meta_query' => array(
+			array(
+			   'key'     => 'tem_artisan',
+			   'value'   => $artisan_ID,
+			   'compare' => 'LIKE',
+		   )
+	   ),
+	);
+
+	$query = new WP_Query( $args );
+}
+//add_action( 'elementor/query/artisanoscope_custom_query', 'artisanoscope_testimonials_custom_query' );
+
+
+//add_action( 'woocommerce_after_single_product_summary', 'artisanoscope_custom_reviews_with_elementor_widget' );
+
+
+
+//AVEC SHORTCODE DE TEMPLATE ELEMENTOR
+
+function artisanoscope_custom_reviews_with_elementor_template(){
+	echo(do_shortcode('[elementor-template id="4635"]'));
+	/*
+	$artisan = get_field("prod_artisan");
+	$artisan_ID = $artisan->ID;
+	//echo("test!");
+
+	$args = array(
+		'numberposts'   => -1,
+		'post_type'     => 'temoignage',
+		'meta_query' => array(
+			array(
+			   'key'     => 'tem_artisan',
+			   'value'   => $artisan_ID,
+			   'compare' => 'LIKE',
+		   )
+	   ),
+	);
+
+	$query = new WP_Query( $args );
+	if( $query->have_posts()){
+		echo("<section>");
+		echo(do_shortcode('[elementor-template id="4635"]'));
+		
+		while( $query->have_posts() ) : $query->the_post();
+		endwhile; 
+		
+		wp_reset_postdata();
+		echo("</section>");
+	}
+	*/
+}
+//add_action( 'woocommerce_after_single_product_summary', 'artisanoscope_custom_reviews_with_elementor_template' );
+
+
+//AVEC WIDGET ELEMENTOR
+function artisanoscope_custom_reviews_with_elementor_widget(){
+	$artisan = get_field("prod_artisan");
+	$artisan_ID = $artisan->ID;
+	//echo("test!");
+
+	$args = array(
+		'numberposts'   => -1,
+		'post_type'     => 'temoignage',
+		'meta_query' => array(
+			array(
+			   'key'     => 'tem_artisan',
+			   'value'   => $artisan_ID,
+			   'compare' => 'LIKE',
+		   )
+	   ),
+	);
+	$query = new WP_Query( $args );
+	if( $query->have_posts()){
+		echo("<section>");
+		//WIDGET
+		$carousel_widget = \Elementor\Plugin::instance()->elements_manager->create_element_instance(
+			[
+				'elType' => 'widget',
+				'widgetType' => 'loop-carousel',
+				'id' => 'artisanoscope_testimonials_custom_loop',
+				'settings' => [
+					'title' => 'Test',
+				],
+			],
+			[]
+		);
+		$carousel_widget->print_element();
+		//WIDGET
+		var_dump($carousel_widget);
+
+		wp_reset_postdata();
+		echo("</section>");
+	}
+}
+
+
 //II - Shortcode plugin: comment sélectionner la catégorie artisan programmatiquement?
 //add_action( 'woocommerce_after_single_product_summary', 'artisanoscope_custom_reviews_plugin' );
 function artisanoscope_custom_reviews_plugin(){
+	global $product;
+	$artisan = get_field('prod_artisan');
+	$artisan_ID = $artisan->ID;
+	echo("<section id='artisanoscope-testimonials' style='clear:both;'>");
+	var_dump($artisan_ID);
+
+	//Appel shortcode
 	echo(do_shortcode('[testimonial_view id="1"]'));
 	echo("<div style='margin-bottom:3rem; align-items:center; text-align:center;'><a href='#' style=' color:white; font-size:1.2em; background-color: #008670; border-radius:5px; padding:0.8rem; align-self:center; text-align:center;'>Je laisse un témoignage</a></div>");
+
+	echo("<section>");
 }
 /*FIN - TEST SHORTCODES DE COMMENTAIRES*/
 

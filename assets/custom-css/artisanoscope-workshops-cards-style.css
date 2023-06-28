@@ -25,6 +25,7 @@
     justify-content: center; 
     display:flex; 
     margin-top:-2rem; 
+    color:#006151;
 }
 
 .extra-margin{
@@ -39,13 +40,14 @@
 .woocommerce-Price-amount{
     font-size: 1.2em;
     font-weight: 500;
-    color: #15685B;
+    color: #008670!important;
 
 }
 /*MOBILE*/
-@media (min-width: 250px) and (max-width: 420px) { 
-    .artisanoscope-workshops-card{
-        margin:0.5rem;
+@media (max-width: 420px) { 
+    .artisanoscope-workshops-card, .product{
+        margin:0.5rem!important;
+        width: 100%!important;
     }
     .artisanoscope-product-info-content{
         padding:0 1rem 1rem 1rem !important;
@@ -73,6 +75,9 @@
     .artisanoscope-workshops-card{
         margin:0.7rem;
     }
+    .artisanoscope-product-info-content{
+        padding:0 1rem 1rem 1rem !important;
+    }
     .artisanoscope-workshops-card-title{
         font-size: 1.5em!important;
         line-height: 1.5em!important;
@@ -94,7 +99,7 @@
         margin:1rem;
         transition: transform .2s;
     }
-    .artisanoscope-workshops-card:hover{
+    .artisanoscope-workshops-card:hover:not(.non-clickable){
         box-shadow: 5px 5px 10px 2px #00000035;
         transition: transform .2s;
         transform: scale(1.02);
