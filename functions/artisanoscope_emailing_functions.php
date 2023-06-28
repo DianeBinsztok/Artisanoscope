@@ -75,7 +75,13 @@ function send_reminder_email_to_customers_by_product($orders_ids, $product){
         // Récupérer l'e-mail
         $customer_email = $order->get_billing_email();
 
-        // IV - ENVOYER L'EMAIL
+        // ENVOYER LES DONNÉES À L'EMAIL
+
+        // 1 - Le sujet
+        // 2 - Le contenu du message
+
+        // ENVOYER L'EMAIL
+        // V1: AVEC WP_MAIL()
 
         // Permettre l'affichage en html du template
         $content_type = function() { return 'text/html'; };
@@ -89,6 +95,16 @@ function send_reminder_email_to_customers_by_product($orders_ids, $product){
 
         // Remise à zéro du type de contenu
         remove_filter( 'wp_mail_content_type', $content_type );
+
+
+        // V2: AVEC UNE CLASSE CUSTOM 
+        /*
+        // Créer une instance de votre nouvelle classe d'e-mail
+        $email_reminder = new WC_Email_Customer_Workshop_Reminder();
+
+        // Déclencher l'envoi de l'e-mail
+        $email_reminder->trigger($customer_name, $artisan, $image_url, $name, $date, $start_hour, $end_hour, $location);
+        */
     }
 }
 
@@ -133,8 +149,9 @@ function send_reminder_email_to_customers_by_variation($orders_ids, $product, $v
         // Récupérer l'e-mail
         $customer_email = $order->get_billing_email();
 
+        // ENVOYER L'EMAIL
 
-        // IV - ENVOYER L'EMAIL
+        // V1: AVEC WP_MAIL()
 
         // Permettre l'affichage en html du template
         $content_type = function() { return 'text/html'; };
@@ -144,10 +161,22 @@ function send_reminder_email_to_customers_by_variation($orders_ids, $product, $v
         $message = workshop_reminder_email_template($customer_name, $artisan, $image_url, $name, $date, $start_hour, $end_hour, $location);
 
         // Envoyer l'email
+        add_filter('wp_mail_from_name', function() { return 'L\'Artisanoscope'; }, 9);
         wp_mail( $customer_email, $subject, $message);
+        remove_filter('wp_mail_from_name', function() { return 'L\'Artisanoscope'; }, 9);
 
         // Remise à zéro du type de contenu
         remove_filter( 'wp_mail_content_type', $content_type );
+
+
+        // V2: AVEC UNE CLASSE CUSTOM 
+        /*
+        // Créer une instance de votre nouvelle classe d'e-mail
+        $email_reminder = new WC_Email_Customer_Workshop_Reminder();
+
+        // Déclencher l'envoi de l'e-mail
+        $email_reminder->trigger($customer_name, $artisan, $image_url, $name, $date, $start_hour, $end_hour, $location);
+        */
     }
 
 }
@@ -190,8 +219,9 @@ function send_followup_email_to_customers_by_product($orders_ids, $product){
         $customer_email = $order->get_billing_email();
 
 
-        // IV - ENVOYER L'EMAIL
+        // ENVOYER L'EMAIL
 
+        // V1: AVEC WP_MAIL()
         // Permettre l'affichage en html du template
         $content_type = function() { return 'text/html'; };
         add_filter( 'wp_mail_content_type', $content_type );
@@ -200,9 +230,46 @@ function send_followup_email_to_customers_by_product($orders_ids, $product){
         $message = workshop_followup_email_template($customer_name, $artisan, $image_url, $name);
 
         // Envoyer l'email
+        add_filter('wp_mail_from_name', function() { return 'L\'Artisanoscope'; }, 9);
         wp_mail( $customer_email, $subject, $message);
+        remove_filter('wp_mail_from_name', function() { return 'L\'Artisanoscope'; }, 9);
+
 
         // Remise à zéro du type de contenu
         remove_filter( 'wp_mail_content_type', $content_type );
+
+
+        // V2: AVEC UNE CLASSE CUSTOM 
+        /*
+        // Créer une instance de votre nouvelle classe d'e-mail
+        $email_reminder = new WC_Email_Customer_Workshop_Reminder();
+
+        // Déclencher l'envoi de l'e-mail
+        $email_reminder->trigger($customer_name, $artisan, $image_url, $name, $date, $start_hour, $end_hour, $location);
+        */
     }
 }
+
+//https://wordpress.stackexchange.com/questions/312576/get-woocommerce-email-classes-in-backend
+/*
+add_filter( 'woocommerce_email_classes', 'my_email_classes', 10, 1);
+
+function my_email_classes( $emails ){
+    $mailer = WC()->mailer();
+    $mails = $mailer->get_emails();
+
+    $mails['WC_Email_Cancelled_Order']->template_html = MY_TEMPLATE_PATH.'test.php';
+
+    return $mails;
+}
+*/
+/*
+// Get all the email class instances.
+$emails = wc()->mailer()->emails;
+
+// Prints all the email class names.
+var_dump( array_keys( $emails ) );
+
+// Access the default subject for new order email notifications.
+$subject = $emails['WC_Email_New_Order']->get_default_subject();
+*/
